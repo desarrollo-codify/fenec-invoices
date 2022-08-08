@@ -16,7 +16,7 @@ class Api::V1::DailyCodesController < ApplicationController
 
   # POST /api/v1/branch_offices/:branch_office_id/daily_codes
   def create
-    @daily_code = @branch_office.daily_codes.build(create_daily_code_params)
+    @daily_code = @branch_office.daily_codes.build(daily_code_params)
 
     if @daily_code.save
       render json: @daily_code, status: :created
@@ -27,7 +27,7 @@ class Api::V1::DailyCodesController < ApplicationController
 
   # PATCH/PUT /api/v1/daily_codes/1
   def update
-    if @daily_code.update(update_daily_code_params)
+    if @daily_code.update(daily_code_params)
       render json: @daily_code
     else
       render json: @daily_code.errors, status: :unprocessable_entity
@@ -50,11 +50,7 @@ class Api::V1::DailyCodesController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
-    def create_daily_code_params
-      params.require(:daily_code).permit(:code, :date, :branch_office_id)
-    end
-
-    def update_daily_code_params
-      params.require(:daily_code).permit(:name, :date)
+    def daily_code_params
+      params.require(:daily_code).permit(:code, :effective_date, :control_code)
     end
 end

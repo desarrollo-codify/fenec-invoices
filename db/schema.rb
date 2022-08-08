@@ -38,11 +38,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_08_201150) do
 
   create_table "daily_codes", force: :cascade do |t|
     t.string "code", null: false
-    t.datetime "date", null: false
+    t.datetime "effective_date", null: false
+    t.string "control_code"
     t.integer "branch_office_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["branch_office_id", "date"], name: "index_daily_codes_on_branch_office_id_and_date", unique: true
+    t.index "\"branch_office_id\", \"date\"", name: "index_daily_codes_on_branch_office_id_and_date", unique: true
     t.index ["branch_office_id"], name: "index_daily_codes_on_branch_office_id"
   end
 

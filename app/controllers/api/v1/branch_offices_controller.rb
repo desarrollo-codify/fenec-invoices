@@ -16,7 +16,7 @@ class Api::V1::BranchOfficesController < ApplicationController
 
   # POST /api/v1/companies/:company_id/branch_offices
   def create
-    @branch_office = @company.branch_offices.build(create_branch_office_params)
+    @branch_office = @company.branch_offices.build(branch_office_params)
 
     if @branch_office.save
       render json: @branch_office, status: :created
@@ -27,7 +27,7 @@ class Api::V1::BranchOfficesController < ApplicationController
 
   # PATCH/PUT /api/v1/branch_offices/1
   def update
-    if @branch_office.update(update_branch_office_params)
+    if @branch_office.update(branch_office_params)
       render json: @branch_office
     else
       render json: @branch_office.errors, status: :unprocessable_entity
@@ -50,11 +50,7 @@ class Api::V1::BranchOfficesController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
-    def create_branch_office_params
-      params.require(:branch_office).permit(:name, :phone, :address, :city, :number, :company_id)
-    end
-
-    def update_branch_office_params
+    def branch_office_params
       params.require(:branch_office).permit(:name, :phone, :address, :city, :number)
     end
 end
