@@ -5,7 +5,7 @@ application up and running.
 
 Things you may want to cover:
 
-* Rspec
+* Rspec - done
 * Cors
 * Devise
 * Models
