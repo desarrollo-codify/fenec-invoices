@@ -12,6 +12,7 @@ Rails.application.routes.draw do
         resources :branch_offices, shallow: true do
           resources :daily_codes, shallow: true
         end
+        resources :products, shallow: true
       end
     end
   end

@@ -4,4 +4,5 @@ class Company < ApplicationRecord
   validates :address, presence: true
 
   has_many :branch_offices, dependent: :destroy
+  has_many :products, dependent: :destroy
 end
