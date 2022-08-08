@@ -1,5 +1,6 @@
 class Api::V1::CompaniesController < ApplicationController
   before_action :authenticate_user!
+  before_action :super_admin_only, only: %i[ index destroy ]
   before_action :set_company, only: %i[ show update destroy ]
 
   # GET /companies
@@ -48,5 +49,11 @@ class Api::V1::CompaniesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def company_params
       params.require(:company).permit(:name, :nit, :address, :phone, :logo)
+    end
+
+    def super_admin_only
+      unless current_user.super_admin?
+        render json: { message: "Only admin users."}, status: :unauthorized
+      end
     end
 end
