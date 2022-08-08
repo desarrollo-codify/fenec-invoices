@@ -9,7 +9,9 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :companies do 
-        resources :branch_offices, shallow: true
+        resources :branch_offices, shallow: true do
+          resources :daily_codes, shallow: true
+        end
       end
     end
   end

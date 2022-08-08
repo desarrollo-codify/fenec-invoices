@@ -1,10 +1,10 @@
 class Api::V1::BranchOfficesController < ApplicationController
   before_action :set_branch_office, only: %i[ show update destroy ]
+  before_action :set_company, only: %i[ index create ]
 
-  # GET /api/v1/branch_offices
+  # GET /api/v1/companies/:company_id/branch_offices
   def index
-    # TODO: send offices by company
-    @branch_offices = BranchOffice.all
+    @branch_offices = @company.branch_offices
 
     render json: @branch_offices
   end
@@ -14,9 +14,9 @@ class Api::V1::BranchOfficesController < ApplicationController
     render json: @branch_office
   end
 
-  # POST /api/v1/branch_offices
+  # POST /api/v1/companies/:company_id/branch_offices
   def create
-    @branch_office = BranchOffice.new(create_branch_office_params)
+    @branch_office = @company.branch_offices.build(create_branch_office_params)
 
     if @branch_office.save
       render json: @branch_office, status: :created, location: @branch_office
@@ -43,6 +43,10 @@ class Api::V1::BranchOfficesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_branch_office
       @branch_office = BranchOffice.find(params[:id])
+    end
+
+    def set_company
+      @company = Company.find(params[:company_id])
     end
 
     # Only allow a list of trusted parameters through.

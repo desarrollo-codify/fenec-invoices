@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_08_194341) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_08_201150) do
   create_table "branch_offices", force: :cascade do |t|
     t.string "name", null: false
     t.string "phone"
@@ -34,6 +34,16 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_08_194341) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_companies_on_name", unique: true
+  end
+
+  create_table "daily_codes", force: :cascade do |t|
+    t.string "code", null: false
+    t.datetime "date", null: false
+    t.integer "branch_office_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_office_id", "date"], name: "index_daily_codes_on_branch_office_id_and_date", unique: true
+    t.index ["branch_office_id"], name: "index_daily_codes_on_branch_office_id"
   end
 
   create_table "jwt_denylist", force: :cascade do |t|
@@ -61,4 +71,5 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_08_194341) do
   end
 
   add_foreign_key "branch_offices", "companies"
+  add_foreign_key "daily_codes", "branch_offices"
 end
