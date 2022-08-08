@@ -19,7 +19,7 @@ class Api::V1::DailyCodesController < ApplicationController
     @daily_code = @branch_office.daily_codes.build(create_daily_code_params)
 
     if @daily_code.save
-      render json: @daily_code, status: :created, location: @daily_code
+      render json: @daily_code, status: :created
     else
       render json: @daily_code.errors, status: :unprocessable_entity
     end

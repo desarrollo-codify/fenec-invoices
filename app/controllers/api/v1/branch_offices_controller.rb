@@ -19,7 +19,7 @@ class Api::V1::BranchOfficesController < ApplicationController
     @branch_office = @company.branch_offices.build(create_branch_office_params)
 
     if @branch_office.save
-      render json: @branch_office, status: :created, location: @branch_office
+      render json: @branch_office, status: :created
     else
       render json: @branch_office.errors, status: :unprocessable_entity
     end

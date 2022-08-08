@@ -4,4 +4,5 @@ class BranchOffice < ApplicationRecord
     message: "only one branch office number per company" }
 
   belongs_to :company
+  has_many :daily_codes, dependent: :destroy
 end
