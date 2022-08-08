@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_08_142253) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_08_145941) do
+  create_table "companies", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "nit", null: false
+    t.string "address", null: false
+    t.string "phone"
+    t.string "logo"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_companies_on_name", unique: true
+  end
+
   create_table "jwt_denylist", force: :cascade do |t|
     t.string "jti", null: false
     t.datetime "exp", null: false
