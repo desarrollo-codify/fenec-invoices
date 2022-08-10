@@ -6,4 +6,5 @@ class Company < ApplicationRecord
   has_many :branch_offices, dependent: :destroy
   has_many :products, dependent: :destroy
   has_many :invoices, through: :branch_offices
+  has_many :clients, dependent: :destroy
 end

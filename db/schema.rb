@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_08_210429) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_10_210403) do
   create_table "branch_offices", force: :cascade do |t|
     t.string "name", null: false
     t.string "phone"
@@ -23,6 +23,16 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_08_210429) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "number"], name: "index_branch_offices_on_company_id_and_number", unique: true
     t.index ["company_id"], name: "index_branch_offices_on_company_id"
+  end
+
+  create_table "clients", force: :cascade do |t|
+    t.string "code"
+    t.string "name", null: false
+    t.string "nit", null: false
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_clients_on_company_id"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -47,10 +57,82 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_08_210429) do
     t.index ["branch_office_id"], name: "index_daily_codes_on_branch_office_id"
   end
 
+  create_table "invoice_details", force: :cascade do |t|
+    t.string "description"
+    t.string "product_code"
+    t.decimal "unit_price"
+    t.decimal "quantity"
+    t.decimal "subtotal"
+    t.decimal "discount"
+    t.decimal "total"
+    t.integer "measurement_id", null: false
+    t.integer "product_id", null: false
+    t.integer "invoice_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id"], name: "index_invoice_details_on_invoice_id"
+    t.index ["measurement_id"], name: "index_invoice_details_on_measurement_id"
+    t.index ["product_id"], name: "index_invoice_details_on_product_id"
+  end
+
+  create_table "invoice_statuses", force: :cascade do |t|
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "invoices", force: :cascade do |t|
+    t.integer "number", null: false
+    t.datetime "date", null: false
+    t.string "company_name"
+    t.string "company_nit"
+    t.string "business_name", null: false
+    t.string "business_nit", null: false
+    t.string "authorization"
+    t.string "key"
+    t.datetime "end_date"
+    t.string "activity_type"
+    t.string "control_code"
+    t.string "qr_content"
+    t.decimal "subtotal", null: false
+    t.decimal "discount"
+    t.decimal "gift_card"
+    t.decimal "advance"
+    t.decimal "total", null: false
+    t.decimal "cash_paid"
+    t.decimal "qr_paid"
+    t.decimal "card_paid"
+    t.decimal "online_paid"
+    t.decimal "change"
+    t.datetime "cancellation_date"
+    t.decimal "exchange_rate"
+    t.string "cuis_code"
+    t.string "cufd_code"
+    t.integer "branch_office_id", null: false
+    t.integer "invoice_status_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
+    t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
+    t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true
+  end
+
   create_table "jwt_denylist", force: :cascade do |t|
     t.string "jti", null: false
     t.datetime "exp", null: false
     t.index ["jti"], name: "index_jwt_denylist_on_jti"
+  end
+
+  create_table "measurements", force: :cascade do |t|
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "payment_channels", force: :cascade do |t|
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "products", force: :cascade do |t|
@@ -84,6 +166,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_08_210429) do
   end
 
   add_foreign_key "branch_offices", "companies"
+  add_foreign_key "clients", "companies"
   add_foreign_key "daily_codes", "branch_offices"
+  add_foreign_key "invoice_details", "invoices"
+  add_foreign_key "invoice_details", "measurements"
+  add_foreign_key "invoice_details", "products"
+  add_foreign_key "invoices", "branch_offices"
+  add_foreign_key "invoices", "invoice_statuses"
   add_foreign_key "products", "companies"
 end
