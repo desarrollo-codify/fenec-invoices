@@ -5,4 +5,5 @@ class BranchOffice < ApplicationRecord
 
   belongs_to :company
   has_many :daily_codes, dependent: :destroy
+  has_many :invoices
 end

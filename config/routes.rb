@@ -13,6 +13,7 @@ Rails.application.routes.draw do
           resources :daily_codes, shallow: true
         end
         resources :products, shallow: true
+        resources :invoices, shallow: true
       end
     end
   end
