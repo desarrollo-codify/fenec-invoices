@@ -30,8 +30,23 @@ RSpec.describe Client, type: :model do
     end
   end
 
-  # describe 'validation of numerical data in the nit' do
-  #   it { subject.to validate_numericality_of(:nit).is_greater_than(0).only_integer }
-  # end
+  describe 'validate numericality of nit' do
+    it { validate_numericality_of(:nit).only_integer }
 
+    describe 'with valid value' do
+      subject { described_class.new(name: 'Cliente01', nit: '123', company_id: company.id) }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    describe 'with invalid value' do
+      subject { described_class.new(name: 'Cliente01', nit: 'ABC', company_id: company.id) }
+
+      it 'is invalid' do
+        expect(subject).to_not be_valid
+      end
+    end
+  end
 end

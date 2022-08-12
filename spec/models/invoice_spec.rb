@@ -78,4 +78,64 @@ RSpec.describe Invoice, type: :model do
       end
     end
   end
+
+  describe 'validate numericality of business nit' do
+    it { validate_numericality_of(:nit).only_integer }
+
+    describe 'with valid value' do
+      subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    describe 'with invalid value' do
+      subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: 'ABC', number: 1, subtotal: 10, total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+
+      it 'is invalid' do
+        expect(subject).to_not be_valid
+      end
+    end
+  end
+
+  describe 'validate numericality of subtotal' do
+    it { validate_numericality_of(:nit).only_integer }
+
+    describe 'with valid value' do
+      subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    describe 'with invalid value' do
+      subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 'ABC', total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+
+      it 'is invalid' do
+        expect(subject).to_not be_valid
+      end
+    end
+  end
+
+  describe 'validate numericality of total' do
+    it { validate_numericality_of(:nit).only_integer }
+
+    describe 'with valid value' do
+      subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+
+      it 'is valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    describe 'with invalid value' do
+      subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 'ABC', branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+
+      it 'is invalid' do
+        expect(subject).to_not be_valid
+      end
+    end
+  end
 end
