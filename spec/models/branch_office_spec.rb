@@ -10,73 +10,78 @@ RSpec.describe BranchOffice, type: :model do
     end
   end
 
-  describe 'with invalid values' do
-    describe 'with no name' do
-      subject { described_class.new(name: '', number: 1, city: 'Santa Cruz', company_id: 1) }
+  describe 'name attribute' do
+    context 'with invalid value' do
+      let(:branch_office) { described_class.new(number: 1, city: 'Santa Cruz', company_id: 1) }
 
       it 'is invalid' do
-        expect(subject).to_not be_valid
-      end
-    end
-
-    describe 'with no number' do
-      subject {
-        described_class.new(name: 'Codify', city: 'Santa Cruz', company_id: 1)
-      }
-
-      it 'is invalid' do
-        expect(subject).to_not be_valid
-      end
-    end
-
-    describe 'with no city' do
-      subject {
-        described_class.new(name: 'Codify', number: 1, company_id: 1)
-      }
-
-      it 'is invalid' do
-        expect(subject).to_not be_valid
-      end
-    end
-
-    describe 'not associated to a company' do
-      subject { described_class.new(name: 'Codify', number: 1, city: 'Santa Cruz') }
-
-      it 'is invalid' do
-        expect(subject).to_not be_valid
+        expect(branch_office).to_not be_valid
+        branch_office.name = ''
+        expect(branch_office).to_not be_valid
       end
     end
   end
 
-  describe 'validates uniqueness of number per company' do
-    context 'with duplicated number' do
-      before { described_class.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
+  describe 'number attribute' do
+    context 'with invalid values' do
+      let(:branch_office) { described_class.new(name: 'Codify', city: 'Santa Cruz', company_id: 1) }
 
-      it 'is invalid when number is duplicated' do
-        expect(subject).to_not be_valid
-        expect(subject.errors[:number]).to eq ['only one branch office number per company']
+      it 'is not valid' do
+        expect(branch_office).to_not be_valid
       end
     end
 
-    context 'with different number' do
-      before { described_class.create!(name: 'Sucursal 1', number: 2, city: 'Santa Cruz', company_id: company.id) }
+    context 'validates uniqueness per company' do
+      context 'with duplicated number' do
+        before { described_class.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
+  
+        it 'is invalid when number is duplicated' do
+          expect(subject).to_not be_valid
+          expect(subject.errors[:number]).to eq ['el numero de sucursal no puede duplicarse en una empresa.']
+        end
+      end
+  
+      context 'with different number' do
+        before { described_class.create!(name: 'Sucursal 1', number: 2, city: 'Santa Cruz', company_id: company.id) }
+  
+        it 'is valid' do
+          expect(subject).to be_valid
+        end
+      end
+  
+    end
+  end
 
-      it 'is valid' do
-        expect(subject).to be_valid
+  describe 'city attribute' do
+    context 'with invalid values' do
+      let(:branch_office) { described_class.new(name: 'Codify', number: 1, company_id: 1) }
+
+      it 'is not valid' do
+        expect(branch_office).to_not be_valid
+        branch_office.city = ''
+        expect(branch_office).to_not be_valid
       end
     end
   end
-  #Aumento por corroborar
 
+  describe 'company_id attribute' do
+    context 'not associated to a company' do
+      let(:branch_office) { described_class.new(name: 'Codify', number: 1, city: 'Santa Cruz') }
+
+      it 'is invalid' do
+        expect(branch_office).to_not be_valid
+      end
+    end
+  end
   
   describe 'validates dependent destroy for daily_codes' do
     it { expect(subject).to have_many(:daily_codes).dependent(:destroy) }
 
-    describe 'when deleting a branch Office' do
+    describe 'when deleting a branch office' do
       let(:branch_office) { described_class.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
       before { DailyCode.create!(code: 'ABC', effective_date: "12/08/2022" , branch_office_id: branch_office.id) }
       
-      it 'destroys the Daily Code' do
+      it 'destroys the daily code' do
         expect { branch_office.destroy }.to change { DailyCode.count }.by(-1)
       end
     end

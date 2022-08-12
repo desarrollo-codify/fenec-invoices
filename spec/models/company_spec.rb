@@ -9,50 +9,73 @@ RSpec.describe Company, type: :model do
     end
   end
 
-  describe 'with invalid values' do
-    describe 'with no name' do
-      subject { described_class.new(nit: '123', address: 'Anywhere') }
+  describe 'name attribute' do
+    context 'with invalid values' do
+      let(:company) { described_class.new(nit: '123', address: 'Anywhere') }
 
       it 'is invalid' do
-        expect(subject).to_not be_valid
+        expect(company).to_not be_valid
+        company.name = ''
+        expect(company).to_not be_valid
       end
     end
 
-    describe 'with no nit' do
-      subject {
-        described_class.new(name: 'Codify', address: 'Anywhere')
-      }
-
-      it 'is invalid' do
-        expect(subject).to_not be_valid
+    context 'validates uniqueness of name' do
+      context 'with duplicated value' do
+        before { described_class.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
+  
+        it 'is invalid when name is duplicated' do
+          expect(subject).to_not be_valid
+        end
       end
-    end
-
-    describe 'with no address' do
-      subject {
-        described_class.new(name: 'Codify', nit: '123')
-      }
-
-      it 'is invalid' do
-        expect(subject).to_not be_valid
+  
+      context 'with different name' do
+        before { described_class.create!(name: 'Codify 2', nit: '456', address: 'Santa Cruz') }
+  
+        it 'is valid' do
+          expect(subject).to be_valid
+        end
       end
     end
   end
 
-  describe 'validates uniqueness of name' do
-    context 'with duplicated value' do
-      before { described_class.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
+  describe 'nit attribute' do
+    context 'with invalid values' do
+      let(:company) { described_class.new(name: 'Codify', address: 'Anywhere') }
 
-      it 'is invalid when name is duplicated' do
-        expect(subject).to_not be_valid
+      it 'is invalid' do
+        expect(company).to_not be_valid
       end
     end
 
-    context 'with different name' do
-      before { described_class.create!(name: 'Codify 2', nit: '456', address: 'Santa Cruz') }
+    context 'validates numericality of nit' do
+      it { validate_numericality_of(:nit).only_integer }
+  
+      context 'with a numeric value' do
+        let(:company) { described_class.new(name: 'Cliente01', nit: '123', address: 'Santa Cruz') }
+  
+        it { expect(company).to be_valid }
+      end
+  
+      context 'with a non-numeric value' do
+        let(:company) { described_class.new(name: 'Cliente01', nit: 'ABC', address: 'Santa Cruz') }
+  
+        it 'is invalid' do
+          expect(company).to_not be_valid
+          expect(company.errors[:nit]).to eq ['El NIT debe ser un valor numérico.']
+        end
+      end
+    end
+  end
 
-      it 'is valid' do
-        expect(subject).to be_valid
+  describe 'address attribute' do
+    context 'with invalid values' do
+      let(:company) { described_class.new(name: 'Codify', nit: '123') }
+
+      it 'is invalid' do
+        expect(company).to_not be_valid
+        company.address = ''
+        expect(company).to_not be_valid
       end
     end
   end
@@ -60,7 +83,7 @@ RSpec.describe Company, type: :model do
   describe 'validates dependent destroy for branch office' do
     it { expect(subject).to have_many(:branch_offices).dependent(:destroy) }
 
-    describe 'when deleting a company' do
+    context 'when deleting a company' do
       let(:company) { described_class.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
       before { BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
       
@@ -86,7 +109,7 @@ RSpec.describe Company, type: :model do
   describe 'validates dependent destroy for clients' do
     it { expect(subject).to have_many(:clients).dependent(:destroy) }
 
-    describe 'when deleting a company' do
+    context 'when deleting a company' do
       let(:company) { described_class.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
       before { Client.create!(name: 'Juan', nit: '123', company_id: company.id) }
       

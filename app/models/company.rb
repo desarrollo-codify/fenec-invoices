@@ -1,6 +1,6 @@
 class Company < ApplicationRecord
   validates :name, presence: true, uniqueness: true
-  validates :nit, presence: true
+  validates :nit, presence: true, numericality: { only_integer: true, message: "El NIT debe ser un valor numérico." }
   validates :address, presence: true
 
   has_many :branch_offices, dependent: :destroy
