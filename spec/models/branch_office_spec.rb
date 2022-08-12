@@ -65,4 +65,19 @@ RSpec.describe BranchOffice, type: :model do
       end
     end
   end
+  #Aumento por corroborar
+
+  
+  describe 'validates dependent destroy for daily_codes' do
+    it { expect(subject).to have_many(:daily_codes).dependent(:destroy) }
+
+    describe 'when deleting a branch Office' do
+      let(:branch_office) { described_class.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
+      before { DailyCode.create!(code: 'ABC', effective_date: "12/08/2022" , branch_office_id: branch_office.id) }
+      
+      it 'destroys the Daily Code' do
+        expect { branch_office.destroy }.to change { DailyCode.count }.by(-1)
+      end
+    end
+  end
 end

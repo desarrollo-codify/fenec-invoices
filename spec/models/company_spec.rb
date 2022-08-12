@@ -77,7 +77,7 @@ RSpec.describe Company, type: :model do
       let(:company) { described_class.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
       before { Product.create!(primary_code: 'ABC', description: 'Algo', company_id: company.id) }
       
-      it 'destroys the branch office' do
+      it 'destroys the Product' do
         expect { company.destroy }.to change { Product.count }.by(-1)
       end
     end
@@ -90,7 +90,7 @@ RSpec.describe Company, type: :model do
       let(:company) { described_class.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
       before { Client.create!(name: 'Juan', nit: '123', company_id: company.id) }
       
-      it 'destroys the branch office' do
+      it 'destroys the Client' do
         expect { company.destroy }.to change { Client.count }.by(-1)
       end
     end
