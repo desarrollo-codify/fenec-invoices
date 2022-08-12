@@ -58,13 +58,13 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_10_210403) do
   end
 
   create_table "invoice_details", force: :cascade do |t|
-    t.string "description"
+    t.string "description", null: false
     t.string "product_code"
-    t.decimal "unit_price"
-    t.decimal "quantity"
-    t.decimal "subtotal"
-    t.decimal "discount"
-    t.decimal "total"
+    t.decimal "unit_price", null: false
+    t.decimal "quantity", null: false
+    t.decimal "subtotal", null: false
+    t.decimal "discount", null: false
+    t.decimal "total", null: false
     t.integer "measurement_id", null: false
     t.integer "product_id", null: false
     t.integer "invoice_id", null: false
