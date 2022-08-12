@@ -14,7 +14,7 @@ RSpec.describe Invoice, type: :model do
   end
 
   describe 'with invalid values' do
-    describe 'with no business name' do
+    context 'with no business name' do
       subject { described_class.new(date: "12/08/2022", business_name: '', business_nit: '123', number: 1, subtotal: 10, total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
 
       it 'is invalid' do
@@ -82,7 +82,7 @@ RSpec.describe Invoice, type: :model do
   describe 'validate numericality of business nit' do
     it { validate_numericality_of(:nit).only_integer }
 
-    describe 'with valid value' do
+    context 'with valid value' do
       subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
 
       it 'is valid' do
@@ -90,11 +90,12 @@ RSpec.describe Invoice, type: :model do
       end
     end
 
-    describe 'with invalid value' do
+    context 'with invalid value' do
       subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: 'ABC', number: 1, subtotal: 10, total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
 
       it 'is invalid' do
         expect(subject).to_not be_valid
+        expect(subject.errors[:code]).to eq ['Solo puede ser un codigo diario por sucursal.']
       end
     end
   end

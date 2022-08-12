@@ -36,6 +36,7 @@ RSpec.describe DailyCode, type: :model do
 
       it 'is invalid when effective_date is duplicated' do
         expect(subject).to_not be_valid
+      #  expect(subject.errors[:code]).to eq ['Solo puede ser un codigo diario por sucursal.']
       end
     end
 

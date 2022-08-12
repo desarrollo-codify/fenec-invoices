@@ -46,6 +46,7 @@ RSpec.describe Client, type: :model do
 
       it 'is invalid' do
         expect(subject).to_not be_valid
+        expect(subject.errors[:nit]).to eq ['El NIT debe ser un valor numérico.']
       end
     end
   end

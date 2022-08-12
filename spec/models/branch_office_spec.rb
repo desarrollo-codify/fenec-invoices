@@ -54,6 +54,7 @@ RSpec.describe BranchOffice, type: :model do
 
       it 'is invalid when number is duplicated' do
         expect(subject).to_not be_valid
+        expect(subject.errors[:number]).to eq ['only one branch office number per company']
       end
     end
 
@@ -80,4 +81,5 @@ RSpec.describe BranchOffice, type: :model do
       end
     end
   end
+
 end
