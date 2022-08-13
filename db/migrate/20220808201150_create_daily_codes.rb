@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateDailyCodes < ActiveRecord::Migration[7.0]
   def change
     create_table :daily_codes do |t|
@@ -8,6 +10,6 @@ class CreateDailyCodes < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
-    add_index :daily_codes, [:branch_office_id, :date], unique: true
+    add_index :daily_codes, %i[branch_office_id date], unique: true
   end
 end

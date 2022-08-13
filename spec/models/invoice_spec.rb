@@ -1,14 +1,19 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Invoice, type: :model do
-  subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-    subtotal: 3, total: 3, qr_paid: 1, cash_paid: 1, card_paid: 1,
-    branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  let(:branch_office) { BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
+  subject do
+    described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc',
+                        number: 1, subtotal: 3, total: 3, qr_paid: 1, cash_paid: 1, card_paid: 1,
+                        branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+  end
+  let(:branch_office) do
+    BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id)
+  end
   let(:invoice_status) { InvoiceStatus.create!(description: 'Good') }
   let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
 
-  
   describe 'with valid values' do
     it 'is valid' do
       expect(subject).to be_valid
@@ -17,10 +22,13 @@ RSpec.describe Invoice, type: :model do
 
   describe 'business_name attribute' do
     it { validate_presence_of(:business_name) }
-    
+
     context 'with invalid value' do
-      let(:invoice) { described_class.new(date: "12/08/2022", company_name: 'Abc', business_nit: '123', number: 1, 
-        subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', company_name: 'Abc', business_nit: '123', number: 1,
+                            subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id,
+                            invoice_status_id: invoice_status.id)
+      end
 
       it 'is invalid' do
         expect(invoice).to_not be_valid
@@ -30,18 +38,24 @@ RSpec.describe Invoice, type: :model do
     end
 
     context 'with special characters' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: '@#$', company_name: 'Abc', business_nit: '123', number: 1, 
-        subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-      
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: '@#$', company_name: 'Abc', business_nit: '123',
+                            number: 1, subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id,
+                            invoice_status_id: invoice_status.id)
+      end
+
       it 'is not valid' do
         expect(invoice).to_not be_valid
       end
     end
 
     context 'with allowed characters' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'áü -_.', company_name: 'Abc', business_nit: '123', number: 1, 
-        subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-      
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'áü -_.', company_name: 'Abc', business_nit: '123',
+                            number: 1, subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id,
+                            invoice_status_id: invoice_status.id)
+      end
+
       it 'is valid' do
         expect(invoice).to be_valid
       end
@@ -50,12 +64,13 @@ RSpec.describe Invoice, type: :model do
 
   describe 'business_nit attribute' do
     it { validate_presence_of(:business_nit) }
-    
+
     context 'with invalid value' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Juan', number: 1, 
-        subtotal: 3, total: 3, cash_paid: 3,
-        branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) 
-      }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Juan', number: 1,
+                            subtotal: 3, total: 3, cash_paid: 3,
+                            branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+      end
 
       it 'is invalid' do
         invoice.business_nit = nil
@@ -65,12 +80,14 @@ RSpec.describe Invoice, type: :model do
 
     context 'validates numericality of business nit' do
       it { validate_numericality_of(:business_nit).only_integer }
-  
+
       context 'with non-numeric value' do
-        subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: 'ABC', number: 1, 
-          subtotal: 3, total: 3, cash_paid: 3,
-          branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  
+        subject do
+          described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: 'ABC', number: 1,
+                              subtotal: 3, total: 3, cash_paid: 3,
+                              branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+        end
+
         it 'is invalid' do
           expect(subject).to_not be_valid
           expect(subject.errors[:business_nit]).to eq ['El NIT debe ser un valor numérico.']
@@ -81,11 +98,13 @@ RSpec.describe Invoice, type: :model do
 
   describe 'company_name attribute' do
     it { validate_presence_of(:company_name) }
-    
+
     context 'with invalid value' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Abc', business_nit: '123', number: 1, 
-        subtotal: 3, total: 3, cash_paid: 3,
-        branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Abc', business_nit: '123', number: 1,
+                            subtotal: 3, total: 3, cash_paid: 3,
+                            branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+      end
 
       it 'is invalid' do
         expect(invoice).to_not be_valid
@@ -95,19 +114,24 @@ RSpec.describe Invoice, type: :model do
     end
 
     context 'with special characters' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Abc', company_name: '$%^', business_nit: '123', number: 1,
-        subtotal: 3, total: 3, cash_paid: 3,
-        branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-      
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Abc', company_name: '$%^', business_nit: '123',
+                            number: 1, subtotal: 3, total: 3, cash_paid: 3,
+                            branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+      end
+
       it 'is not valid' do
         expect(invoice).to_not be_valid
       end
     end
 
     context 'with allowed characters' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Abc', company_name: 'áü -_.', business_nit: '123', number: 1, 
-        subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-      
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Abc', company_name: 'áü -_.', business_nit: '123',
+                            number: 1, subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id,
+                            invoice_status_id: invoice_status.id)
+      end
+
       it 'is valid' do
         expect(invoice).to be_valid
       end
@@ -117,32 +141,42 @@ RSpec.describe Invoice, type: :model do
   describe 'number attribute' do
     context 'validates uniqueness of number per invoice' do
       context 'with duplicated number' do
-        before { described_class.create!(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-          subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  
+        before do
+          described_class.create!(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc',
+                                  number: 1,
+                                  subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id,
+                                  invoice_status_id: invoice_status.id)
+        end
+
         it 'is invalid when number is duplicated' do
           expect(subject).to_not be_valid
-          expect(subject.errors[:number]).to eq ['Ya existe este número de factura con el código único de facturación diaria.']
+          expect(subject.errors[:number])
+            .to eq ['Ya existe este número de factura con el código único de facturación diaria.']
         end
       end
 
       context 'with different number' do
-        before { described_class.create!(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 2, 
-          subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  
+        before do
+          described_class.create!(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc',
+                                  number: 2, subtotal: 3, total: 3, cash_paid: 3, branch_office_id: branch_office.id,
+                                  invoice_status_id: invoice_status.id)
+        end
+
         it 'is valid' do
           expect(subject).to be_valid
         end
       end
     end
   end
-  
+
   describe 'subtotal attribute' do
     it { validate_presence_of(:subtotal) }
-    
+
     context 'with nil value' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-        discount: 2, total: 1, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1,
+                            discount: 2, total: 1, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+      end
 
       it 'is not valid' do
         expect(invoice).to_not be_valid
@@ -151,11 +185,14 @@ RSpec.describe Invoice, type: :model do
 
     context 'validate numericality of subtotal' do
       it { validate_numericality_of(:subtotal).only_integer }
-  
+
       context 'with invalid value' do
-        let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-          subtotal: 'ABC', total: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  
+        let(:invoice) do
+          described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1,
+                              subtotal: 'ABC', total: 10, branch_office_id: branch_office.id,
+                              invoice_status_id: invoice_status.id)
+        end
+
         it 'is not invalid' do
           expect(invoice).to_not be_valid
           expect(invoice.errors[:subtotal]).to eq ['El subtotal debe ser un valor numérico.']
@@ -166,10 +203,12 @@ RSpec.describe Invoice, type: :model do
 
   describe 'total attribute' do
     it { validate_presence_of(:total) }
-    
+
     context 'with nil value' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, 
-        branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10,
+                            branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+      end
 
       it 'is not valid' do
         invoice.total = nil
@@ -179,11 +218,13 @@ RSpec.describe Invoice, type: :model do
 
     context 'validate numericality of total' do
       it { validate_numericality_of(:total).only_integer }
-  
+
       context 'with invalid value' do
-        let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, total: 'ABC', subtotal: 10, 
-          branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  
+        let(:invoice) do
+          described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', number: 1, total: 'ABC',
+                              subtotal: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+        end
+
         it 'is not valid' do
           expect(invoice).to_not be_valid
           expect(invoice.errors[:total]).to include('El total debe ser un valor numérico.')
@@ -193,9 +234,12 @@ RSpec.describe Invoice, type: :model do
 
     context 'validates calculation of total' do
       context 'with invalid calculation' do
-        let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-          subtotal: 10, discount: 1, gift_card: 1, advance: 1, total: 8, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  
+        let(:invoice) do
+          described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1,
+                              subtotal: 10, discount: 1, gift_card: 1, advance: 1, total: 8, branch_office_id: branch_office.id,
+                              invoice_status_id: invoice_status.id)
+        end
+
         it 'is not valid' do
           expect(invoice).to_not be_valid
           expect(invoice.errors[:total]).to include('El monto total no concuerda con el calculo realizado.')
@@ -203,10 +247,12 @@ RSpec.describe Invoice, type: :model do
       end
 
       context 'with valid calculation' do
-        let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-          subtotal: 10, discount: 1, gift_card: 1, advance: 1, total: 7, cash_paid: 7,
-          branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
-  
+        let(:invoice) do
+          described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1,
+                              subtotal: 10, discount: 1, gift_card: 1, advance: 1, total: 7, cash_paid: 7,
+                              branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+        end
+
         it 'is valid' do
           expect(invoice).to be_valid
         end
@@ -216,8 +262,11 @@ RSpec.describe Invoice, type: :model do
 
   describe 'discount attribute' do
     context 'validates discount not greater than subtotal' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, total: 1, subtotal: 1, 
-        discount: 2, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', number: 1, total: 1,
+                            subtotal: 1, discount: 2, branch_office_id: branch_office.id,
+                            invoice_status_id: invoice_status.id)
+      end
 
       it 'is invalid' do
         expect(invoice).to_not be_valid
@@ -228,10 +277,12 @@ RSpec.describe Invoice, type: :model do
 
   describe 'date attribute' do
     it { validate_presence_of(:date) }
-    
+
     context 'with invalid values' do
-      let(:invoice) { described_class.new(business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, branch_office_id: branch_office.id, 
-        invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10,
+                            branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+      end
 
       it 'is not valid' do
         expect(invoice).to_not be_valid
@@ -241,8 +292,10 @@ RSpec.describe Invoice, type: :model do
 
   describe 'branch_office_id attribute' do
     context 'with invalid values' do
-      let(:invoice) { described_class.new(business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, date: "12/08/2022", 
-        invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, date: '12/08/2022',
+                            invoice_status_id: invoice_status.id)
+      end
 
       it 'is not valid' do
         expect(invoice).to_not be_valid
@@ -252,8 +305,10 @@ RSpec.describe Invoice, type: :model do
 
   describe 'invoice_status_id attribute' do
     context 'with invalid values' do
-      let(:invoice) { described_class.new(business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, date: "12/08/2022", 
-        branch_office_id: branch_office.id) }
+      let(:invoice) do
+        described_class.new(business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, date: '12/08/2022',
+                            branch_office_id: branch_office.id)
+      end
 
       it 'is not valid' do
         expect(invoice).to_not be_valid
@@ -263,7 +318,9 @@ RSpec.describe Invoice, type: :model do
 
   describe '#default_values' do
     context 'with missing values' do
-      let(:invoice) { described_class.new(number: 1, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(number: 1, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
+      end
 
       it 'has default values' do
         expect(invoice.discount).to eq(0)
@@ -283,14 +340,19 @@ RSpec.describe Invoice, type: :model do
     it { expect(subject).to have_many(:invoice_details).dependent(:destroy) }
 
     context 'when deleting an invoice' do
-      let(:invoice) { described_class.create!(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-        subtotal: 10, total: 10, cash_paid: 10, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.create!(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc',
+                                number: 1, subtotal: 10, total: 10, cash_paid: 10, branch_office_id: branch_office.id,
+                                invoice_status_id: invoice_status.id)
+      end
       let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
       let(:product) { Product.create!(primary_code: 'ABC', description: 'ABC', company_id: company.id) }
       let(:measurement) { Measurement.create!(description: 'ABC') }
-      
-      before { InvoiceDetail.create!(description: 'ABC', unit_price: 1 , quantity: 1, subtotal: 1, discount: 0, total: 1,
-        product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+
+      before do
+        InvoiceDetail.create!(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
+                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
+      end
 
       it 'destroys the detail' do
         expect { invoice.destroy }.to change { InvoiceDetail.count }.by(-1)
@@ -300,8 +362,11 @@ RSpec.describe Invoice, type: :model do
 
   describe 'validates total paid' do
     context 'with wrong calculation' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-        total: 2, subtotal: 2, qr_paid: 1, cash_paid: 1, card_paid: 1, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1,
+                            total: 2, subtotal: 2, qr_paid: 1, cash_paid: 1, card_paid: 1, branch_office_id: branch_office.id,
+                            invoice_status_id: invoice_status.id)
+      end
 
       it 'is not valid' do
         expect(invoice).to_not be_valid
@@ -310,8 +375,11 @@ RSpec.describe Invoice, type: :model do
     end
 
     context 'with correct calculation' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1, 
-        total: 3, subtotal: 3, qr_paid: 1, cash_paid: 1, card_paid: 1, branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
+      let(:invoice) do
+        described_class.new(date: '12/08/2022', business_name: 'Codify', business_nit: '123', company_name: 'Abc', number: 1,
+                            total: 3, subtotal: 3, qr_paid: 1, cash_paid: 1, card_paid: 1, branch_office_id: branch_office.id,
+                            invoice_status_id: invoice_status.id)
+      end
 
       it 'is valid' do
         expect(invoice).to be_valid

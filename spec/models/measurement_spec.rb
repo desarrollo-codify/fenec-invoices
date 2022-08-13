@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Measurement, type: :model do
@@ -11,9 +13,9 @@ RSpec.describe Measurement, type: :model do
 
   describe 'description attribute' do
     it { validate_presence_of(:description) }
-    
+
     context 'with invalid value' do
-      let(:measurement) { described_class.new() }
+      let(:measurement) { described_class.new }
 
       it 'is invalid' do
         expect(measurement).to_not be_valid

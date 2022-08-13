@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require 'CustomFailure'
+require 'custom_failure'
+
+# rubocop:disable Layout/LineLength
 
 # Assuming you have not yet modified this file, each configuration option below
 # is set to its default value. Note that some are commented out while others
@@ -313,7 +315,7 @@ Devise.setup do |config|
   # config.sign_in_after_change_password = true
 
   config.jwt do |jwt|
-    jwt.secret = ENV['DEVISE_JWT_SECRET_KEY']
+    jwt.secret = ENV.fetch('DEVISE_JWT_SECRET_KEY', nil)
     jwt.dispatch_requests = [
       ['POST', %r{^/sign_in$}]
     ]
@@ -323,3 +325,4 @@ Devise.setup do |config|
     jwt.expiration_time = 15.day.to_i
   end
 end
+# rubocop:enable Layout/LineLength

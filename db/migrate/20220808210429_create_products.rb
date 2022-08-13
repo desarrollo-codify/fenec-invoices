@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateProducts < ActiveRecord::Migration[7.0]
   def change
     create_table :products do |t|
@@ -9,6 +11,6 @@ class CreateProducts < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
-    add_index :products, [:company_id, :primary_code], unique: true
+    add_index :products, %i[company_id primary_code], unique: true
   end
 end

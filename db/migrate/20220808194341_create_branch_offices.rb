@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateBranchOffices < ActiveRecord::Migration[7.0]
   def change
     create_table :branch_offices do |t|
@@ -11,6 +13,6 @@ class CreateBranchOffices < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
-    add_index :branch_offices, [:company_id, :number], unique: true
+    add_index :branch_offices, %i[company_id number], unique: true
   end
 end

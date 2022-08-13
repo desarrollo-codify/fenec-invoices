@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 class CustomFailure < Devise::FailureApp
   def respond
     api_response
   end
 
   private
+
   def api_response
     self.status = 401
     self.content_type = 'application/json'

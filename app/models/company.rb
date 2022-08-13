@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class Company < ApplicationRecord
   validates :name, presence: true, uniqueness: true, format: { with: VALID_NAME_REGEX }
-  validates :nit, presence: true, numericality: { only_integer: true, message: "El NIT debe ser un valor numérico." }
+  validates :nit, presence: true, numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
   validates :address, presence: true
 
   has_many :branch_offices, dependent: :destroy

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateInvoices < ActiveRecord::Migration[7.0]
   def change
     create_table :invoices do |t|
@@ -32,6 +34,6 @@ class CreateInvoices < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
-    add_index :invoices, [:number, :cufd_code], unique: true
+    add_index :invoices, %i[number cufd_code], unique: true
   end
 end

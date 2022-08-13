@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe InvoiceStatus, type: :model do
@@ -11,7 +13,7 @@ RSpec.describe InvoiceStatus, type: :model do
 
   describe 'description attribute' do
     context 'with invalid value' do
-      let(:invoice_status) { described_class.new() }
+      let(:invoice_status) { described_class.new }
 
       it 'is invalid' do
         expect(invoice_status).to_not be_valid
