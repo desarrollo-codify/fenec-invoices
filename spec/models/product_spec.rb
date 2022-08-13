@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Product, type: :model do
-  subject { described_class.new(primary_code: 'ABC', description: 'description for prodruct', company_id: company.id) }
+  subject { described_class.new(primary_code: 'ABC', description: 'Abc', company_id: company.id) }
   let(:company) { Company.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
   
   describe 'with valid values' do
@@ -53,6 +53,22 @@ RSpec.describe Product, type: :model do
         expect(product).to_not be_valid
         product.description = ''
         expect(product).to_not be_valid
+      end
+    end
+
+    context 'with special characters' do
+      let(:product) { described_class.new(primary_code: 'ABC', description: '%^&', company_id: company.id) }
+      
+      it 'is not valid' do
+        expect(product).to_not be_valid
+      end
+    end
+
+    context 'with allowed characters' do
+      let(:product) { described_class.new(primary_code: 'ABC', description: 'áü .-_', company_id: company.id) }
+      
+      it 'is valid' do
+        expect(product).to be_valid
       end
     end
   end

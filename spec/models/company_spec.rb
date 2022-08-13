@@ -39,6 +39,22 @@ RSpec.describe Company, type: :model do
         end
       end
     end
+
+    context 'with special characters' do
+      let(:company) { described_class.new(name: '#$%', nit: '456', address: 'Santa Cruz') }
+      
+      it 'is not valid' do
+        expect(company).to_not be_valid
+      end
+    end
+
+    context 'with allowed characters' do
+      let(:company) { described_class.new(name: 'áü.-_ ', nit: '123', address: 'Santa Cruz') }
+      
+      it 'is valid' do
+        expect(company).to be_valid
+      end
+    end
   end
 
   describe 'nit attribute' do

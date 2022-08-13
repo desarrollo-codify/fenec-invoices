@@ -22,6 +22,22 @@ RSpec.describe Client, type: :model do
         expect(client).to_not be_valid
       end
     end
+
+    context 'with special characters' do
+      let(:client) { described_class.new(name: '#$%', nit: '123', company_id: company.id) }
+      
+      it 'is not valid' do
+        expect(client).to_not be_valid
+      end
+    end
+
+    context 'with accents' do
+      let(:client) { described_class.new(name: 'áü', nit: '123', company_id: company.id) }
+      
+      it 'is valid' do
+        expect(client).to be_valid
+      end
+    end
   end
 
   describe 'nit attribute' do

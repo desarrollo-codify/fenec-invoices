@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe DailyCode, type: :model do
-  subject { described_class.new(code: 'ABC', effective_date: "12/08/2022", branch_office_id: branch_office.id) }
+  subject { described_class.new(code: 'ABC', effective_date: "2022-01-01", branch_office_id: branch_office.id) }
   let(:branch_office) { BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
   let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
 
@@ -15,7 +15,7 @@ RSpec.describe DailyCode, type: :model do
     it { validate_presence_of(:code) }
     
     context 'with invalid values' do
-      let(:daily_code) { described_class.new(effective_date: "12/08/2022", branch_office_id: branch_office.id) }
+      let(:daily_code) { described_class.new(effective_date: "2022-01-01", branch_office_id: branch_office.id) }
   
       it 'is invalid' do
         expect(daily_code).to_not be_valid
@@ -38,7 +38,7 @@ RSpec.describe DailyCode, type: :model do
 
     context 'validates uniqueness of effective_date' do
       context 'with duplicated value' do
-        before { described_class.create!(code: 'ABC', effective_date: "12/08/2022", branch_office_id: branch_office.id) }
+        before { described_class.create!(code: 'ABC', effective_date: "2022-01-01", branch_office_id: branch_office.id) }
   
         it 'is invalid' do
           expect(subject).to_not be_valid
@@ -47,9 +47,19 @@ RSpec.describe DailyCode, type: :model do
       end
   
       context 'with different effective_date' do
-        before { described_class.create!(code: 'ABC', effective_date: "13/08/2022", branch_office_id: branch_office.id) }
+        before { described_class.create!(code: 'ABC', effective_date: "2021-12-31", branch_office_id: branch_office.id) }
   
         it { expect(subject).to be_valid }
+      end
+    end
+
+    context 'with an effective date lower than the last one' do
+      before { described_class.create!(code: 'ABC', effective_date: "2022-01-02", branch_office_id: branch_office.id) }
+      let(:daily_code) { described_class.new(code: 'ABC', effective_date: "2022-01-01", branch_office_id: branch_office.id) }
+
+      it 'is invalid' do
+        expect(daily_code).to_not be_valid
+        expect(daily_code.errors[:effective_date]).to eq ['No se puede registrar una fecha anterior al último registro.']
       end
     end
   end

@@ -1,8 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe BranchOffice, type: :model do
-  subject { described_class.new(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
   let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
+  
+  subject { described_class.new(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
   
   describe 'with valid values' do
     it 'is valid' do
@@ -14,12 +15,28 @@ RSpec.describe BranchOffice, type: :model do
     it { validate_presence_of(:name) }
     
     context 'with invalid value' do
-      let(:branch_office) { described_class.new(number: 1, city: 'Santa Cruz', company_id: 1) }
+      let(:branch_office) { described_class.new(number: 1, city: 'Santa Cruz', company_id: company.id) }
 
       it 'is invalid' do
         expect(branch_office).to_not be_valid
         branch_office.name = ''
         expect(branch_office).to_not be_valid
+      end
+    end
+
+    context 'with special characters' do
+      let(:branch_office) { described_class.new(name: '$#%^', number: 1, city: 'Santa Cruz', company_id: company.id) }
+      
+      it 'is not valid' do
+        expect(branch_office).to_not be_valid
+      end
+    end
+
+    context 'with allowed characters' do
+      let(:branch_office) { described_class.new(name: 'áü-_ .', number: 1, city: 'Santa Cruz', company_id: company.id) }
+      
+      it 'is valid' do
+        expect(branch_office).to be_valid
       end
     end
   end
@@ -28,7 +45,7 @@ RSpec.describe BranchOffice, type: :model do
     it { validate_presence_of(:number) }
     
     context 'with invalid values' do
-      let(:branch_office) { described_class.new(name: 'Codify', city: 'Santa Cruz', company_id: 1) }
+      let(:branch_office) { described_class.new(name: 'Codify', city: 'Santa Cruz', company_id: company.id) }
 
       it 'is not valid' do
         expect(branch_office).to_not be_valid
@@ -60,12 +77,28 @@ RSpec.describe BranchOffice, type: :model do
     it { validate_presence_of(:city) }
     
     context 'with invalid values' do
-      let(:branch_office) { described_class.new(name: 'Codify', number: 1, company_id: 1) }
+      let(:branch_office) { described_class.new(name: 'Codify', number: 1, company_id: company.id) }
 
       it 'is not valid' do
         expect(branch_office).to_not be_valid
         branch_office.city = ''
         expect(branch_office).to_not be_valid
+      end
+    end
+
+    context 'with special characters' do
+      let(:branch_office) { described_class.new(name: 'Abc', number: 1, city: '#$%', company_id: company.id) }
+      
+      it 'is not valid' do
+        expect(branch_office).to_not be_valid
+      end
+    end
+
+    context 'with allowed characters' do
+      let(:branch_office) { described_class.new(name: 'Abc', number: 1, city: 'áü ', company_id: company.id) }
+      
+      it 'is valid' do
+        expect(branch_office).to be_valid
       end
     end
   end

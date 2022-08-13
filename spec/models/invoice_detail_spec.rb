@@ -1,12 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe InvoiceDetail, type: :model do
+  let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
   let(:product) { Product.create!(primary_code: 'ABC', description: 'ABC', company_id: company.id) }
   let(:measurement) { Measurement.create!(description: 'ABC') }
   let(:branch_office) { BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
   let(:invoice_status) { InvoiceStatus.create!(description: 'Good') }
-  let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
-  let(:invoice) { Invoice.create!(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 10, 
+  let(:invoice) { Invoice.create!(date: "2022-01-01", business_name: 'Codify', company_name: 'SRL', business_nit: '123', number: 1, 
+    subtotal: 10, total: 10, cash_paid: 10,
     branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
 
   subject { described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
@@ -29,6 +30,24 @@ RSpec.describe InvoiceDetail, type: :model do
         expect(invoice_detail).to_not be_valid
         invoice_detail.description = ''
         expect(invoice_detail).to_not be_valid
+      end
+    end
+
+    context 'with special characters' do
+      let(:invoice_detail) { described_class.new(description: '$%^', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
+        product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+      
+      it 'is not valid' do
+        expect(invoice_detail).to_not be_valid
+      end
+    end
+
+    context 'with allowed characters' do
+      let(:invoice_detail) { described_class.new(description: 'áu .-_', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
+        product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+      
+      it 'is valid' do
+        expect(invoice_detail).to be_valid
       end
     end
   end
@@ -111,7 +130,28 @@ RSpec.describe InvoiceDetail, type: :model do
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
           invoice_detail.subtotal = -1
-          expect(invoice_detail.errors[:subtotal]).to eq(['Subtotal debe ser mayor o igual a 0.'])
+          expect(invoice_detail.errors[:subtotal]).to include('Subtotal debe ser mayor o igual a 0.')
+        end
+      end
+    end
+
+    context 'validates calculation' do
+      context 'with invalid calculation' do
+        let(:invoice_detail) { described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 1, total: 1,
+          product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+  
+        it 'is not valid' do
+          expect(invoice_detail).to_not be_valid
+          expect(invoice_detail.errors[:subtotal]).to include('El subtotal no esta calculado correctamente.')
+        end
+      end
+
+      context 'with valid calculation' do
+        let(:invoice_detail) { described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 2, total: 2,
+          product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+  
+        it 'is valid' do
+          expect(invoice_detail).to be_valid
         end
       end
     end
@@ -143,6 +183,16 @@ RSpec.describe InvoiceDetail, type: :model do
         end
       end
     end
+
+    context 'validates discount not greater than subtotal' do
+      let(:invoice_detail) { described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 2, total: 1,
+        product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+        expect(invoice_detail.errors[:discount]).to eq(['Descuento no puede ser mayor al subtotal'])
+      end
+    end
   end
 
   describe 'total attribute' do
@@ -167,7 +217,30 @@ RSpec.describe InvoiceDetail, type: :model do
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
           invoice_detail.total = -1
-          expect(invoice_detail.errors[:total]).to eq(['Total debe ser mayor o igual a 0.'])
+          expect(invoice_detail.errors[:total]).to include('Total debe ser mayor o igual a 0.')
+        end
+      end
+    end
+
+    context 'validates calculation' do
+      context 'with invalid calculation' do
+        let(:invoice_detail) { described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 2, 
+          discount: 1, total: 2, 
+          product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+  
+        it 'is not valid' do
+          expect(invoice_detail).to_not be_valid
+          expect(invoice_detail.errors[:total]).to include('El total no esta calculado correctamente.')
+        end
+      end
+
+      context 'with valid calculation' do
+        let(:invoice_detail) { described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 2, 
+          discount: 1, total: 1, 
+          product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id) }
+  
+        it 'is valid' do
+          expect(invoice_detail).to be_valid
         end
       end
     end
