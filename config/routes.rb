@@ -16,6 +16,7 @@ Rails.application.routes.draw do
         end
         resources :products, shallow: true
         resources :invoices, shallow: true
+        resources :clients, only: %i[index create]
       end
     end
   end

@@ -4,7 +4,7 @@ module Api
   module V1
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
-      before_action :super_admin_only, only: %i[index destroy]
+      # before_action :super_admin_only, only: %i[index destroy]
       before_action :set_company, only: %i[show update destroy]
 
       # GET /companies
@@ -57,6 +57,7 @@ module Api
       end
 
       def super_admin_only
+        debugger
         render json: { message: 'Only admin users.' }, status: :unauthorized unless current_user.super_admin?
       end
     end
