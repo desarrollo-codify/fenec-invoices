@@ -5,7 +5,6 @@ RSpec.describe DailyCode, type: :model do
   let(:branch_office) { BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
   let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
 
-  
   describe 'with valid values' do
     it 'is valid' do
       expect(subject).to be_valid
@@ -13,6 +12,8 @@ RSpec.describe DailyCode, type: :model do
   end
 
   describe 'code attribute' do
+    it { validate_presence_of(:code) }
+    
     context 'with invalid values' do
       let(:daily_code) { described_class.new(effective_date: "12/08/2022", branch_office_id: branch_office.id) }
   
@@ -25,6 +26,8 @@ RSpec.describe DailyCode, type: :model do
   end
 
   describe 'efective_date attribute' do
+    it { validate_presence_of(:efective_date) }
+   
     context 'with invalid values' do
       let(:daily_code) { described_class.new(code: 'ABC', branch_office_id: branch_office.id) }
 

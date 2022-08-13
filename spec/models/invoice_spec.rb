@@ -4,7 +4,7 @@ RSpec.describe Invoice, type: :model do
   subject { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 10, 
     branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
   let(:branch_office) { BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id) }
-  let(:invoice_status) { InvoiceStatus.create!() }
+  let(:invoice_status) { InvoiceStatus.create!(description: 'Good') }
   let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
 
   
@@ -15,6 +15,8 @@ RSpec.describe Invoice, type: :model do
   end
 
   describe 'business_name attribute' do
+    it { validate_presence_of(:business_name) }
+    
     context 'with invalid value' do
       let(:invoice) { described_class.new(date: "12/08/2022", business_name: '', business_nit: '123', number: 1, subtotal: 10, total: 10, 
         branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) 
@@ -29,6 +31,8 @@ RSpec.describe Invoice, type: :model do
   end
 
   describe 'business_nit attribute' do
+    it { validate_presence_of(:business_nit) }
+    
     context 'with invalid value' do
       let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Juan', number: 1, subtotal: 10, total: 10, 
         branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) 
@@ -56,12 +60,6 @@ RSpec.describe Invoice, type: :model do
   end
 
   describe 'number attribute' do
-    context 'with invalid value' do
-      let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Juan', number: 1, subtotal: 10, total: 10, 
-        branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) 
-      }
-    end
-
     context 'validates uniqueness of number per invoice' do
       context 'with duplicated number' do
         before { described_class.create!(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, total: 10, 
@@ -85,6 +83,8 @@ RSpec.describe Invoice, type: :model do
   end
   
   describe 'subtotal attribute' do
+    it { validate_presence_of(:subtotal) }
+    
     context 'with nil value' do
       let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, total: 10, 
         branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
@@ -111,6 +111,8 @@ RSpec.describe Invoice, type: :model do
   end
 
   describe 'total attribute' do
+    it { validate_presence_of(:total) }
+    
     context 'with nil value' do
       let(:invoice) { described_class.new(date: "12/08/2022", business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, 
         branch_office_id: branch_office.id, invoice_status_id: invoice_status.id) }
@@ -137,6 +139,8 @@ RSpec.describe Invoice, type: :model do
   end
 
   describe 'date attribute' do
+    it { validate_presence_of(:date) }
+    
     context 'with invalid values' do
       let(:invoice) { described_class.new(business_name: 'Codify', business_nit: '123', number: 1, subtotal: 10, branch_office_id: branch_office.id, 
         invoice_status_id: invoice_status.id) }

@@ -1,6 +1,6 @@
 class InvoiceDetail < ApplicationRecord
   validates :description, presence: true
-  validates :unit_price, presence: true
+  validates :unit_price, presence: true, numericality: { greater_than_or_equal_to: 0, message: "Precio unitario debe ser mayor o igual a 0." }
   validates :quantity, presence: true, numericality: { greater_than_or_equal_to: 0, message: "Cantidad debe ser mayor o igual a 0." }
   validates :subtotal, presence: true, numericality: { greater_than_or_equal_to: 0, message: "Subtotal debe ser mayor o igual a 0." }
   validates :discount, presence: true, numericality: { greater_than_or_equal_to: 0, message: "Descuento debe ser mayor o igual a 0." }

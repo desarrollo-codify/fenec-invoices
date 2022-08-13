@@ -1,7 +1,7 @@
 class CreateInvoices < ActiveRecord::Migration[7.0]
   def change
     create_table :invoices do |t|
-      t.integer :number, null: false
+      t.integer :number
       t.datetime :date, null: false
       t.string :company_name
       t.string :company_nit

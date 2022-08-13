@@ -11,6 +11,8 @@ RSpec.describe BranchOffice, type: :model do
   end
 
   describe 'name attribute' do
+    it { validate_presence_of(:name) }
+    
     context 'with invalid value' do
       let(:branch_office) { described_class.new(number: 1, city: 'Santa Cruz', company_id: 1) }
 
@@ -23,6 +25,8 @@ RSpec.describe BranchOffice, type: :model do
   end
 
   describe 'number attribute' do
+    it { validate_presence_of(:number) }
+    
     context 'with invalid values' do
       let(:branch_office) { described_class.new(name: 'Codify', city: 'Santa Cruz', company_id: 1) }
 
@@ -53,6 +57,8 @@ RSpec.describe BranchOffice, type: :model do
   end
 
   describe 'city attribute' do
+    it { validate_presence_of(:city) }
+    
     context 'with invalid values' do
       let(:branch_office) { described_class.new(name: 'Codify', number: 1, company_id: 1) }
 
@@ -86,5 +92,4 @@ RSpec.describe BranchOffice, type: :model do
       end
     end
   end
-
 end

@@ -82,7 +82,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_10_210403) do
   end
 
   create_table "invoices", force: :cascade do |t|
-    t.integer "number", null: false
+    t.integer "number"
     t.datetime "date", null: false
     t.string "company_name"
     t.string "company_nit"

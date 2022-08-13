@@ -10,6 +10,8 @@ RSpec.describe Company, type: :model do
   end
 
   describe 'name attribute' do
+    it { validate_presence_of(:name) }
+    
     context 'with invalid values' do
       let(:company) { described_class.new(nit: '123', address: 'Anywhere') }
 
@@ -40,6 +42,8 @@ RSpec.describe Company, type: :model do
   end
 
   describe 'nit attribute' do
+    it { validate_presence_of(:nit) }
+    
     context 'with invalid values' do
       let(:company) { described_class.new(name: 'Codify', address: 'Anywhere') }
 
@@ -69,6 +73,8 @@ RSpec.describe Company, type: :model do
   end
 
   describe 'address attribute' do
+    it { validate_presence_of(:address) }
+    
     context 'with invalid values' do
       let(:company) { described_class.new(name: 'Codify', nit: '123') }
 
