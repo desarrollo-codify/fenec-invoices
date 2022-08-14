@@ -8,7 +8,7 @@ RSpec.describe Invoice, type: :model do
   end
   let(:invoice_status) { InvoiceStatus.create!(description: 'Good') }
   let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
-  
+
   subject { build(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
 
   describe 'with valid values' do
@@ -184,7 +184,10 @@ RSpec.describe Invoice, type: :model do
       end
 
       context 'with valid calculation' do
-        let(:invoice) { build(:invoice, default_values: true, business_name: 'Abc', subtotal: 10, discount: 1, gift_card: 1, advance: 1, total: 7, cash_paid: 7) }
+        let(:invoice) do
+          build(:invoice, default_values: true, business_name: 'Abc', subtotal: 10, discount: 1, gift_card: 1, advance: 1,
+                          total: 7, cash_paid: 7)
+        end
 
         it 'is valid' do
           expect(invoice).to be_valid

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-
   factory :company do
     name { 'Codify' }
     nit { '123' }
@@ -11,7 +10,7 @@ FactoryBot.define do
   factory :branch_office do
     name { 'Sucursal 1' }
     number { 1 }
-    city { 'Santa Cruz' } 
+    city { 'Santa Cruz' }
     company factory: :company
   end
 

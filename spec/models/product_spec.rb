@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Product, type: :model do
   let(:company) { Company.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
-  
+
   subject { build(:product, company: company) }
 
   describe 'with valid values' do

@@ -13,7 +13,7 @@ RSpec.describe InvoiceStatus, type: :model do
 
   describe 'description attribute' do
     it { validate_presence_of(:description) }
-    
+
     context 'with nil or empty value' do
       let(:invoice_status) { build(:invoice_status, description: nil) }
 

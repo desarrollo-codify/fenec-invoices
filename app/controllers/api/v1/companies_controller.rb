@@ -57,7 +57,6 @@ module Api
       end
 
       def super_admin_only
-        debugger
         render json: { message: 'Only admin users.' }, status: :unauthorized unless current_user.super_admin?
       end
     end

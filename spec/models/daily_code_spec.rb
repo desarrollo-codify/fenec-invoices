@@ -5,9 +5,8 @@ require 'rails_helper'
 RSpec.describe DailyCode, type: :model do
   it { is_expected.to belong_to(:branch_office) }
 
-  
   let(:company) { create(:company) }
-  let(:branch_office) { create(:branch_office, company: company )}
+  let(:branch_office) { create(:branch_office, company: company) }
   subject { build(:daily_code, branch_office: branch_office) }
 
   describe 'with valid values' do
