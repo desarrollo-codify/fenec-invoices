@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Measurement, type: :model do
-  subject { described_class.new(description: 'ABC') }
+  subject { build(:measurement) }
 
   describe 'with valid values' do
     it 'is valid' do
@@ -14,8 +14,8 @@ RSpec.describe Measurement, type: :model do
   describe 'description attribute' do
     it { validate_presence_of(:description) }
 
-    context 'with invalid value' do
-      let(:measurement) { described_class.new }
+    context 'with nil or empty value' do
+      let(:measurement) { build(:measurement, description: nil) }
 
       it 'is invalid' do
         expect(measurement).to_not be_valid

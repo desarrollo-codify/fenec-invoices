@@ -16,8 +16,8 @@ class InvoiceDetail < ApplicationRecord
   validate :subtotal_must_be_correctly_calculated
   validate :total_must_be_correctly_calculated
 
-  belongs_to :measurement
   belongs_to :product
+  belongs_to :measurement
   belongs_to :invoice
 
   after_initialize :default_values

@@ -3,8 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Client, type: :model do
-  subject { described_class.new(name: 'Cliente01', nit: 123, company_id: company.id) }
-  let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
+  it { is_expected.to belong_to(:company) }
+
+  let(:company) { create(:company) }
+  subject { build(:client, company: company) }
 
   describe 'with valid values' do
     it 'is valid' do
@@ -15,8 +17,8 @@ RSpec.describe Client, type: :model do
   describe 'name attribute' do
     it { validate_presence_of(:name) }
 
-    context 'with invalid values' do
-      let(:client) { described_class.new(nit: '123', company_id: company.id) }
+    context 'with nil or empty value' do
+      let(:client) { build(:client, name: nil) }
 
       it 'is invalid' do
         expect(client).to_not be_valid
@@ -26,7 +28,7 @@ RSpec.describe Client, type: :model do
     end
 
     context 'with special characters' do
-      let(:client) { described_class.new(name: '#$%', nit: '123', company_id: company.id) }
+      let(:client) { build(:client, name: '#$%') }
 
       it 'is not valid' do
         expect(client).to_not be_valid
@@ -34,7 +36,7 @@ RSpec.describe Client, type: :model do
     end
 
     context 'with accents' do
-      let(:client) { described_class.new(name: 'áü', nit: '123', company_id: company.id) }
+      let(:client) { build(:client, name: 'áü') }
 
       it 'is valid' do
         expect(client).to be_valid
@@ -45,8 +47,8 @@ RSpec.describe Client, type: :model do
   describe 'nit attribute' do
     it { validate_presence_of(:nit) }
 
-    context 'with invalid values' do
-      let(:client) { described_class.new(name: 'Cliente01', company_id: company.id) }
+    context 'with nil value' do
+      let(:client) { build(:client, nit: nil) }
 
       it 'is invalid' do
         expect(client).to_not be_valid
@@ -56,14 +58,8 @@ RSpec.describe Client, type: :model do
     context 'validates numericality of nit' do
       it { validate_numericality_of(:nit).only_integer }
 
-      context 'with a numeric value' do
-        let(:client) { described_class.new(name: 'Juan', nit: '123', company_id: company.id) }
-
-        it { expect(client).to be_valid }
-      end
-
       describe 'with a non-numeric value' do
-        let(:client) { described_class.new(name: 'Juan', nit: 'ABC', company_id: company.id) }
+        let(:client) { build(:client, nit: 'ABC') }
 
         it 'is invalid' do
           expect(client).to_not be_valid
@@ -74,8 +70,8 @@ RSpec.describe Client, type: :model do
   end
 
   describe 'company_id attribute' do
-    context 'with invalid values' do
-      let(:client) { described_class.new(nit: '123', name: 'Juan') }
+    context 'with nil value' do
+      let(:client) { build(:client, company: nil) }
 
       it 'is invalid' do
         expect(client).to_not be_valid

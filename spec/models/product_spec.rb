@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Product, type: :model do
-  subject { described_class.new(primary_code: 'ABC', description: 'Abc', company_id: company.id) }
   let(:company) { Company.create!(name: 'Codify', nit: '456', address: 'Santa Cruz') }
+  
+  subject { build(:product, company: company) }
 
   describe 'with valid values' do
     it 'is valid' do
@@ -15,8 +16,8 @@ RSpec.describe Product, type: :model do
   describe 'primary_code attribute' do
     it { validate_presence_of(:primary_code) }
 
-    context 'with invalid value' do
-      let(:product) { described_class.new(description: 'Code', company_id: company.id) }
+    context 'with nil or empty value' do
+      let(:product) { build(:product, primary_code: nil) }
 
       it 'is invalid' do
         expect(product).to_not be_valid
@@ -27,7 +28,7 @@ RSpec.describe Product, type: :model do
 
     context 'validates uniqueness of primary_code' do
       context 'with duplicated primary_code' do
-        before { described_class.create!(primary_code: 'ABC', description: 'Other', company_id: company.id) }
+        before { create(:product, company: company) }
 
         it 'is invalid when primary_code is duplicated' do
           expect(subject).to_not be_valid
@@ -36,7 +37,7 @@ RSpec.describe Product, type: :model do
       end
 
       context 'with different primary_code' do
-        before { described_class.create!(primary_code: 'DEF', description: 'Other', company_id: company.id) }
+        before { create(:product, primary_code: 'Def', company: company) }
 
         it 'is valid' do
           expect(subject).to be_valid
@@ -48,8 +49,8 @@ RSpec.describe Product, type: :model do
   describe 'description attribute' do
     it { validate_presence_of(:description) }
 
-    context 'with invalid value' do
-      let(:product) { described_class.new(primary_code: 'ABC', company_id: company.id) }
+    context 'with nil or empty value' do
+      let(:product) { build(:product, description: nil) }
 
       it 'is invalid' do
         expect(product).to_not be_valid
@@ -59,7 +60,7 @@ RSpec.describe Product, type: :model do
     end
 
     context 'with special characters' do
-      let(:product) { described_class.new(primary_code: 'ABC', description: '%^&', company_id: company.id) }
+      let(:product) { build(:product, description: '%^&') }
 
       it 'is not valid' do
         expect(product).to_not be_valid
@@ -67,7 +68,7 @@ RSpec.describe Product, type: :model do
     end
 
     context 'with allowed characters' do
-      let(:product) { described_class.new(primary_code: 'ABC', description: 'áü .-_', company_id: company.id) }
+      let(:product) { build(:product, description: 'áü .-_') }
 
       it 'is valid' do
         expect(product).to be_valid
@@ -76,8 +77,8 @@ RSpec.describe Product, type: :model do
   end
 
   describe 'company_id attribute' do
-    context 'with invalid value' do
-      let(:product) { described_class.new(primary_code: 'ABC', description: 'Code') }
+    context 'with nil value' do
+      let(:product) { build(:product, company_id: nil) }
 
       it 'is invalid' do
         expect(product).to_not be_valid

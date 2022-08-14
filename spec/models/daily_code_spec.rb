@@ -3,11 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe DailyCode, type: :model do
-  subject { described_class.new(code: 'ABC', effective_date: '2022-01-01', branch_office_id: branch_office.id) }
-  let(:branch_office) do
-    BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id)
-  end
-  let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
+  it { is_expected.to belong_to(:branch_office) }
+
+  
+  let(:company) { create(:company) }
+  let(:branch_office) { create(:branch_office, company: company )}
+  subject { build(:daily_code, branch_office: branch_office) }
 
   describe 'with valid values' do
     it 'is valid' do
@@ -18,8 +19,8 @@ RSpec.describe DailyCode, type: :model do
   describe 'code attribute' do
     it { validate_presence_of(:code) }
 
-    context 'with invalid values' do
-      let(:daily_code) { described_class.new(effective_date: '2022-01-01', branch_office_id: branch_office.id) }
+    context 'with nil or empty value' do
+      let(:daily_code) { build(:daily_code, code: nil) }
 
       it 'is invalid' do
         expect(daily_code).to_not be_valid
@@ -30,10 +31,10 @@ RSpec.describe DailyCode, type: :model do
   end
 
   describe 'efective_date attribute' do
-    it { validate_presence_of(:efective_date) }
+    it { validate_presence_of(:effective_date) }
 
-    context 'with invalid values' do
-      let(:daily_code) { described_class.new(code: 'ABC', branch_office_id: branch_office.id) }
+    context 'with nil value' do
+      let(:daily_code) { build(:daily_code, effective_date: nil) }
 
       it 'is invalid' do
         expect(daily_code).to_not be_valid
@@ -42,9 +43,7 @@ RSpec.describe DailyCode, type: :model do
 
     context 'validates uniqueness of effective_date' do
       context 'with duplicated value' do
-        before do
-          described_class.create!(code: 'ABC', effective_date: '2022-01-01', branch_office_id: branch_office.id)
-        end
+        before { create(:daily_code, branch_office: branch_office) }
 
         it 'is invalid' do
           expect(subject).to_not be_valid
@@ -53,19 +52,15 @@ RSpec.describe DailyCode, type: :model do
       end
 
       context 'with different effective_date' do
-        before do
-          described_class.create!(code: 'ABC', effective_date: '2021-12-31', branch_office_id: branch_office.id)
-        end
+        before { create(:daily_code, branch_office: branch_office, effective_date: '2021-12-31') }
 
         it { expect(subject).to be_valid }
       end
     end
 
     context 'with an effective date lower than the last one' do
-      before { described_class.create!(code: 'ABC', effective_date: '2022-01-02', branch_office_id: branch_office.id) }
-      let(:daily_code) do
-        described_class.new(code: 'ABC', effective_date: '2022-01-01', branch_office_id: branch_office.id)
-      end
+      before { create(:daily_code, branch_office: branch_office, effective_date: '2022-01-02') }
+      let(:daily_code) { build(:daily_code, effective_date: '2022-01-01', branch_office: branch_office) }
 
       it 'is invalid' do
         expect(daily_code).to_not be_valid

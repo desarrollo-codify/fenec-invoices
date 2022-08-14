@@ -3,23 +3,18 @@
 require 'rails_helper'
 
 RSpec.describe InvoiceDetail, type: :model do
-  let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
-  let(:product) { Product.create!(primary_code: 'ABC', description: 'ABC', company_id: company.id) }
-  let(:measurement) { Measurement.create!(description: 'ABC') }
-  let(:branch_office) do
-    BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz', company_id: company.id)
-  end
-  let(:invoice_status) { InvoiceStatus.create!(description: 'Good') }
-  let(:invoice) do
-    Invoice.create!(date: '2022-01-01', business_name: 'Codify', company_name: 'SRL', business_nit: '123', number: 1,
-                    subtotal: 10, total: 10, cash_paid: 10,
-                    branch_office_id: branch_office.id, invoice_status_id: invoice_status.id)
-  end
+  it { is_expected.to belong_to(:invoice) }
+  it { is_expected.to belong_to(:product) }
+  it { is_expected.to belong_to(:measurement) }
 
-  subject do
-    described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
-                        product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-  end
+  let(:company) { create(:company) }
+  let(:product) { create(:product, company: company) }
+  let(:measurement) { create(:measurement) }
+  let(:branch_office) { create(:branch_office, company: company) }
+  let(:invoice_status) { create(:invoice_status) }
+  let(:invoice) { create(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
+
+  subject { build(:invoice_detail, invoice: invoice, measurement: measurement) }
 
   describe 'with valid values' do
     it 'is valid' do
@@ -30,11 +25,8 @@ RSpec.describe InvoiceDetail, type: :model do
   describe 'description attribute' do
     it { validate_presence_of(:description) }
 
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+    context 'with nil or empty value' do
+      let(:invoice_detail) { build(:invoice_detail, description: nil) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -44,10 +36,7 @@ RSpec.describe InvoiceDetail, type: :model do
     end
 
     context 'with special characters' do
-      let(:invoice_detail) do
-        described_class.new(description: '$%^', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+      let(:invoice_detail) { build(:invoice_detail, description: '$%^') }
 
       it 'is not valid' do
         expect(invoice_detail).to_not be_valid
@@ -55,10 +44,7 @@ RSpec.describe InvoiceDetail, type: :model do
     end
 
     context 'with allowed characters' do
-      let(:invoice_detail) do
-        described_class.new(description: 'áu .-_', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+      let(:invoice_detail) { build(:invoice_detail, description: 'áu .-_') }
 
       it 'is valid' do
         expect(invoice_detail).to be_valid
@@ -69,11 +55,8 @@ RSpec.describe InvoiceDetail, type: :model do
   describe 'unit_price attribute' do
     it { validate_presence_of(:unit_price) }
 
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', quantity: 1, subtotal: 1, discount: 0, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, unit_price: nil) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -83,11 +66,8 @@ RSpec.describe InvoiceDetail, type: :model do
     context 'validates numericality of unit price' do
       it { validate_numericality_of(:invoice_detail).is_greater_than_or_equal_to(0) }
 
-      context 'with non-numeric value' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 'A', quantity: 1, subtotal: 1, discount: 0, total: 1,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+      context 'with non-numeric or lower than zero value' do
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 'A') }
 
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
@@ -101,11 +81,8 @@ RSpec.describe InvoiceDetail, type: :model do
   describe 'quantity attribute' do
     it { validate_presence_of(:quantity) }
 
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, subtotal: 1, discount: 0, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail) }
 
       it 'it has a valid default value' do
         expect(invoice_detail).to be_valid
@@ -116,10 +93,7 @@ RSpec.describe InvoiceDetail, type: :model do
       it { validate_numericality_of(:quantity).is_greater_than_or_equal_to(0) }
 
       context 'with non-numeric value' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 'A', subtotal: 1, discount: 0, total: 1,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+        let(:invoice_detail) { build(:invoice_detail, quantity: 'A') }
 
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
@@ -133,11 +107,8 @@ RSpec.describe InvoiceDetail, type: :model do
   describe 'subtotal attribute' do
     it { validate_presence_of(:subtotal) }
 
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, quantity: 1, discount: 0, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, subtotal: nil) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -147,11 +118,8 @@ RSpec.describe InvoiceDetail, type: :model do
     context 'validates numericality of subtotal' do
       it { validate_numericality_of(:subtotal).is_greater_than_or_equal_to(0) }
 
-      context 'with non-numeric value' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 'A', discount: 0, total: 1,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+      context 'with non-numeric or lower than 0 value' do
+        let(:invoice_detail) { build(:invoice_detail, subtotal: 'A') }
 
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
@@ -163,10 +131,7 @@ RSpec.describe InvoiceDetail, type: :model do
 
     context 'validates calculation' do
       context 'with invalid calculation' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 1, total: 1,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 1, total: 1) }
 
         it 'is not valid' do
           expect(invoice_detail).to_not be_valid
@@ -175,10 +140,7 @@ RSpec.describe InvoiceDetail, type: :model do
       end
 
       context 'with valid calculation' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 2, total: 2,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, total: 2) }
 
         it 'is valid' do
           expect(invoice_detail).to be_valid
@@ -190,11 +152,8 @@ RSpec.describe InvoiceDetail, type: :model do
   describe 'discount attribute' do
     it { validate_presence_of(:discount) }
 
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail) }
 
       it 'it has a valid default value' do
         expect(invoice_detail).to be_valid
@@ -205,10 +164,7 @@ RSpec.describe InvoiceDetail, type: :model do
       it { validate_numericality_of(:discount).is_greater_than_or_equal_to(0) }
 
       context 'with non-numeric value' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 'A', total: 1,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+        let(:invoice_detail) { build(:invoice_detail, discount: 'A') }
 
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
@@ -219,10 +175,7 @@ RSpec.describe InvoiceDetail, type: :model do
     end
 
     context 'validates discount not greater than subtotal' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 2, total: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+      let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 1, subtotal: 1, discount: 2, total: 1) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -234,11 +187,8 @@ RSpec.describe InvoiceDetail, type: :model do
   describe 'total attribute' do
     it { validate_presence_of(:total) }
 
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, quantity: 1, discount: 0, subtotal: 1,
-                            product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, total: nil) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -248,11 +198,8 @@ RSpec.describe InvoiceDetail, type: :model do
     context 'validates numericality of total' do
       it { validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
 
-      context 'with non-numeric value' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 'A',
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+      context 'with non-numeric or lower than zero value' do
+        let(:invoice_detail) { build(:invoice_detail, total: 'A') }
 
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
@@ -264,11 +211,7 @@ RSpec.describe InvoiceDetail, type: :model do
 
     context 'validates calculation' do
       context 'with invalid calculation' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 2,
-                              discount: 1, total: 2,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 2) }
 
         it 'is not valid' do
           expect(invoice_detail).to_not be_valid
@@ -277,11 +220,7 @@ RSpec.describe InvoiceDetail, type: :model do
       end
 
       context 'with valid calculation' do
-        let(:invoice_detail) do
-          described_class.new(description: 'ABC', unit_price: 1, quantity: 2, subtotal: 2,
-                              discount: 1, total: 1,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-        end
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 1) }
 
         it 'is valid' do
           expect(invoice_detail).to be_valid
@@ -291,11 +230,8 @@ RSpec.describe InvoiceDetail, type: :model do
   end
 
   describe 'product_id attribute' do
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, quantity: 1, discount: 0, subtotal: 1,
-                            total: 1, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, product: nil) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -304,11 +240,8 @@ RSpec.describe InvoiceDetail, type: :model do
   end
 
   describe 'measurement_id attribute' do
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, quantity: 1, discount: 0, subtotal: 1,
-                            total: 1, invoice_id: invoice.id, product_id: product.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, measurement: nil) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -317,11 +250,8 @@ RSpec.describe InvoiceDetail, type: :model do
   end
 
   describe 'invoice_id attribute' do
-    context 'with invalid value' do
-      let(:invoice_detail) do
-        described_class.new(description: 'ABC', unit_price: 1, quantity: 1, discount: 0, subtotal: 1,
-                            total: 1, product_id: product.id, measurement_id: measurement.id)
-      end
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, invoice: nil) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
