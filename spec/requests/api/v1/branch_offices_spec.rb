@@ -31,14 +31,14 @@ RSpec.describe '/api/v1/branch_offices', type: :request do
 
       it 'updates the requested branch_office' do
         put api_v1_branch_office_url(branch_office),
-              params: { branch_office: new_attributes }, headers: valid_headers, as: :json
+            params: { branch_office: new_attributes }, headers: valid_headers, as: :json
         branch_office.reload
         expect(branch_office.name).to eq('new name')
       end
 
       it 'renders a JSON response with the branch_office' do
         put api_v1_branch_office_url(branch_office),
-              params: { branch_office: new_attributes }, headers: valid_headers, as: :json
+            params: { branch_office: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end

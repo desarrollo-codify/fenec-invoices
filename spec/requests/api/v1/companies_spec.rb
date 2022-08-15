@@ -76,19 +76,19 @@ RSpec.describe '/api/v1/companies', type: :request do
 
   describe 'PUT /update' do
     context 'with valid parameters' do
-      let(:new_attributes) { {name: 'new name'} }
+      let(:new_attributes) { { name: 'new name' } }
       let(:company) { create(:company) }
 
       it 'updates the requested company' do
         put api_v1_company_url(company),
-              params: { company: new_attributes }, headers: valid_headers, as: :json
+            params: { company: new_attributes }, headers: valid_headers, as: :json
         company.reload
         expect(company.name).to eq('new name')
       end
 
       it 'renders a JSON response with the company' do
         put api_v1_company_url(company),
-              params: { company: new_attributes }, headers: valid_headers, as: :json
+            params: { company: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end

@@ -29,14 +29,14 @@ RSpec.describe '/api/v1/daily_codes', type: :request do
 
       it 'updates the requested daily_code' do
         put api_v1_daily_code_url(daily_code),
-              params: { daily_code: new_attributes }, headers: valid_headers, as: :json
+            params: { daily_code: new_attributes }, headers: valid_headers, as: :json
         daily_code.reload
         expect(daily_code.code).to eq('456')
       end
 
       it 'renders a JSON response with the daily_code' do
         put api_v1_daily_code_url(daily_code),
-              params: { daily_code: new_attributes }, headers: valid_headers, as: :json
+            params: { daily_code: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -47,7 +47,7 @@ RSpec.describe '/api/v1/daily_codes', type: :request do
 
       it 'renders a JSON response with errors for the daily_code' do
         put api_v1_daily_code_url(daily_code),
-              params: { daily_code: invalid_attributes }, headers: valid_headers, as: :json
+            params: { daily_code: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end

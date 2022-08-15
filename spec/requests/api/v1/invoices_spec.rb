@@ -19,7 +19,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
   describe 'GET /show' do
     let(:invoice) { create(:invoice) }
-    
+
     it 'renders a successful response' do
       get api_v1_invoice_url(invoice), as: :json
       expect(response).to be_successful
@@ -33,14 +33,14 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
       it 'updates the requested invoice' do
         put api_v1_invoice_url(invoice),
-              params: { invoice: new_attributes }, headers: valid_headers, as: :json
+            params: { invoice: new_attributes }, headers: valid_headers, as: :json
         invoice.reload
         expect(invoice.number).to eq(2)
       end
 
       it 'renders a JSON response with the api_v1_invoice' do
         put api_v1_invoice_url(invoice),
-              params: { invoice: new_attributes }, headers: valid_headers, as: :json
+            params: { invoice: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -51,7 +51,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
       it 'renders a JSON response with errors for the api_v1_invoice' do
         put api_v1_invoice_url(invoice),
-              params: { invoice: invalid_attributes }, headers: valid_headers, as: :json
+            params: { invoice: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end

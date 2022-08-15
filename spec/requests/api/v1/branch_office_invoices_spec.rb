@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :request do
-  let(:invoice_status) { create(:invoice_status )}
+  let(:invoice_status) { create(:invoice_status) }
   let(:valid_attributes) do
     {
       date: '2022-01-01',
