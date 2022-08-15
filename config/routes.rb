@@ -18,6 +18,14 @@ Rails.application.routes.draw do
         resources :products, shallow: true
         resources :clients, only: %i[index create]
       end
+
+      # siat controller
+      post 'siat/generate_cuis'
+      get 'siat/show_cuis'
+      post 'siat/generate_cufd'
+      get 'siat/show_cufd'
+      get 'siat/siat_codes'
+      post 'siat/bulk_products_update'
     end
   end
 end
