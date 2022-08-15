@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Api::V1::InvoicesController, type: :routing do
   describe 'routing' do
     it 'routes to #index' do
-      expect(get: '/api/v1/invoices').to route_to('api/v1/invoices#index')
+      expect(get: '/api/v1/branch_offices/1/invoices').to route_to('api/v1/invoices#index', branch_office_id: '1')
     end
 
     it 'routes to #show' do
@@ -13,7 +13,7 @@ RSpec.describe Api::V1::InvoicesController, type: :routing do
     end
 
     it 'routes to #create' do
-      expect(post: '/api/v1/invoices').to route_to('api/v1/invoices#create')
+      expect(post: '/api/v1/branch_offices/1/invoices').to route_to('api/v1/invoices#create', branch_office_id: '1')
     end
 
     it 'routes to #update via PUT' do

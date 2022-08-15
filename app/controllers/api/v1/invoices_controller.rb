@@ -21,9 +21,8 @@ module Api
       # POST /api/v1/invoices
       def create
         @invoice = @branch_office.invoices.build(invoice_params)
-
         if @invoice.save
-          render json: @invoice, status: :created, location: @invoice
+          render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
@@ -60,8 +59,9 @@ module Api
         # TODO: add strong params for details
         params.require(:invoice).permit(:number, :date, :company_name, :company_nit, :business_name, :business_nit,
                                         :authorization, :key, :end_date, :activity_type, :control_code, :qr_content,
-                                        :subtotal, :discount, :total, :paid, :change, :cancellation_date, :exchange_rate,
-                                        :cuis_code, :cufd_code)
+                                        :subtotal, :discount, :gift_card, :advance, :total, :cash_paid, :qr_paid,
+                                        :card_paid, :online_paid, :change, :cancellation_date, :exchange_rate,
+                                        :cuis_code, :cufd_code, :invoice_status_id)
       end
     end
   end

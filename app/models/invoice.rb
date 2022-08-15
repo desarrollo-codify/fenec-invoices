@@ -10,9 +10,9 @@ class Invoice < ApplicationRecord
             uniqueness: { scope: :cufd_code,
                           message: 'Ya existe este número de factura con el código único de facturación diaria.' }
   validates :subtotal, presence: true,
-                       numericality: { only_integer: true, message: 'El subtotal debe ser un valor numérico.' }
+                       numericality: { message: 'El subtotal debe ser un valor numérico.' }
   validates :total, presence: true,
-                    numericality: { only_integer: true, message: 'El total debe ser un valor numérico.' }
+                    numericality: { message: 'El total debe ser un valor numérico.' }
   validate :discount_cannot_be_greater_than_subtotal
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total
