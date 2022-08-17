@@ -9,5 +9,5 @@ class Company < ApplicationRecord
   has_many :products, dependent: :destroy
   has_many :invoices, through: :branch_offices
   has_many :clients, dependent: :destroy
-  has_many :delegate_tokens, dependent: :destroy
+  has_many :delegated_tokens, dependent: :destroy
 end

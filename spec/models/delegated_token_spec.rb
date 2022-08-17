@@ -26,6 +26,22 @@ RSpec.describe DelegatedToken, type: :model do
         expect(delegated_token).to_not be_valid
       end
     end
+    context 'validates uniqueness of key' do
+      context 'with duplicated value' do
+        before { create(:delegated_token, company: company) }
+
+        it 'is invalid' do
+          expect(subject).to_not be_valid
+          expect(subject.errors[:token]).to eq ['Solo puede ser una key por empresa.']
+        end
+      end
+
+      context 'with different token' do
+        before { create(:delegated_token, company: company, token: 'ABCD') }
+
+        it { expect(subject).to be_valid }
+      end
+    end
   end
 
   describe 'expiration_date attribute' do
@@ -40,5 +56,6 @@ RSpec.describe DelegatedToken, type: :model do
         expect(delegated_token).to_not be_valid
       end
     end
+    
   end
 end

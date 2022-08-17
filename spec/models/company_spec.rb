@@ -6,6 +6,7 @@ RSpec.describe Company, type: :model do
   it { is_expected.to have_many(:clients) }
   it { is_expected.to have_many(:products) }
   it { is_expected.to have_many(:branch_offices) }
+  it { is_expected.to have_many(:delegated_tokens) }
   it { is_expected.to have_many(:invoices).through(:branch_offices) }
 
   subject { build(:company) }
@@ -138,6 +139,19 @@ RSpec.describe Company, type: :model do
 
       it 'destroys the Client' do
         expect { company.destroy }.to change { Client.count }.by(-1)
+      end
+    end
+  end
+
+  describe 'validates dependent destroy for delegated_tokens' do
+    it { expect(subject).to have_many(:delegated_tokens).dependent(:destroy) }
+
+    context 'when deleting a company' do
+      let(:company) { create(:company) }
+      before { create(:delegated_token, company: company) }
+
+      it 'destroys the Client' do
+        expect { company.destroy }.to change { DelegatedToken.count }.by(-1)
       end
     end
   end
