@@ -36,13 +36,13 @@ module FenecInvoices
     config.before_configuration do
       env_file = File.join(Rails.root, 'config', 'siat.yml')
       if File.exist?(env_file)
-        YAML.safe_load(File.open(env_file)).each do |key, value|
-          next unless key == 'default'
-
-          value.each do |v_key, v_value|
-            ENV[v_key.to_s] = v_value
+        YAML.load(File.open(env_file)).each do |key, value|
+          if key == 'default'
+            value.each do |v_key, v_value|
+              ENV[v_key.to_s] = v_value
+            end
           end
-        end
+        end if File.exists?(env_file)
       end
     end
   end
