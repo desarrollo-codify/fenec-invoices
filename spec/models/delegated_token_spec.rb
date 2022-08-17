@@ -56,6 +56,19 @@ RSpec.describe DelegatedToken, type: :model do
         expect(delegated_token).to_not be_valid
       end
     end
-    
+  end
+  
+  describe 'company attribute' do
+    it { validate_presence_of(:company) }
+
+    context 'with nil or empty value' do
+      let(:delegated_token) { build(:delegated_token, company: nil) }
+
+      it 'is invalid' do
+        expect(delegated_token).to_not be_valid
+        delegated_token.company = ''
+        expect(delegated_token).to_not be_valid
+      end
+    end
   end
 end
