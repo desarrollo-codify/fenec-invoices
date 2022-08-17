@@ -46,6 +46,10 @@ module Api
       def set_company
         @company = Company.find(params[:company_id])
       end
+
+      def delegated_token_params
+        params.require(:delegated_token).permit(:token, :expiration_date)
+      end    
     end
   end
 end

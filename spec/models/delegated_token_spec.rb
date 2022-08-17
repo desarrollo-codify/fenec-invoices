@@ -66,8 +66,6 @@ RSpec.describe DelegatedToken, type: :model do
 
       it 'is invalid' do
         expect(delegated_token).to_not be_valid
-        delegated_token.company = ''
-        expect(delegated_token).to_not be_valid
       end
     end
   end
