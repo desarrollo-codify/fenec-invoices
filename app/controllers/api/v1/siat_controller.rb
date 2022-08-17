@@ -4,21 +4,13 @@ class Api::V1::SiatController < ApplicationController
   before_action :set_branch_office, only: %i[generate_cuis]
 
   def generate_cuis
-    client = Savon.client(
-      wsdl: 'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionCodigos?wsdl',
-      headers: { 
-        'apikey' => 'TokenApi eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEb21pVXAiLCJjb2RpZ29TaXN0ZW1hIjoiNzIxOUYyOUI2MzExNkNFMDQ2QTc2M0UiLCJuaXQiOiJINHNJQUFBQUFBQUFBRE14TURReXRqQXdNZ01BTGVnQWdna0FBQUE9IiwiaWQiOjMwMTQ3MTksImV4cCI6MTY2NDQ5NjAwMCwiaWF0IjoxNjYwNTc1MjgwLCJuaXREZWxlZ2FkbyI6NDAxMjM4MDI2LCJzdWJzaXN0ZW1hIjoiU0ZFIn0.pAOEdkalOYZrm5G8sYwlv5SNt4H-t1MgGYfz-N3QM73WeHCcYmo8FMHq2GBmSxnsGlNDLx2rb4somiD7S4Gfsg',
-        'SOAPAction' => ''
-      },
-      namespace: "https://siat.impuestos.gob.bo/",
-      convert_request_keys_to: :none
-    )
+    client = siat_client('cuis_wsdl')
 
     body = {
       'SolicitudCuis': {
         'codigoAmbiente': 2,
-        'codigoSistema': '7219F29B63116CE046A763E',
-        nit: 401238026,
+        'codigoSistema': ENV['system_code'],
+        nit: @branch_office.company.nit,
         'codigoModalidad': 2,
         'codigoSucursal': 0
       }
@@ -56,5 +48,17 @@ class Api::V1::SiatController < ApplicationController
 
   def set_branch_office
     @branch_office = BranchOffice.find(params[:branch_office_id])
+  end
+
+  def siat_client(wsdl_name)
+    Savon.client(
+      wsdl: ENV[wsdl_name],
+      headers: { 
+        'apikey' => ENV['api_key'],
+        'SOAPAction' => ''
+      },
+      namespace: ENV['siat_namespace'],
+      convert_request_keys_to: :none
+    )
   end
 end
