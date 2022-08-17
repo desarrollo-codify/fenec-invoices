@@ -33,17 +33,17 @@ module FenecInvoices
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # rubocop:disable all
     config.before_configuration do
       env_file = File.join(Rails.root, 'config', 'siat.yml')
-      if File.exist?(env_file)
-        YAML.load(File.open(env_file)).each do |key, value|
-          if key == 'default'
-            value.each do |v_key, v_value|
-              ENV[v_key.to_s] = v_value
-            end
+      YAML.load(File.open(env_file)).each do |key, value|
+        if key == 'default'
+          value.each do |v_key, v_value|
+            ENV[v_key.to_s] = v_value
           end
-        end if File.exists?(env_file)
-      end
+        end
+      end if File.exists?(env_file)
     end
+    # rubocop:enable all
   end
 end
