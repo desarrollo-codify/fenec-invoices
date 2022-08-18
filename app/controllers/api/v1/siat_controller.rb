@@ -15,7 +15,7 @@ module Api
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
-            codigoSucursal: 0
+            codigoSucursal: @branch_office.number
           }
         }
 
@@ -23,8 +23,11 @@ module Api
         if response.success?
           data = response.to_array(:cuis_response, :respuesta_cuis).first
 
-          codigo = data[:codigo]
-          @branch_office.update cuis_number: codigo
+          code = data[:codigo]
+          expiration_date = data[:fecha_vigencia]
+
+          @branch_office.add_cuis_code!(code, expiration_date)
+
           render json: data
         else
           render json: 'The siat endpoint throwed an error', status: :internal_server_error
@@ -32,8 +35,8 @@ module Api
       end
 
       def show_cuis
-        if @branch_office.cuis_number
-          render json: @branch_office.cuis_number
+        if @branch_office.cuis_codes.last
+          render json: @branch_office.cuis_codes.code
         else
           error_message = 'La sucursal no tiene CUIS. Por favor genere uno nuevo.'
           render json: error_message, status: :not_found
@@ -41,7 +44,7 @@ module Api
       end
 
       def generate_cufd
-        if @branch_office.cuis_number.blank?
+        if @branch_office.cuis_codes.code.blank?
           render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
           return
         end
@@ -53,8 +56,8 @@ module Api
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
-            cuis: @branch_office.cuis_number,
-            codigoSucursal: 0
+            cuis: @branch_office.cuis_codes.code,
+            codigoSucursal: @branch_office.number
           }
         }
 
@@ -62,9 +65,9 @@ module Api
         if response.success?
           data = response.to_array(:cufd_response, :respuesta_cufd).first
 
-          codigo = data[:codigo]
+          code = data[:codigo]
 
-          @daily_code = @branch_office.daily_codes.build(code: codigo, effective_date: '2022-08-16')
+          @daily_code = @branch_office.daily_codes.build(code: code, effective_date: '2022-08-16')
           if @daily_code.save
             render json: data
           else
@@ -93,8 +96,8 @@ module Api
             codigoAmbiente: 2,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
-            cuis: @branch_office.cuis_number,
-            codigoSucursal: 0
+            cuis: @branch_office.cuis_codes.code,
+            codigoSucursal: @branch_office.number
           }
         }
 
