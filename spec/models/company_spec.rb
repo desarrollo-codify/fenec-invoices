@@ -141,4 +141,17 @@ RSpec.describe Company, type: :model do
       end
     end
   end
+
+  describe 'validates dependent destroy for economic activities' do
+    it { expect(subject).to have_many(:economic_activities).dependent(:destroy) }
+
+    context 'when deleting a company' do
+      let(:company) { create(:company) }
+      before { create(:economic_activity, company: company) }
+
+      it 'destroys the economic activity' do
+        expect { company.destroy }.to change { EconomicActivity.count }.by(-1)
+      end
+    end
+  end
 end
