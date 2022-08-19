@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         post 'siat/generate_cufd'
         get 'siat/show_cufd'
         get 'siat/siat_product_codes'
+        post 'siat/load_economic_activities'
       end
 
       # siat controller
