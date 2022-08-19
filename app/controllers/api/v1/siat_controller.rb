@@ -114,6 +114,37 @@ module Api
 
       def bulk_products_update; end
 
+      def load_economic_activities
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @branch_office.cuis_number,
+            codigoSucursal: 0
+          }
+        }
+
+        response = client.call(:sincronizar_actividades, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_actividades_response, :respuesta_lista_actividades, :lista_actividades)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_caeb, :descripcion,
+                        :tipo_actividad
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1], activity_type: attrs[2] } }
+          company = @branch_office.company
+          company.bulk_load_economic_activities(activities)
+
+          render json: data
+        else
+          render json: 'The siat endpoint throwed an error', status: :internal_server_error
+        end
+      end
+
       private
 
       def set_branch_office

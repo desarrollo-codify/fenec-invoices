@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_18_194942) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_19_035414) do
   create_table "branch_offices", force: :cascade do |t|
     t.string "name", null: false
     t.string "phone"
@@ -72,6 +72,17 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_18_194942) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_delegated_tokens_on_company_id"
+  end
+
+  create_table "economic_activities", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.string "activity_type"
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "code"], name: "index_economic_activities_on_company_id_and_code", unique: true
+    t.index ["company_id"], name: "index_economic_activities_on_company_id"
   end
 
   create_table "invoice_details", force: :cascade do |t|
@@ -187,6 +198,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_18_194942) do
   add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"
+  add_foreign_key "economic_activities", "companies"
   add_foreign_key "invoice_details", "invoices"
   add_foreign_key "invoice_details", "measurements"
   add_foreign_key "invoice_details", "products"
