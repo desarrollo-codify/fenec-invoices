@@ -101,4 +101,14 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
   end
+
+  factory :payment_method do
+    code { '12345' }
+    description { 'Abc' }
+  end
+
+  factory :legend do
+    code { '12345' }
+    description { 'Abc' }
+  end
 end

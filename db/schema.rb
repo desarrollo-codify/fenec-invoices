@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_220_819_145_621) do
+ActiveRecord::Schema[7.0].define(version: 20_220_819_212_900) do
   create_table 'branch_offices', force: :cascade do |t|
     t.string 'name', null: false
     t.string 'phone'
@@ -161,16 +161,25 @@ ActiveRecord::Schema[7.0].define(version: 20_220_819_145_621) do
     t.index ['jti'], name: 'index_jwt_denylist_on_jti'
   end
 
+  create_table 'legends', force: :cascade do |t|
+    t.integer 'code', null: false
+    t.string 'description', null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+  end
+
   create_table 'measurements', force: :cascade do |t|
     t.string 'description'
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
   end
 
-  create_table 'payment_channels', force: :cascade do |t|
-    t.string 'description'
+  create_table 'payment_methods', force: :cascade do |t|
+    t.integer 'code', null: false
+    t.string 'description', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.index ['code'], name: 'index_payment_methods_on_code', unique: true
   end
 
   create_table 'products', force: :cascade do |t|

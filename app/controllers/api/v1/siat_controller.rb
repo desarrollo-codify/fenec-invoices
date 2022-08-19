@@ -150,7 +150,7 @@ module Api
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             cuis: @cuis_code.code,
-            codigoSucursal: 0
+            codigoSucursal: @branch_office.number
           }
         }
 
@@ -165,6 +165,68 @@ module Api
           activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
 
           DocumentType.bulk_load(activities)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def load_payment_methods
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_metodo_pago, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_metodo_pago_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          PaymentMethod.bulk_load(activities)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def load_legends
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_lista_leyendas_factura, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_lista_leyendas_factura_response, :respuesta_lista_parametricas_leyendas,
+                                   :lista_leyendas)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_actividad, :descripcion_leyenda
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          Legend.bulk_load(activities)
 
           render json: data
         else

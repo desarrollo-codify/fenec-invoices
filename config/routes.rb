@@ -28,8 +28,12 @@ Rails.application.routes.draw do
         get 'siat/siat_product_codes'
         post 'siat/load_economic_activities'
         post 'siat/load_document_types'
+        post 'siat/load_payment_methods'
+        post 'siat/load_legends'
       end
       resources :document_types, only: %i[index]
+      resources :legends, only: %i[index]
+      resources :payment_methods, only: %i[index]
 
       # siat controller
       post 'siat/bulk_products_update'
