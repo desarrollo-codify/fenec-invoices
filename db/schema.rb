@@ -12,18 +12,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_220_819_212_900) do
-  create_table 'branch_offices', force: :cascade do |t|
-    t.string 'name', null: false
-    t.string 'phone'
-    t.string 'address'
-    t.string 'city', null: false
-    t.integer 'number', null: false
-    t.integer 'company_id', null: false
-    t.datetime 'created_at', null: false
-    t.datetime 'updated_at', null: false
-    t.index %w[company_id number], name: 'index_branch_offices_on_company_id_and_number', unique: true
-    t.index ['company_id'], name: 'index_branch_offices_on_company_id'
+ActiveRecord::Schema[7.0].define(version: 2022_08_19_035414) do
+  create_table "branch_offices", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "phone"
+    t.string "address"
+    t.string "city", null: false
+    t.integer "number", null: false
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "number"], name: "index_branch_offices_on_company_id_and_number", unique: true
+    t.index ["company_id"], name: "index_branch_offices_on_company_id"
   end
 
   create_table 'clients', force: :cascade do |t|
