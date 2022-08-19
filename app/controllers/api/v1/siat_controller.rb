@@ -110,7 +110,7 @@ module Api
 
       def bulk_products_update; end
 
-      def load_economic_activities 
+      def load_economic_activities
         client = siat_client('products_wsdl')
 
         body = {
