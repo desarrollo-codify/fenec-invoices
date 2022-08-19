@@ -25,10 +25,12 @@ Rails.application.routes.draw do
         post 'siat/generate_cufd'
         get 'siat/show_cufd'
         get 'siat/siat_product_codes'
+        post 'siat/load_document_types'
       end
 
       # siat controller
-      post 'siat/bulk_products_update'
+      post 'siat/bulk_products_update'      
+      resources :document_types, only: %i[index]
     end
   end
 end
