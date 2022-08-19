@@ -10,6 +10,6 @@ class CreateDailyCodes < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
-    add_index :daily_codes, %i[branch_office_id date], unique: true
+    add_index :daily_codes, %i[branch_office_id effective_date], unique: true
   end
 end
