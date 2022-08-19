@@ -5,4 +5,8 @@ class EconomicActivity < ApplicationRecord
   validates :description, presence: true, format: { with: VALID_NAME_REGEX }
 
   belongs_to :company
+
+  def initialize(attributes = {})
+    super(attributes)
+  end
 end

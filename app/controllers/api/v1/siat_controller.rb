@@ -127,7 +127,13 @@ module Api
         if response.success?
           data = response.to_array(:sincronizar_actividades_response, :respuesta_lista_actividades, :lista_actividades)
 
-          # TODO: bulk load
+          response_data = data.map do |a|
+            a.values_at :codigo_caeb, :descripcion,
+                        :tipo_actividad
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1], activity_type: attrs[2] } }
+          company = @branch_office.company
+          company.bulk_load_economic_activities(activities)
 
           render json: data
         else

@@ -10,5 +10,6 @@ class CreateEconomicActivities < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
+    add_index :economic_activities, %i[company_id code], unique: true
   end
 end

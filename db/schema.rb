@@ -66,6 +66,7 @@ ActiveRecord::Schema[7.0].define(version: 20_220_819_035_414) do
     t.integer 'company_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.index %w[company_id code], name: 'index_economic_activities_on_company_id_and_code', unique: true
     t.index ['company_id'], name: 'index_economic_activities_on_company_id'
   end
 
