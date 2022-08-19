@@ -9,6 +9,7 @@ class Company < ApplicationRecord
   has_many :products, dependent: :destroy
   has_many :invoices, through: :branch_offices
   has_many :clients, dependent: :destroy
+  has_many :delegated_tokens, dependent: :destroy
   has_many :economic_activities, dependent: :destroy
 
   def bulk_load_economic_activities(activities)

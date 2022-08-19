@@ -32,6 +32,12 @@ FactoryBot.define do
     branch_office factory: :branch_office
   end
 
+  factory :delegated_token do
+    token { 'ABC' }
+    expiration_date { '2022-01-01' }
+    company factory: :company
+  end
+
   factory :measurement do
     description { 'ABC' }
   end
