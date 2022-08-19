@@ -16,4 +16,7 @@ class BranchOffice < ApplicationRecord
       cuis_codes.create(code: code, expiration_date: expiration_date)
     end
   end
+  def add_daily_code!(code, effective_date)        
+     daily_codes.create(code: code, effective_date: effective_date)
+  end
 end

@@ -6,6 +6,7 @@ module Api
       require 'savon'
 
       before_action :set_branch_office, only: %i[generate_cuis show_cuis generate_cufd show_cufd siat_product_codes]
+      before_action :set_cuis_code, only: %i[generate_cuis show_cuis generate_cufd show_cufd siat_product_codes]
 
       def generate_cuis
         client = siat_client('cuis_wsdl')
@@ -30,13 +31,13 @@ module Api
 
           render json: data
         else
-          render json: 'The siat endpoint throwed an error', status: :internal_server_error
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
       end
 
       def show_cuis
-        if @branch_office.cuis_codes.last
-          render json: @branch_office.cuis_codes.code
+        if @cuis_code
+          render json: @cuis_code.code
         else
           error_message = 'La sucursal no tiene CUIS. Por favor genere uno nuevo.'
           render json: error_message, status: :not_found
@@ -44,7 +45,7 @@ module Api
       end
 
       def generate_cufd
-        if @branch_office.cuis_codes.code.blank?
+        if @cuis_code.code.blank?
           render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
           return
         end
@@ -56,7 +57,7 @@ module Api
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
-            cuis: @branch_office.cuis_codes.code,
+            cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
           }
         }
@@ -67,23 +68,23 @@ module Api
 
           code = data[:codigo]
 
-          @daily_code = @branch_office.daily_codes.build(code: code, effective_date: '2022-08-16')
+          @branch_office.add_daily_code!(code, Date.today)
+
           if @daily_code.save
             render json: data
           else
             render json: @daily_code.errors, status: :unprocessable_entity
           end
         else
-          render json: 'The siat endpoint throwed an error', status: :internal_server_error
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
       end
 
       def show_cufd
-        @daily_code = @branch_office.daily_codes.first
-        if @daily_code.code
+        if @daily_code
           render json: @daily_code.code
         else
-          error_message = 'the branch does not have a CUFD code'
+          error_message = 'La sucursal no cuenta con un codigo diario CUFD.'
           render json: error_message, status: :not_found
         end
       end
@@ -107,7 +108,7 @@ module Api
 
           render json: data
         else
-          render json: 'The siat endpoint throwed an error', status: :internal_server_error
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
       end
 
@@ -129,6 +130,10 @@ module Api
           namespace: ENV.fetch('siat_namespace', nil),
           convert_request_keys_to: :none
         )
+      end
+      
+      def set_cuis_code
+        @cuis_code = @branch_office.cuis_codes.last
       end
     end
   end
