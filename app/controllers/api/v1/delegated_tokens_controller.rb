@@ -49,7 +49,7 @@ module Api
 
       def delegated_token_params
         params.require(:delegated_token).permit(:token, :expiration_date)
-      end    
+      end
     end
   end
 end

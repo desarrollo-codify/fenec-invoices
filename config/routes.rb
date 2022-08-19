@@ -18,6 +18,7 @@ Rails.application.routes.draw do
         end
         resources :products, shallow: true
         resources :clients, only: %i[index create]
+        resources :economic_activities, only: %i[index]
       end
       resources :branch_offices do
         post 'siat/generate_cuis'
@@ -25,6 +26,7 @@ Rails.application.routes.draw do
         post 'siat/generate_cufd'
         get 'siat/show_cufd'
         get 'siat/siat_product_codes'
+        post 'siat/load_economic_activities'
       end
 
       # siat controller

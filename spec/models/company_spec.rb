@@ -155,4 +155,42 @@ RSpec.describe Company, type: :model do
       end
     end
   end
+
+  describe 'validates dependent destroy for economic activities' do
+    it { expect(subject).to have_many(:economic_activities).dependent(:destroy) }
+
+    context 'when deleting a company' do
+      let(:company) { create(:company) }
+      before { create(:economic_activity, company: company) }
+
+      it 'destroys the economic activity' do
+        expect { company.destroy }.to change { EconomicActivity.count }.by(-1)
+      end
+    end
+  end
+
+  describe '#bulk_load_economic_activities' do
+    let(:company) { create(:company) }
+
+    it 'upserts all economic activities' do
+      expect do
+        company.bulk_load_economic_activities([
+                                                { code: 1, description: 'Abc', activity_type: 'A' },
+                                                { code: 2, description: 'Def', activity_type: 'D' }
+                                              ])
+      end.to change { EconomicActivity.count }.by(2)
+    end
+
+    context 'with duplicated codes per company' do
+      it 'does not duplicate economic activities' do
+        expect do
+          company.bulk_load_economic_activities([
+                                                  { code: 1, description: 'Abc', activity_type: 'A' },
+                                                  { code: 2, description: 'Def', activity_type: 'D' },
+                                                  { code: 2, description: 'Ghi', activity_type: 'G' }
+                                                ])
+        end.to change { EconomicActivity.count }.by(2)
+      end
+    end
+  end
 end

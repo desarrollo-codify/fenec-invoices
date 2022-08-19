@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_17_184308) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_19_035414) do
   create_table "branch_offices", force: :cascade do |t|
     t.string "name", null: false
     t.string "phone"
@@ -53,7 +53,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_17_184308) do
     t.integer "branch_office_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "\"branch_office_id\", \"date\"", name: "index_daily_codes_on_branch_office_id_and_date", unique: true
+    t.index ["branch_office_id", "effective_date"], name: "index_daily_codes_on_branch_office_id_and_effective_date", unique: true
     t.index ["branch_office_id"], name: "index_daily_codes_on_branch_office_id"
   end
 
@@ -64,6 +64,17 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_17_184308) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_delegated_tokens_on_company_id"
+  end
+
+  create_table "economic_activities", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.string "activity_type"
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "code"], name: "index_economic_activities_on_company_id_and_code", unique: true
+    t.index ["company_id"], name: "index_economic_activities_on_company_id"
   end
 
   create_table "invoice_details", force: :cascade do |t|
@@ -178,6 +189,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_17_184308) do
   add_foreign_key "clients", "companies"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"
+  add_foreign_key "economic_activities", "companies"
   add_foreign_key "invoice_details", "invoices"
   add_foreign_key "invoice_details", "measurements"
   add_foreign_key "invoice_details", "products"
