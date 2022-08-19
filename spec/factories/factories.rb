@@ -96,4 +96,9 @@ FactoryBot.define do
     activity_type { 'A' }
     company factory: :company
   end
+
+  factory :document_type do
+    code { '12345' }
+    description { 'Abc' }
+  end
 end

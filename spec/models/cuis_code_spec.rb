@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CuisCode, type: :model do
@@ -55,7 +57,7 @@ RSpec.describe CuisCode, type: :model do
       end
     end
   end
-  
+
   describe 'branch_office attribute' do
     it { validate_presence_of(:branch_office) }
 

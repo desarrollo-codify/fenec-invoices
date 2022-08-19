@@ -1,7 +1,14 @@
-class Api::V1::DocumentTypesController < ApplicationController
-  def index
-    @document_type = DocumentType.all
+# frozen_string_literal: true
 
-    render json: @document_type
+module Api
+  module V1
+    class DocumentTypesController < ApplicationController
+      # GET /api/v1/document_types
+      def index
+        @document_type = DocumentType.all
+
+        render json: @document_type
+      end
+    end
   end
 end

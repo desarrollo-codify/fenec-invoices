@@ -29,10 +29,10 @@ Rails.application.routes.draw do
         post 'siat/load_economic_activities'
         post 'siat/load_document_types'
       end
+      resources :document_types, only: %i[index]
 
       # siat controller
-      post 'siat/bulk_products_update'      
-      resources :document_types, only: %i[index]
+      post 'siat/bulk_products_update'
     end
   end
 end

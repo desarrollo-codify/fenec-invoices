@@ -6,6 +6,7 @@ module Api
       require 'savon'
 
       before_action :set_branch_office
+      before_action :set_cuis_code
 
       def generate_cuis
         client = siat_client('cuis_wsdl')
@@ -69,11 +70,7 @@ module Api
 
           @branch_office.add_daily_code!(code, Date.today)
 
-          if @daily_code.save
-            render json: data
-          else
-            render json: @daily_code.errors, status: :unprocessable_entity
-          end
+          render json: data
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
@@ -96,7 +93,7 @@ module Api
             codigoAmbiente: 2,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
-            cuis: @branch_office.cuis_codes.code,
+            cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
           }
         }
@@ -121,7 +118,7 @@ module Api
             codigoAmbiente: 2,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
-            cuis: @branch_office.cuis_number,
+            cuis: @cuis_code.code,
             codigoSucursal: 0
           }
         }
@@ -140,7 +137,38 @@ module Api
 
           render json: data
         else
-          render json: 'The siat endpoint throwed an error', status: :internal_server_error
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def load_document_types
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: 0
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_documento_identidad, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_documento_identidad_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          DocumentType.bulk_load(activities)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
       end
 
@@ -161,7 +189,7 @@ module Api
           convert_request_keys_to: :none
         )
       end
-      
+
       def set_cuis_code
         @cuis_code = @branch_office.cuis_codes.last
       end
