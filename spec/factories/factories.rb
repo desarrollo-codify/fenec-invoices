@@ -90,4 +90,10 @@ FactoryBot.define do
     measurement factory: :measurement
   end
 
+  factory :economic_activity do
+    code { '12345' }
+    description { 'Abc' }
+    activity_type { 'A' }
+    company factory: :company
+  end
 end

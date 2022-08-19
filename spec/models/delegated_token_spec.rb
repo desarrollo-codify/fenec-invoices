@@ -57,7 +57,7 @@ RSpec.describe DelegatedToken, type: :model do
       end
     end
   end
-  
+
   describe 'company attribute' do
     it { validate_presence_of(:company) }
 
