@@ -150,7 +150,7 @@ RSpec.describe Company, type: :model do
       let(:company) { create(:company) }
       before { create(:delegated_token, company: company) }
 
-      it 'destroys the Client' do
+      it 'destroys the delegated_token' do
         expect { company.destroy }.to change { DelegatedToken.count }.by(-1)
       end
     end

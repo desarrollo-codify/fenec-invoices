@@ -2,7 +2,7 @@
 
 class DelegatedToken < ApplicationRecord
   validates :token, presence: true, uniqueness: { scope: :company_id,
-    message: 'Solo puede ser una key por empresa.' }
+    message: 'No se puede registrar un token duplicado.' }
   validates :expiration_date, presence: true
 
   belongs_to :company
