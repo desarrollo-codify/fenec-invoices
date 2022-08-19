@@ -9,4 +9,14 @@ class BranchOffice < ApplicationRecord
   belongs_to :company
   has_many :daily_codes, dependent: :destroy
   has_many :invoices
+  has_many :cuis_codes, dependent: :destroy
+
+  def add_cuis_code!(code, expiration_date)
+    unless cuis_codes.find_by(code: code).present?         
+      cuis_codes.create(code: code, expiration_date: expiration_date)
+    end
+  end
+  def add_daily_code!(code, effective_date)        
+     daily_codes.create(code: code, effective_date: effective_date)
+  end
 end

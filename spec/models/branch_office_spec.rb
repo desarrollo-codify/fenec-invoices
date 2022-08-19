@@ -130,4 +130,17 @@ RSpec.describe BranchOffice, type: :model do
       end
     end
   end
+
+  describe 'validates dependent destroy for cuis_code' do
+    it { expect(subject).to have_many(:cuis_codes).dependent(:destroy) }
+
+    describe 'when deleting a branch office' do
+      let(:branch_office) { create(:branch_office) }
+      before { create(:cuis_code, branch_office: branch_office) }
+
+      it 'destroys the daily code' do
+        expect { branch_office.destroy }.to change { CuisCode.count }.by(-1)
+      end
+    end
+  end
 end

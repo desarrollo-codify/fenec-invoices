@@ -17,7 +17,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_19_035414) do
     t.string "address"
     t.string "city", null: false
     t.integer "number", null: false
-    t.string "cuis_number"
     t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -44,6 +43,15 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_19_035414) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_companies_on_name", unique: true
+  end
+
+  create_table "cuis_codes", force: :cascade do |t|
+    t.string "code", null: false
+    t.datetime "expiration_date", null: false
+    t.integer "branch_office_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_office_id"], name: "index_cuis_codes_on_branch_office_id"
   end
 
   create_table "daily_codes", force: :cascade do |t|
@@ -187,6 +195,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_19_035414) do
 
   add_foreign_key "branch_offices", "companies"
   add_foreign_key "clients", "companies"
+  add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"
   add_foreign_key "economic_activities", "companies"

@@ -38,6 +38,12 @@ FactoryBot.define do
     company factory: :company
   end
 
+  factory :cuis_code do
+    code { 'ABC' }
+    expiration_date { '2022-01-01' }
+    branch_office factory: :branch_office
+  end
+
   factory :measurement do
     description { 'ABC' }
   end
