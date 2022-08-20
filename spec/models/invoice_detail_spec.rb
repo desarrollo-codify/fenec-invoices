@@ -69,7 +69,7 @@ RSpec.describe InvoiceDetail, type: :model do
       context 'with non-numeric or lower than zero value' do
         let(:invoice_detail) { build(:invoice_detail, unit_price: 'A') }
 
-        it 'is invalid' do
+        it 'is not valid' do
           expect(invoice_detail).to_not be_valid
           invoice_detail.unit_price = -1
           expect(invoice_detail.errors[:unit_price]).to eq(['Precio unitario debe ser mayor o igual a 0.'])
@@ -82,10 +82,10 @@ RSpec.describe InvoiceDetail, type: :model do
     it { validate_presence_of(:quantity) }
 
     context 'with nil value' do
-      let(:invoice_detail) { build(:invoice_detail) }
+      let(:invoice_detail) { build(:invoice_detail, quantity: nil, default_values: true) }
 
-      it 'it has a valid default value' do
-        expect(invoice_detail).to be_valid
+      it 'it is not valid' do
+        expect(invoice_detail).not_to be_valid
       end
     end
 
@@ -93,7 +93,7 @@ RSpec.describe InvoiceDetail, type: :model do
       it { validate_numericality_of(:quantity).is_greater_than_or_equal_to(0) }
 
       context 'with non-numeric value' do
-        let(:invoice_detail) { build(:invoice_detail, quantity: 'A') }
+        let(:invoice_detail) { build(:invoice_detail, default_values: true, quantity: 'A') }
 
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
@@ -131,7 +131,7 @@ RSpec.describe InvoiceDetail, type: :model do
 
     context 'validates calculation' do
       context 'with invalid calculation' do
-        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 1, total: 1) }
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 1, total: 1, default_values: true) }
 
         it 'is not valid' do
           expect(invoice_detail).to_not be_valid
@@ -140,7 +140,7 @@ RSpec.describe InvoiceDetail, type: :model do
       end
 
       context 'with valid calculation' do
-        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, total: 2) }
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, total: 2, default_values: true) }
 
         it 'is valid' do
           expect(invoice_detail).to be_valid
@@ -164,7 +164,7 @@ RSpec.describe InvoiceDetail, type: :model do
       it { validate_numericality_of(:discount).is_greater_than_or_equal_to(0) }
 
       context 'with non-numeric value' do
-        let(:invoice_detail) { build(:invoice_detail, discount: 'A') }
+        let(:invoice_detail) { build(:invoice_detail, discount: 'A', default_values: true) }
 
         it 'is invalid' do
           expect(invoice_detail).to_not be_valid
@@ -175,7 +175,7 @@ RSpec.describe InvoiceDetail, type: :model do
     end
 
     context 'validates discount not greater than subtotal' do
-      let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 1, subtotal: 1, discount: 2, total: 1) }
+      let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 1, subtotal: 1, discount: 2, total: 1, default_values: true) }
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -211,7 +211,7 @@ RSpec.describe InvoiceDetail, type: :model do
 
     context 'validates calculation' do
       context 'with invalid calculation' do
-        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 2) }
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 2, default_values: true) }
 
         it 'is not valid' do
           expect(invoice_detail).to_not be_valid
@@ -220,7 +220,7 @@ RSpec.describe InvoiceDetail, type: :model do
       end
 
       context 'with valid calculation' do
-        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 1) }
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 1, default_values: true) }
 
         it 'is valid' do
           expect(invoice_detail).to be_valid

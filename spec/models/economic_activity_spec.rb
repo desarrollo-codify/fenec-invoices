@@ -65,4 +65,24 @@ RSpec.describe EconomicActivity, type: :model do
       end
     end
   end
+
+  describe '#random_legend' do
+    let(:economic_activity) { create(:economic_activity, company: company) }
+
+    context 'with associated legends' do
+      before { create(:legend, economic_activity: economic_activity) }
+      before { create(:legend, economic_activity: economic_activity, code: '987') }
+      
+      it 'returns a ramdon legend' do
+        expect(economic_activity.random_legend).to be_present
+      end
+    end
+
+    context 'with associated legends' do
+      it 'returns an empty string' do
+        expect(economic_activity.random_legend).to be_empty
+      end
+    end
+
+  end
 end

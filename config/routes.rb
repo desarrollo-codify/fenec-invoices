@@ -12,7 +12,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :companies do
         resources :delegated_tokens, shallow: true
-        resources :branch_offices, shallow: true do
+        resources :branch_offices, only: %i[index create] do
           resources :daily_codes, shallow: true
           resources :invoices, shallow: true
         end
@@ -20,7 +20,7 @@ Rails.application.routes.draw do
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
       end
-      resources :branch_offices do
+      resources :branch_offices, only: %i[show edit update destroy] do
         post 'siat/generate_cuis'
         get 'siat/show_cuis'
         post 'siat/generate_cufd'
@@ -31,8 +31,10 @@ Rails.application.routes.draw do
         post 'siat/load_payment_methods'
         post 'siat/load_legends'
       end
+      resources :economic_activities, only: :show do
+        resources :legends, only: %i[index]
+      end
       resources :document_types, only: %i[index]
-      resources :legends, only: %i[index]
       resources :payment_methods, only: %i[index]
 
       # siat controller

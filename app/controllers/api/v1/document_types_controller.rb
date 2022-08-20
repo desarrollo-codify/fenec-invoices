@@ -5,9 +5,9 @@ module Api
     class DocumentTypesController < ApplicationController
       # GET /api/v1/document_types
       def index
-        @document_type = DocumentType.all
+        @document_types = DocumentType.all
 
-        render json: @document_type
+        render json: @document_types
       end
     end
   end
