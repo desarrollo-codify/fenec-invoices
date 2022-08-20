@@ -39,9 +39,18 @@ FactoryBot.define do
   end
 
   factory :cuis_code do
+    transient do
+      default_values { false }
+    end
     code { 'ABC' }
     expiration_date { '2022-01-01' }
     branch_office factory: :branch_office
+
+    after(:build) do |cuis_code, evaluator|
+      unless evaluator.default_values
+        cuis_code.curren_number = 1
+      end
+    end
   end
 
   factory :measurement do
