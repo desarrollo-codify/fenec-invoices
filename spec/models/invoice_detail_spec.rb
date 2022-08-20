@@ -175,7 +175,9 @@ RSpec.describe InvoiceDetail, type: :model do
     end
 
     context 'validates discount not greater than subtotal' do
-      let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 1, subtotal: 1, discount: 2, total: 1, default_values: true) }
+      let(:invoice_detail) do
+        build(:invoice_detail, unit_price: 1, quantity: 1, subtotal: 1, discount: 2, total: 1, default_values: true)
+      end
 
       it 'is invalid' do
         expect(invoice_detail).to_not be_valid
@@ -211,7 +213,9 @@ RSpec.describe InvoiceDetail, type: :model do
 
     context 'validates calculation' do
       context 'with invalid calculation' do
-        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 2, default_values: true) }
+        let(:invoice_detail) do
+          build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 2, default_values: true)
+        end
 
         it 'is not valid' do
           expect(invoice_detail).to_not be_valid
@@ -220,7 +224,9 @@ RSpec.describe InvoiceDetail, type: :model do
       end
 
       context 'with valid calculation' do
-        let(:invoice_detail) { build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 1, default_values: true) }
+        let(:invoice_detail) do
+          build(:invoice_detail, unit_price: 1, quantity: 2, subtotal: 2, discount: 1, total: 1, default_values: true)
+        end
 
         it 'is valid' do
           expect(invoice_detail).to be_valid
