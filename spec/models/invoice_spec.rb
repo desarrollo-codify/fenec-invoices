@@ -266,10 +266,7 @@ RSpec.describe Invoice, type: :model do
       let(:product) { Product.create!(primary_code: 'ABC', description: 'ABC', company_id: company.id) }
       let(:measurement) { Measurement.create!(description: 'ABC') }
 
-      before do
-        InvoiceDetail.create!(description: 'ABC', unit_price: 1, quantity: 1, subtotal: 1, discount: 0, total: 1,
-                              product_id: product.id, invoice_id: invoice.id, measurement_id: measurement.id)
-      end
+      before { create(:invoice_detail, product: product, invoice: invoice) }
 
       it 'destroys the detail' do
         expect { invoice.destroy }.to change { InvoiceDetail.count }.by(-1)

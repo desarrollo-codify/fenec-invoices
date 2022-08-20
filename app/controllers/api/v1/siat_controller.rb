@@ -5,8 +5,8 @@ module Api
     class SiatController < ApplicationController
       require 'savon'
 
-      before_action :set_branch_office, only: %i[generate_cuis show_cuis generate_cufd show_cufd siat_product_codes]
-      before_action :set_cuis_code, only: %i[generate_cuis show_cuis generate_cufd show_cufd siat_product_codes]
+      before_action :set_branch_office
+      before_action :set_cuis_code, except: %i[generate_cuis show_cufd]
 
       def generate_cuis
         client = siat_client('cuis_wsdl')
@@ -45,7 +45,7 @@ module Api
       end
 
       def generate_cufd
-        if @cuis_code.code.blank?
+        if @cuis_code&.code.blank?
           render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
           return
         end
@@ -70,17 +70,14 @@ module Api
 
           @branch_office.add_daily_code!(code, Date.today)
 
-          if @daily_code.save
-            render json: data
-          else
-            render json: @daily_code.errors, status: :unprocessable_entity
-          end
+          render json: data
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
       end
 
       def show_cufd
+        @daily_code = @branch_office.daily_codes.last
         if @daily_code
           render json: @daily_code.code
         else
@@ -97,7 +94,7 @@ module Api
             codigoAmbiente: 2,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
-            cuis: @branch_office.cuis_codes.code,
+            cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
           }
         }
@@ -122,7 +119,7 @@ module Api
             codigoAmbiente: 2,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
-            cuis: @branch_office.cuis_number,
+            cuis: @cuis_code.code,
             codigoSucursal: 0
           }
         }
@@ -141,7 +138,100 @@ module Api
 
           render json: data
         else
-          render json: 'The siat endpoint throwed an error', status: :internal_server_error
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def load_document_types
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_documento_identidad, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_documento_identidad_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          DocumentType.bulk_load(activities)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def load_payment_methods
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_metodo_pago, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_metodo_pago_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          PaymentMethod.bulk_load(activities)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def load_legends
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_lista_leyendas_factura, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_lista_leyendas_factura_response, :respuesta_lista_parametricas_leyendas,
+                                   :lista_leyendas)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_actividad, :descripcion_leyenda
+          end
+          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          Legend.bulk_load(activities)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
       end
 
@@ -162,7 +252,7 @@ module Api
           convert_request_keys_to: :none
         )
       end
-      
+
       def set_cuis_code
         @cuis_code = @branch_office.cuis_codes.last
       end
