@@ -107,7 +107,10 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_20_162809) do
     t.integer "invoice_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "economic_activity"
+    t.integer "economic_activity_code"
+    t.integer "sin_code"
+    t.string "serial_number"
+    t.string "imei_code"
     t.index ["invoice_id"], name: "index_invoice_details_on_invoice_id"
     t.index ["measurement_id"], name: "index_invoice_details_on_measurement_id"
     t.index ["product_id"], name: "index_invoice_details_on_product_id"
@@ -151,19 +154,25 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_20_162809) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "municipality", null: false
+    t.string "phone", null: false
+    t.string "address", null: false
+    t.integer "point_of_sale"
+    t.integer "document_type"
     t.string "complement"
-    t.integer "exception_code"
+    t.string "client_code"
+    t.integer "payment_method"
+    t.string "card_number"
+    t.decimal "gift_card_total"
+    t.decimal "currency_total"
     t.integer "currency_code", null: false
-    t.string "user", null: false
-    t.integer "legends_id", null: false
-    t.integer "document_types_id", null: false
-    t.integer "payment_methods_id", null: false
+    t.integer "exception_code"
+    t.integer "cafc"
+    t.string "legend"
+    t.string "user"
+    t.integer "document_sector_code"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
-    t.index ["document_types_id"], name: "index_invoices_on_document_types_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
-    t.index ["legends_id"], name: "index_invoices_on_legends_id"
     t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true
-    t.index ["payment_methods_id"], name: "index_invoices_on_payment_methods_id"
   end
 
   create_table "jwt_denylist", force: :cascade do |t|
@@ -233,9 +242,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_20_162809) do
   add_foreign_key "invoice_details", "measurements"
   add_foreign_key "invoice_details", "products"
   add_foreign_key "invoices", "branch_offices"
-  add_foreign_key "invoices", "document_types", column: "document_types_id"
   add_foreign_key "invoices", "invoice_statuses"
-  add_foreign_key "invoices", "legends", column: "legends_id"
-  add_foreign_key "invoices", "payment_methods", column: "payment_methods_id"
   add_foreign_key "products", "companies"
 end

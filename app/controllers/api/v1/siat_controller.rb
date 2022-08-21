@@ -45,7 +45,7 @@ module Api
       end
 
       def generate_cufd
-        if @cuis_code.code.blank?
+        if @cuis_code&.code.blank?
           render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
           return
         end
@@ -67,8 +67,9 @@ module Api
           data = response.to_array(:cufd_response, :respuesta_cufd).first
 
           code = data[:codigo]
+          control_code = data[:codigo_control]
 
-          @branch_office.add_daily_code!(code, Date.today)
+          @branch_office.add_daily_code!(code, control_code, Date.today)
 
           render json: data
         else

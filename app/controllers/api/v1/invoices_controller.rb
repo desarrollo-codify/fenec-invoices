@@ -21,6 +21,9 @@ module Api
       # POST /api/v1/invoices
       def create
         @invoice = @branch_office.invoices.build(invoice_params)
+
+        
+
         if @invoice.save
           @cuis_code = @branch_office.cuis_codes.last
           @current_number = @cuis_code.current_number
@@ -56,7 +59,7 @@ module Api
               xml.nombreRazonSocial @invoice.company_name
               xml.codigoTipoDocumentoIdentidad 1 #@invoice.document_type.code
               xml.numeroDocumento @invoice.company_nit
-              xml.omplemento xsi:nil="true"
+              xml.complemento xsi:nil="true"
               xml.codigoCliente "1"
               xml.codigoMetodoPago "1" #@invoice.payment_method.code
               xml.montoTotal @invoice.total

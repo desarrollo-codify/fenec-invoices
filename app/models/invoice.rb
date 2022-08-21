@@ -19,9 +19,6 @@ class Invoice < ApplicationRecord
 
   belongs_to :branch_office
   belongs_to :invoice_status
-  belongs_to :legend
-  belongs_to :document_type
-  belongs_to :payment_method
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
 
   after_initialize :default_values
