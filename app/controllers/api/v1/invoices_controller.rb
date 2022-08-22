@@ -28,12 +28,10 @@ module Api
         @invoice.phone = @branch_office.phone
         # TODO: add some scope for getting the current daily code number
         # it might not be the last one
-        @invoice.number = invoice_number
         daily_code = @branch_office.daily_codes.last
         @invoice.cufd_code = daily_code.code
         @invoice.date = DateTime.now
         @invoice.control_code = daily_code.control_code
-        @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
         @invoice.point_of_sale = nil
@@ -50,9 +48,17 @@ module Api
           detail.sin_code = detail.product.sin_code
         end
 
+        unless @invoice.valid?
+          render json: @invoice.errors
+          return
+        end
+
         if @invoice.save
+          @invoice.number = invoice_number
+          @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
+          @invoice.save
           # TODO: generate and send xml and pdf documents
-          # send_xml(@invoice)
+          # generate_xml(@invoice)
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
@@ -60,7 +66,7 @@ module Api
       end
 
       def generate
-        render xml: send_xml(Invoice.last)
+        render xml: generate_xml(Invoice.last)
       end
 
       # PATCH/PUT /api/v1/invoices/1
@@ -145,7 +151,7 @@ module Api
         value.to_s(16)
       end
 
-      def send_xml(invoice)
+      def generate_xml(invoice)
         header = Nokogiri::XML('<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>')
         builder = Nokogiri::XML::Builder.with(header) do |xml|
           xml.facturaComputarizadaCompraVenta('xsi:noNamespaceSchemaLocation' => 'facturaComputarizadaCompraVenta.xsd',
