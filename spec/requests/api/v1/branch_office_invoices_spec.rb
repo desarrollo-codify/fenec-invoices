@@ -12,6 +12,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       subtotal: 1,
       total: 1,
       cash_paid: 1,
+      currency_code: 1,
       invoice_status_id: invoice_status.id
     }
   end
@@ -42,6 +43,11 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     let(:branch_office) { create(:branch_office) }
 
     context 'with valid parameters' do
+      before { create(:cuis_code, branch_office: branch_office) }
+      before { create(:daily_code, branch_office: branch_office) }
+      let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+      before { create(:legend, economic_activity: economic_activity) }
+
       it 'creates a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -58,6 +64,11 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     end
 
     context 'with invalid parameters' do
+      before { create(:cuis_code, branch_office: branch_office) }
+      before { create(:daily_code, branch_office: branch_office) }
+      let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+      before { create(:legend, economic_activity: economic_activity) }
+
       it 'does not create a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
