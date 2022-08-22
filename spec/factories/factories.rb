@@ -86,15 +86,24 @@ FactoryBot.define do
   end
 
   factory :invoice_detail do
+    transient do
+      default_values { false }
+    end
+
     description { 'ABC' }
     unit_price { 1 }
-    quantity { 1 }
     subtotal { 1 }
-    discount { 0 }
     total { 1 }
     product factory: :product
     invoice factory: :invoice
     measurement factory: :measurement
+
+    after(:build) do |invoice_detail, evaluator|
+      unless evaluator.default_values
+        invoice_detail.quantity = 1
+        invoice_detail.discount = 0
+      end
+    end
   end
 
   factory :economic_activity do
@@ -117,5 +126,6 @@ FactoryBot.define do
   factory :legend do
     code { '12345' }
     description { 'Abc' }
+    economic_activity factory: :economic_activity
   end
 end

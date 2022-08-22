@@ -5,8 +5,18 @@ class EconomicActivity < ApplicationRecord
   validates :description, presence: true, format: { with: VALID_NAME_REGEX }
 
   belongs_to :company
+  has_many :legends, dependent: :destroy
 
   def initialize(attributes = {})
     super(attributes)
+  end
+
+  def random_legend
+    legend = ''
+    if legends.any?
+      random_index = rand(legends.count)
+      legend = legends[random_index]
+    end
+    legend
   end
 end

@@ -92,6 +92,7 @@ ActiveRecord::Schema[7.0].define(version: 20_220_820_162_809) do
     t.integer 'company_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.index %w[economic_activity_id code], name: 'index_economic_activities_on_economic_activity_id_and_code', unique: true
     t.index %w[company_id code], name: 'index_economic_activities_on_company_id_and_code', unique: true
     t.index ['company_id'], name: 'index_economic_activities_on_company_id'
   end
@@ -187,8 +188,10 @@ ActiveRecord::Schema[7.0].define(version: 20_220_820_162_809) do
   create_table 'legends', force: :cascade do |t|
     t.integer 'code', null: false
     t.string 'description', null: false
+    t.integer 'economic_activity_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.index ['economic_activity_id'], name: 'index_legends_on_economic_activity_id'
   end
 
   create_table 'measurements', force: :cascade do |t|
@@ -246,5 +249,6 @@ ActiveRecord::Schema[7.0].define(version: 20_220_820_162_809) do
   add_foreign_key 'invoice_details', 'products'
   add_foreign_key 'invoices', 'branch_offices'
   add_foreign_key 'invoices', 'invoice_statuses'
+  add_foreign_key 'legends', 'economic_activities'
   add_foreign_key 'products', 'companies'
 end

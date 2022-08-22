@@ -6,7 +6,7 @@ module Api
       require 'savon'
 
       before_action :set_branch_office
-      before_action :set_cuis_code
+      before_action :set_cuis_code, except: %i[generate_cuis show_cufd]
 
       def generate_cuis
         client = siat_client('cuis_wsdl')
@@ -78,6 +78,7 @@ module Api
       end
 
       def show_cufd
+        @daily_code = @branch_office.daily_codes.last
         if @daily_code
           render json: @daily_code.code
         else
