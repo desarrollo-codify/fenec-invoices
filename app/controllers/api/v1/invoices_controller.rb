@@ -20,7 +20,10 @@ module Api
 
       # POST /api/v1/invoices
       def create
+        # TODO: validate before: economic activities, products...
+
         @invoice = @branch_office.invoices.build(invoice_params)
+        company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
         @invoice.company_nit = @branch_office.company.nit
@@ -36,15 +39,17 @@ module Api
         @invoice.address = @branch_office.address
         @invoice.point_of_sale = nil
         @invoice.cafc = nil # TODO: implement cafc
-        @invoice.legend = Legend.random.description
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal
         @invoice.cash_paid = @invoice.total # TODO: implement different payments
         @invoice.invoice_status_id = 1
+        activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
+        economic_activity = company.economic_activities.find_by(code: activity_code)
+        @invoice.legend = economic_activity.random_legend.description
 
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal
-          detail.product = @branch_office.company.products.find_by(primary_code: detail.product_code)
+          detail.product = company.products.find_by(primary_code: detail.product_code)
           detail.sin_code = detail.product.sin_code
         end
 
@@ -101,9 +106,9 @@ module Api
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user,
-                                        invoice_details_attributes: %i[product_code
-                                                                       description quantity measurement_id unit_price discount
-                                                                       subtotal serial_number imei_code economic_activity_code])
+                                        invoice_details_attributes: %i[product_code description quantity measurement_id
+                                                                       unit_price discount subtotal serial_number imei_code
+                                                                       economic_activity_code])
       end
 
       def cuf(invoice_date, invoice_number, control_code)

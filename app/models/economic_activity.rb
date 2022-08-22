@@ -11,12 +11,11 @@ class EconomicActivity < ApplicationRecord
     super(attributes)
   end
 
+  def bulk_load_legends(legends_list)
+    legends.upsert_all(legends_list, unique_by: %i[economic_activity_id description])
+  end
+
   def random_legend
-    legend = ''
-    if legends.any?
-      random_index = rand(legends.count)
-      legend = legends[random_index]
-    end
-    legend
+    legends.order(Arel.sql('RANDOM()')).first
   end
 end

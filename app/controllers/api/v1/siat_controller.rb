@@ -222,13 +222,50 @@ module Api
         if response.success?
           data = response.to_array(:sincronizar_lista_leyendas_factura_response, :respuesta_lista_parametricas_leyendas,
                                    :lista_leyendas)
-
           response_data = data.map do |a|
             a.values_at :codigo_actividad, :descripcion_leyenda
           end
-          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+          legends = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
 
-          Legend.bulk_load(activities)
+          company = @branch_office.company
+          activity_codes = legends.pluck(:code).uniq
+          activity_codes.each do |code|
+            economic_activity = company.economic_activities.find_by(code: code.to_i)
+            debugger
+            activity_legends = legends.select{ |l| l[:code] == code }
+            economic_activity.bulk_load_legends(activity_legends)
+          end
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def measurements
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_unidad_medida, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_unidad_medida_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          activities = response_data.map { |attrs| { id: attrs[0].to_i, description: attrs[1] } }
+
+          Measurement.bulk_load(activities)
 
           render json: data
         else
