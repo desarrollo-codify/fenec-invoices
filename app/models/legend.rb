@@ -7,4 +7,8 @@ class Legend < ApplicationRecord
   def self.bulk_load(activities)
     upsert_all(activities)
   end
+
+  def self.random
+    order(Arel.sql('RANDOM()')).first
+  end
 end

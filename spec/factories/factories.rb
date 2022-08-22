@@ -47,9 +47,7 @@ FactoryBot.define do
     branch_office factory: :branch_office
 
     after(:build) do |cuis_code, evaluator|
-      unless evaluator.default_values
-        cuis_code.curren_number = 1
-      end
+      cuis_code.current_number = 1 unless evaluator.default_values
     end
   end
 

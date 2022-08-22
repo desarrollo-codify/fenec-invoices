@@ -1,5 +1,9 @@
+# frozen_string_literal: true
+
 class AddDataToInvoices < ActiveRecord::Migration[7.0]
   def change
+    add_column :invoices, :cuf, :string
+    add_column :invoices, :branch_office_number, :integer
     add_column :invoices, :municipality, :string, null: false
     add_column :invoices, :phone, :string, null: false
     add_column :invoices, :address, :string, null: false
@@ -17,5 +21,7 @@ class AddDataToInvoices < ActiveRecord::Migration[7.0]
     add_column :invoices, :legend, :string
     add_column :invoices, :user, :string
     add_column :invoices, :document_sector_code, :integer
+
+    remove_column :invoices, :cuis_code, :string
   end
 end
