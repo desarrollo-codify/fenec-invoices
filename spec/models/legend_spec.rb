@@ -37,7 +37,7 @@ RSpec.describe Legend, type: :model do
       end
     end
     context 'with special characters' do
-      let(:legend) { build(:document_type, description: '#$%') }
+      let(:legend) { build(:legend, description: '#$%') }
 
       it 'is not valid' do
         expect(legend).to_not be_valid
@@ -45,7 +45,7 @@ RSpec.describe Legend, type: :model do
     end
 
     context 'with accents' do
-      let(:legend) { build(:document_type, description: 'áü') }
+      let(:legend) { build(:legend, description: 'áü') }
 
       it 'is valid' do
         expect(legend).to be_valid

@@ -111,4 +111,9 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
   end
+
+  factory :measurement_type do
+    code { '12345' }
+    description { 'Abc' }
+  end
 end
