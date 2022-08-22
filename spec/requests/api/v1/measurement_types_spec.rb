@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe "Api::V1::MeasurementTypes", type: :request do
+RSpec.describe 'Api::V1::MeasurementTypes', type: :request do
   let(:valid_headers) do
     {}
   end

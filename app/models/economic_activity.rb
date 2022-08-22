@@ -11,11 +11,10 @@ class EconomicActivity < ApplicationRecord
     super(attributes)
   end
 
-  def bulk_load_legends(legends_list, code)
+  def bulk_load_legends(legends_list, _code)
     # a = legends_list.select{|a, b| a == code.to_i}
     legends.upsert_all(legends_list)
   end
-
 
   def random_legend
     legend = ''

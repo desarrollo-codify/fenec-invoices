@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MeasurementType < ApplicationRecord
   validates :code, presence: true
   validates :description, presence: true, format: { with: VALID_NAME_REGEX }

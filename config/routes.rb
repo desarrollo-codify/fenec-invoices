@@ -20,6 +20,7 @@ Rails.application.routes.draw do
         resources :products, shallow: true
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
+        get :logo, on: :member
       end
       resources :branch_offices, only: %i[show edit update destroy] do
         resources :daily_codes, shallow: true
