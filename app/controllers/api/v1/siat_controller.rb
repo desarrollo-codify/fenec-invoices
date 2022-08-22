@@ -231,8 +231,7 @@ module Api
           activity_codes = legends.pluck(:code).uniq
           activity_codes.each do |code|
             economic_activity = company.economic_activities.find_by(code: code.to_i)
-            debugger
-            activity_legends = legends.select{ |l| l[:code] == code }
+            activity_legends = legends.select { |l| l[:code] == code }
             economic_activity.bulk_load_legends(activity_legends)
           end
 

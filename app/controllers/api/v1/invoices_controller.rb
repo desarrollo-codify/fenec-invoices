@@ -20,7 +20,7 @@ module Api
 
       # POST /api/v1/invoices
       def create
-        # TODO: validate before: economic activities, products...
+        # TODO: implement validate!
 
         @invoice = @branch_office.invoices.build(invoice_params)
         company = @branch_office.company

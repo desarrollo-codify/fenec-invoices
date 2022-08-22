@@ -16,6 +16,6 @@ class EconomicActivity < ApplicationRecord
   end
 
   def random_legend
-    legends.order(Arel.sql('RANDOM()')).first
+    legends.order(Arel.sql('RANDOM()')).first if legends.any?
   end
 end

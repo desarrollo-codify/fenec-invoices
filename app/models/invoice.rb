@@ -24,6 +24,18 @@ class Invoice < ApplicationRecord
 
   after_initialize :default_values
 
+  def validate!
+    # - valid CUIS?
+    # - valid CUFD?
+    # - Are there economic activities for the branch office?
+    # - Is there a product for each invoice detail?
+    # - Are there document types?
+    # - Are there measurements?
+    # - Are there invoice statuses?
+    # - Are there payment methods?
+    # - Are there legends for the economic activity?
+  end
+
   private
 
   def default_values

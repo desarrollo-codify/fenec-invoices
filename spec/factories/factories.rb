@@ -19,6 +19,7 @@ FactoryBot.define do
   factory :product do
     primary_code { 'Abc' }
     description { 'Abc' }
+    sin_code { '123' }
     company factory: :company
   end
 
@@ -134,10 +135,5 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
     economic_activity factory: :economic_activity
-  end
-
-  factory :measurement_type do
-    code { '12345' }
-    description { 'Abc' }
   end
 end
