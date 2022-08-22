@@ -8,8 +8,8 @@
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
 
-company = Company.create(name: 'Codify', nit: '401238026', address: 'En algun lugar por ahi')
-BranchOffice.create(name: 'CASA MATRIZ', number: 0, city: 'Santa Cruz', company: company)
+company = Company.create(name: 'Codify', nit: '401238026', phone: '123', address: 'En algun lugar por ahi')
+BranchOffice.create(name: 'CASA MATRIZ', number: 0, city: 'Santa Cruz', company: company, address: 'por ahi', phone: '123')
 Product.create(primary_code: '123', description: 'Algo bonito', company: company)
 InvoiceStatus.create(description: 'VIGENTE')
 InvoiceStatus.create(description: 'ANULADA')

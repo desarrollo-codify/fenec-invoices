@@ -6,7 +6,7 @@ class Legend < ApplicationRecord
 
   belongs_to :economic_activity
 
-  def self.random
+  def random
     order(Arel.sql('RANDOM()')).first
   end
 end
