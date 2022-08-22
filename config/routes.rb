@@ -28,11 +28,11 @@ Rails.application.routes.draw do
         get 'siat/show_cuis'
         post 'siat/generate_cufd'
         get 'siat/show_cufd'
-        post 'siat/siat_product_codes'
-        post 'siat/load_economic_activities'
-        post 'siat/load_document_types'
-        post 'siat/load_payment_methods'
-        post 'siat/load_legends'
+        post 'siat/product_codes'
+        post 'siat/economic_activities'
+        post 'siat/document_types'
+        post 'siat/payment_methods'
+        post 'siat/legends'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
