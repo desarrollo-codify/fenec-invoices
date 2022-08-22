@@ -226,9 +226,14 @@ module Api
           response_data = data.map do |a|
             a.values_at :codigo_actividad, :descripcion_leyenda
           end
-          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+          legends_list = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
 
-          Legend.bulk_load(activities)
+          activity_codes = data.pluck(:codigo_actividad).uniq
+          @company = @branch_office.company
+          activity_codes.each do |code|
+            economic_activity = @company.economic_activities.find_by(code: code.to_i)
+            economic_activity.bulk_load_legends(legends_list, code)
+          end
 
           render json: data
         else
@@ -258,7 +263,7 @@ module Api
             a.values_at :codigo_clasificador, :descripcion
           end
           activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
-          debugger
+
           MeasurementType.bulk_load(activities)
 
           render json: data
