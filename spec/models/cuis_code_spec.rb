@@ -69,4 +69,13 @@ RSpec.describe CuisCode, type: :model do
       end
     end
   end
+  describe '#default_values' do
+    context 'with missing values' do
+      let(:cuis_code) { build(:cuis_code, default_values: true, branch_office: branch_office) }
+
+      it 'has default values' do
+        expect(cuis_code.current_number).to eq(0)
+      end
+    end
+  end
 end

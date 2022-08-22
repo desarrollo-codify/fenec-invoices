@@ -20,6 +20,7 @@ class Invoice < ApplicationRecord
   belongs_to :branch_office
   belongs_to :invoice_status
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
+  accepts_nested_attributes_for :invoice_details, reject_if: :all_blank
 
   after_initialize :default_values
 

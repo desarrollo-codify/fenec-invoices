@@ -6,7 +6,7 @@ module Api
       require 'savon'
 
       before_action :set_branch_office
-      before_action :set_cuis_code
+      before_action :set_cuis_code, except: %i[generate_cuis show_cufd]
 
       def generate_cuis
         client = siat_client('cuis_wsdl')
@@ -45,7 +45,7 @@ module Api
       end
 
       def generate_cufd
-        if @cuis_code.code.blank?
+        if @cuis_code&.code.blank?
           render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
           return
         end
@@ -67,8 +67,9 @@ module Api
           data = response.to_array(:cufd_response, :respuesta_cufd).first
 
           code = data[:codigo]
+          control_code = data[:codigo_control]
 
-          @branch_office.add_daily_code!(code, Date.today)
+          @branch_office.add_daily_code!(code, control_code, Date.today)
 
           render json: data
         else
@@ -77,6 +78,7 @@ module Api
       end
 
       def show_cufd
+        @daily_code = @branch_office.daily_codes.last
         if @daily_code
           render json: @daily_code.code
         else
@@ -110,7 +112,7 @@ module Api
 
       def bulk_products_update; end
 
-      def load_economic_activities
+      def economic_activities
         client = siat_client('products_wsdl')
 
         body = {
@@ -141,7 +143,7 @@ module Api
         end
       end
 
-      def load_document_types
+      def document_types
         client = siat_client('products_wsdl')
 
         body = {
@@ -172,7 +174,7 @@ module Api
         end
       end
 
-      def load_payment_methods
+      def payment_methods
         client = siat_client('products_wsdl')
 
         body = {
@@ -203,7 +205,7 @@ module Api
         end
       end
 
-      def load_legends
+      def legends
         client = siat_client('products_wsdl')
 
         body = {

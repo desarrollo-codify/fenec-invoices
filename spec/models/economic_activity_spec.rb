@@ -65,4 +65,38 @@ RSpec.describe EconomicActivity, type: :model do
       end
     end
   end
+
+  describe '#random_legend' do
+    let(:economic_activity) { create(:economic_activity, company: company) }
+
+    context 'with associated legends' do
+      before { create(:legend, economic_activity: economic_activity) }
+      before { create(:legend, economic_activity: economic_activity, code: '987') }
+
+      it 'returns a ramdon legend' do
+        expect(economic_activity.random_legend).to be_present
+      end
+    end
+
+    context 'with associated legends' do
+      it 'returns an empty string' do
+        expect(economic_activity.random_legend).to be_empty
+      end
+    end
+  end
+
+  describe 'validates dependent destroy of legends' do
+    it { expect(subject).to have_many(:legends).dependent(:destroy) }
+
+    context 'when deleting an economic activity' do
+      let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
+      let(:economic_activity) { build(:economic_activity, company: company) }
+
+      before { create(:legend, economic_activity: economic_activity) }
+
+      it 'destroys the detail' do
+        expect { economic_activity.destroy }.to change { Legend.count }.by(-1)
+      end
+    end
+  end
 end

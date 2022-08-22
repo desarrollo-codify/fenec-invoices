@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Legend, type: :model do
-  subject { build(:legend) }
+  let(:economic_activity) { create(:economic_activity) }
+
+  subject { build(:legend, economic_activity: economic_activity) }
 
   describe 'with valid values' do
     it 'is valid' do
@@ -24,6 +26,7 @@ RSpec.describe Legend, type: :model do
       end
     end
   end
+
   describe 'description attribute' do
     it { validate_presence_of(:description) }
 
@@ -49,6 +52,16 @@ RSpec.describe Legend, type: :model do
 
       it 'is valid' do
         expect(legend).to be_valid
+      end
+    end
+  end
+
+  describe 'economic_attribute_id attribute' do
+    context 'with nil value' do
+      let(:legend) { build(:legend, economic_activity: nil) }
+
+      it 'is invalid' do
+        expect(legend).to_not be_valid
       end
     end
   end

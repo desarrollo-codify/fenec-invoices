@@ -15,25 +15,29 @@ Rails.application.routes.draw do
         resources :branch_offices, shallow: true do
           resources :daily_codes, shallow: true
           resources :invoices, shallow: true
+          post 'invoices/generate'
         end
         resources :products, shallow: true
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
       end
-      resources :branch_offices do
+      resources :branch_offices, only: %i[show edit update destroy] do
+        resources :daily_codes, shallow: true
+        resources :invoices, shallow: true
         post 'siat/generate_cuis'
         get 'siat/show_cuis'
         post 'siat/generate_cufd'
         get 'siat/show_cufd'
-        get 'siat/siat_product_codes'
-        post 'siat/load_economic_activities'
-        post 'siat/load_document_types'
-        post 'siat/load_payment_methods'
-        post 'siat/load_legends'
-        post 'siat/measurement_types'
+        post 'siat/product_codes'
+        post 'siat/economic_activities'
+        post 'siat/document_types'
+        post 'siat/payment_methods'
+        post 'siat/legends'
+      end
+      resources :economic_activities, only: :show do
+        resources :legends, only: %i[index]
       end
       resources :document_types, only: %i[index]
-      resources :legends, only: %i[index]
       resources :payment_methods, only: %i[index]
       resources :measurement_types, only: %i[index]
 

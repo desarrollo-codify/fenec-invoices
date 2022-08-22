@@ -15,7 +15,7 @@ class BranchOffice < ApplicationRecord
     cuis_codes.create(code: code, expiration_date: expiration_date) unless cuis_codes.find_by(code: code).present?
   end
 
-  def add_daily_code!(code, effective_date)
-    daily_codes.create(code: code, effective_date: effective_date)
+  def add_daily_code!(code, control_code, effective_date)
+    daily_codes.create(code: code, control_code: control_code, effective_date: effective_date)
   end
 end

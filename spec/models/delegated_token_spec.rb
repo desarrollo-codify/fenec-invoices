@@ -32,7 +32,7 @@ RSpec.describe DelegatedToken, type: :model do
 
         it 'is invalid' do
           expect(subject).to_not be_valid
-          expect(subject.errors[:token]).to eq ['Solo puede ser una key por empresa.']
+          expect(subject.errors[:token]).to eq ['Solo puede existir un token delegado por empresa.']
         end
       end
 

@@ -28,14 +28,14 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
   describe 'PUT /update' do
     context 'with valid parameters' do
-      let(:new_attributes) { { number: 2 } }
+      let(:new_attributes) { { business_name: 'ABC' } }
       let(:invoice) { create(:invoice) }
 
       it 'updates the requested invoice' do
         put api_v1_invoice_url(invoice),
             params: { invoice: new_attributes }, headers: valid_headers, as: :json
         invoice.reload
-        expect(invoice.number).to eq(2)
+        expect(invoice.business_name).to eq('ABC')
       end
 
       it 'renders a JSON response with the api_v1_invoice' do
