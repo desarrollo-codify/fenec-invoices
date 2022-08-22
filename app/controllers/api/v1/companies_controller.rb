@@ -16,7 +16,8 @@ module Api
 
       # GET /companies/1
       def show
-        render json: @company
+        render json: @company.as_json.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
+        render json: @company unless @company.logo&.attached?
       end
 
       # POST /companies
@@ -42,6 +43,17 @@ module Api
       # DELETE /companies/1
       def destroy
         @company.destroy
+      end
+
+      # GET /companies/1/logo
+      def logo
+        company = Company.find(params[:id])
+
+        if company&.logo&.attached?
+          render json: url_for(company.logo)
+        else
+          head :not_found
+        end
       end
 
       private

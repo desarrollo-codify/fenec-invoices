@@ -27,5 +27,9 @@ RSpec.describe Api::V1::CompaniesController, type: :routing do
     it 'routes to #destroy' do
       expect(delete: '/api/v1/companies/1').to route_to('api/v1/companies#destroy', id: '1')
     end
+
+    it 'routes to #logo' do
+      expect(get: '/api/v1/companies/1/logo').to route_to('api/v1/companies#logo', id: '1')
+    end
   end
 end
