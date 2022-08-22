@@ -67,8 +67,9 @@ module Api
           data = response.to_array(:cufd_response, :respuesta_cufd).first
 
           code = data[:codigo]
+          control_code = data[:codigo_control]
 
-          @branch_office.add_daily_code!(code, Date.today)
+          @branch_office.add_daily_code!(code, control_code, Date.today)
 
           render json: data
         else
@@ -111,7 +112,7 @@ module Api
 
       def bulk_products_update; end
 
-      def load_economic_activities
+      def economic_activities
         client = siat_client('products_wsdl')
 
         body = {
@@ -142,7 +143,7 @@ module Api
         end
       end
 
-      def load_document_types
+      def document_types
         client = siat_client('products_wsdl')
 
         body = {
@@ -173,7 +174,7 @@ module Api
         end
       end
 
-      def load_payment_methods
+      def payment_methods
         client = siat_client('products_wsdl')
 
         body = {
@@ -204,7 +205,7 @@ module Api
         end
       end
 
-      def load_legends
+      def legends
         client = siat_client('products_wsdl')
 
         body = {

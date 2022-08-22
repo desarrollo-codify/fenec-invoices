@@ -10,7 +10,7 @@ Layout/LineLength:
     - 'bin/bundle'
 
 Metrics/MethodLength:
-  Max: 60
+  Max: 75
 
 Metrics/ClassLength:
   Max: 250
@@ -19,10 +19,10 @@ Metrics/AbcSize:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Max: 16
+  Max: 18
 
 Metrics/CyclomaticComplexity:
-  Max: 16
+  Max: 18
 
 AllCops:
     NewCops: enable

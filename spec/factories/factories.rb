@@ -11,6 +11,8 @@ FactoryBot.define do
     name { 'Sucursal 1' }
     number { 1 }
     city { 'Santa Cruz' }
+    phone { '123' }
+    address { 'abc' }
     company factory: :company
   end
 
@@ -29,6 +31,7 @@ FactoryBot.define do
   factory :daily_code do
     code { 'ABC' }
     effective_date { '2022-01-01' }
+    control_code { '123abc' }
     branch_office factory: :branch_office
   end
 
@@ -39,9 +42,16 @@ FactoryBot.define do
   end
 
   factory :cuis_code do
+    transient do
+      default_values { false }
+    end
     code { 'ABC' }
     expiration_date { '2022-01-01' }
     branch_office factory: :branch_office
+
+    after(:build) do |cuis_code, evaluator|
+      cuis_code.current_number = 1 unless evaluator.default_values
+    end
   end
 
   factory :measurement do
@@ -66,6 +76,10 @@ FactoryBot.define do
     number { 1 }
     subtotal { 1 }
     total { 1 }
+    municipality { 'Santa Cruz' }
+    address { 'abc' }
+    phone { '123' }
+    currency_code { 1 }
     branch_office factory: :branch_office
     invoice_status factory: :invoice_status
 

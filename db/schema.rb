@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_220_819_212_900) do
+ActiveRecord::Schema[7.0].define(version: 20_220_820_162_809) do
   create_table 'branch_offices', force: :cascade do |t|
     t.string 'name', null: false
     t.string 'phone'
@@ -53,6 +53,7 @@ ActiveRecord::Schema[7.0].define(version: 20_220_819_212_900) do
     t.integer 'branch_office_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.integer 'current_number'
     t.index ['branch_office_id'], name: 'index_cuis_codes_on_branch_office_id'
   end
 
@@ -91,7 +92,7 @@ ActiveRecord::Schema[7.0].define(version: 20_220_819_212_900) do
     t.integer 'company_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
-    t.index '"economic_activity_id", "code"', name: 'index_economic_activities_on_economic_activity_id_and_code', unique: true
+    t.index %w[economic_activity_id code], name: 'index_economic_activities_on_economic_activity_id_and_code', unique: true
     t.index %w[company_id code], name: 'index_economic_activities_on_company_id_and_code', unique: true
     t.index ['company_id'], name: 'index_economic_activities_on_company_id'
   end
@@ -109,6 +110,10 @@ ActiveRecord::Schema[7.0].define(version: 20_220_819_212_900) do
     t.integer 'invoice_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.integer 'economic_activity_code'
+    t.integer 'sin_code'
+    t.string 'serial_number'
+    t.string 'imei_code'
     t.index ['invoice_id'], name: 'index_invoice_details_on_invoice_id'
     t.index ['measurement_id'], name: 'index_invoice_details_on_measurement_id'
     t.index ['product_id'], name: 'index_invoice_details_on_product_id'
@@ -145,12 +150,30 @@ ActiveRecord::Schema[7.0].define(version: 20_220_819_212_900) do
     t.decimal 'change'
     t.datetime 'cancellation_date'
     t.decimal 'exchange_rate'
-    t.string 'cuis_code'
     t.string 'cufd_code'
     t.integer 'branch_office_id', null: false
     t.integer 'invoice_status_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.string 'cuf'
+    t.integer 'branch_office_number'
+    t.string 'municipality', null: false
+    t.string 'phone', null: false
+    t.string 'address', null: false
+    t.integer 'point_of_sale'
+    t.integer 'document_type'
+    t.string 'complement'
+    t.string 'client_code'
+    t.integer 'payment_method'
+    t.string 'card_number'
+    t.decimal 'gift_card_total'
+    t.decimal 'currency_total'
+    t.integer 'currency_code', null: false
+    t.integer 'exception_code'
+    t.integer 'cafc'
+    t.string 'legend'
+    t.string 'user'
+    t.integer 'document_sector_code'
     t.index ['branch_office_id'], name: 'index_invoices_on_branch_office_id'
     t.index ['invoice_status_id'], name: 'index_invoices_on_invoice_status_id'
     t.index %w[number cufd_code], name: 'index_invoices_on_number_and_cufd_code', unique: true
