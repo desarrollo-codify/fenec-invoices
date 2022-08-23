@@ -138,4 +138,12 @@ FactoryBot.define do
     description { 'Abc' }
     economic_activity factory: :economic_activity
   end
+
+  factory :sender_email do
+    address { 'smtp.example.com' }
+    port { '25' }
+    domain { 'example.com' }
+    user_name { 'example@example.com' }
+    password { 'passwords' }
+  end
 end
