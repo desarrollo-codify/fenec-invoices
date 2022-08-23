@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_22_153307) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_23_151257) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -59,6 +59,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_22_153307) do
     t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "email"
     t.index ["company_id"], name: "index_clients_on_company_id"
   end
 
@@ -245,6 +246,18 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_22_153307) do
     t.index ["company_id"], name: "index_products_on_company_id"
   end
 
+  create_table "sender_emails", force: :cascade do |t|
+    t.string "address", null: false
+    t.integer "port", null: false
+    t.string "domain", null: false
+    t.string "user_name", null: false
+    t.string "password", null: false
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_sender_emails_on_company_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -278,4 +291,5 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_22_153307) do
   add_foreign_key "invoices", "invoice_statuses"
   add_foreign_key "legends", "economic_activities"
   add_foreign_key "products", "companies"
+  add_foreign_key "sender_emails", "companies"
 end

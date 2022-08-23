@@ -33,9 +33,6 @@ module Api
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
-
-        #test mailer
-        InvoiceMailer.prueba.deliver_now
       end
 
       def show_cuis

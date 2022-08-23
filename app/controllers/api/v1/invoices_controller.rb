@@ -68,6 +68,14 @@ module Api
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
+
+        #test mailer
+        
+        @client = company.clients.find_by(code: invoice_params[:client_code])
+        InvoiceMailer.with(client: @client).send_invoice.deliver_now
+        
+        #test mailer
+
       end
 
       def generate

@@ -5,9 +5,10 @@ class InvoiceMailer < ApplicationMailer
   #
   #   en.invoice_mailer.prueba.subject
   #
-  def prueba
-    @greeting = "Hi"
+  def send_invoice
 
-    mail to: "to@example.org", subject: "test mailer"
+    @client = params[:client]
+
+    mail to: @client.email , subject: "test mailer #{@client.name}"
   end
 end
