@@ -26,6 +26,8 @@ FactoryBot.define do
   factory :client do
     name { 'Juan' }
     nit { '123' }
+    email { 'example@example.com' }
+    phone { '12345' }
     company factory: :company
   end
 

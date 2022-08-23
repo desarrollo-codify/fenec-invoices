@@ -69,6 +69,20 @@ RSpec.describe Client, type: :model do
     end
   end
 
+  describe 'email attribute' do
+    it { validate_presence_of(:email) }
+
+    context 'with format email' do
+      let(:client) { build(:client, email: 'example.com') }
+
+      it 'is not valid' do
+        expect(client).to_not be_valid
+        client.email = 'example@example'
+        expect(client).to_not be_valid
+      end
+    end
+  end
+
   describe 'company_id attribute' do
     context 'with nil value' do
       let(:client) { build(:client, company: nil) }

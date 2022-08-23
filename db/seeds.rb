@@ -14,5 +14,3 @@ Product.create(primary_code: '123', description: 'Algo bonito', company: company
 InvoiceStatus.create(description: 'VIGENTE')
 InvoiceStatus.create(description: 'ANULADA')
 Client.create(code: '055', name: 'Codify', nit: '401238026', email: 'test@example.com')
-
-
