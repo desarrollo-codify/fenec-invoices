@@ -13,7 +13,6 @@ module Api
 
       def create
         @client = @company.clients.build(client_params)
-
         if @client.save
           render json: @client, status: :created
         else
@@ -24,7 +23,7 @@ module Api
       private
 
       def client_params
-        params.require(:client).permit(:code, :name, :nit)
+        params.require(:client).permit(:code, :name, :nit, :phone, :email)
       end
 
       def set_company

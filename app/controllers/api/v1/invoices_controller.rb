@@ -65,7 +65,7 @@ module Api
           # test mailer
 
           @client = company.clients.find_by(code: invoice_params[:client_code])
-          InvoiceMailer.with(client: @client).send_invoice.deliver_now
+          InvoiceMailer.with(client: @client, invoice: @invoice).send_invoice.deliver_now
 
           # test mailer
           # TODO: generate and send xml and pdf documents

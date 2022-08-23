@@ -70,8 +70,6 @@ RSpec.describe Client, type: :model do
   end
 
   describe 'email attribute' do
-    it { validate_presence_of(:email) }
-
     context 'with format email' do
       let(:client) { build(:client, email: 'example.com') }
 

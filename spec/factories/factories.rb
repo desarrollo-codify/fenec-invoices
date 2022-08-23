@@ -24,6 +24,7 @@ FactoryBot.define do
   end
 
   factory :client do
+    code { '055' }
     name { 'Juan' }
     nit { '123' }
     email { 'example@example.com' }

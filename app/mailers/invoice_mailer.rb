@@ -8,7 +8,8 @@ class InvoiceMailer < ApplicationMailer
   #
   def send_invoice
     @client = params[:client]
+    @invoice = params[:invoice]
 
-    mail to: @client.email, subject: "test mailer #{@client.name}"
+    mail to: @client.email, subject: "Factura"
   end
 end
