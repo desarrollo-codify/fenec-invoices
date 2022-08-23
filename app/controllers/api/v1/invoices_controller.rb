@@ -62,20 +62,18 @@ module Api
           @invoice.number = invoice_number
           @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
           @invoice.save
+          #test mailer
+        
+          @client = company.clients.find_by(code: invoice_params[:client_code])
+          InvoiceMailer.with(client: @client).send_invoice.deliver_now
+        
+          #test mailer
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
-
-        #test mailer
-        
-        @client = company.clients.find_by(code: invoice_params[:client_code])
-        InvoiceMailer.with(client: @client).send_invoice.deliver_now
-        
-        #test mailer
-
       end
 
       def generate
