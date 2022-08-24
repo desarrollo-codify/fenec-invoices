@@ -12,6 +12,10 @@ class InvoiceDetail < ApplicationRecord
                        numericality: { greater_than_or_equal_to: 0, message: 'Descuento debe ser mayor o igual a 0.' }
   validates :total, presence: true,
                     numericality: { greater_than_or_equal_to: 0, message: 'Total debe ser mayor o igual a 0.' }
+  validates :economic_activity_code, presence: true
+  validates :sin_code, presence: true
+  validates :product_code, presence: true
+
   validate :discount_cannot_be_greater_than_subtotal
   validate :subtotal_must_be_correctly_calculated
   validate :total_must_be_correctly_calculated

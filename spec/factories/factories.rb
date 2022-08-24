@@ -75,15 +75,22 @@ FactoryBot.define do
       default_values { false }
     end
 
-    date { '2022-01-01' }
+    company_nit { '123' }
     company_name { 'SRL' }
+    municipality { 'Santa Cruz' }
+    phone { '123' }
+    address { 'abc' }
+    point_of_sale { 1 }
+    date { '2022-01-01' }
+    document_type { 1 }
+    client_code { '01' }
+    payment_method { 1 }
+    currency_code { 1 }
+    exchange_rate { 1 }
+    currency_total { 1 }
     number { 1 }
     subtotal { 1 }
     total { 1 }
-    municipality { 'Santa Cruz' }
-    address { 'abc' }
-    phone { '123' }
-    currency_code { 1 }
     branch_office factory: :branch_office
     invoice_status factory: :invoice_status
 
@@ -101,6 +108,9 @@ FactoryBot.define do
       default_values { false }
     end
 
+    economic_activity_code { 1 }
+    sin_code { 1 }
+    product_code { '01' }
     description { 'ABC' }
     unit_price { 1 }
     subtotal { 1 }

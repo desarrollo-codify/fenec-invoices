@@ -75,7 +75,6 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:invoice_status) }
       before { create(:client, company: branch_office.company) }
 
-
       it 'creates a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),

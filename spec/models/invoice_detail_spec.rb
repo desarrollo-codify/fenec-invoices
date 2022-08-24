@@ -15,10 +15,47 @@ RSpec.describe InvoiceDetail, type: :model do
   let(:invoice) { create(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
 
   subject { build(:invoice_detail, invoice: invoice, measurement: measurement) }
-
   describe 'with valid values' do
     it 'is valid' do
       expect(subject).to be_valid
+    end
+  end
+
+  describe 'economic_activity_code attribute' do
+    it { validate_presence_of(:economic_activity_code) }
+
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, economic_activity_code: nil) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+      end
+    end
+  end
+
+  describe 'sin_code attribute' do
+    it { validate_presence_of(:sin_code) }
+
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, sin_code: nil) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+      end
+    end
+  end
+
+  describe 'product_code attribute' do
+    it { validate_presence_of(:product_code) }
+
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, product_code: nil) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+        invoice_detail.product_code = ''
+        expect(invoice_detail).to_not be_valid
+      end
     end
   end
 

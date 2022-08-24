@@ -17,41 +17,11 @@ RSpec.describe Invoice, type: :model do
     end
   end
 
-  describe 'business_name attribute' do
-    it { validate_presence_of(:business_name) }
-
-    context 'with nil or emtpy value' do
-      let(:invoice) { build(:invoice, default_values: true, business_name: nil) }
-
-      it 'is invalid' do
-        expect(invoice).to_not be_valid
-        invoice.business_name = ''
-        expect(invoice).to_not be_valid
-      end
-    end
-
-    context 'with special characters' do
-      let(:invoice) { build(:invoice, default_values: true, business_name: '@#$') }
-
-      it 'is not valid' do
-        expect(invoice).to_not be_valid
-      end
-    end
-
-    context 'with allowed characters' do
-      let(:invoice) { build(:invoice, business_name: 'áü -_.') }
-
-      it 'is valid' do
-        expect(invoice).to be_valid
-      end
-    end
-  end
-
-  describe 'business_nit attribute' do
-    it { validate_presence_of(:business_nit) }
+  describe 'company_nit attribute' do
+    it { validate_presence_of(:company_nit) }
 
     context 'with nil value' do
-      let(:invoice) { build(:invoice, default_values: true, business_nit: nil) }
+      let(:invoice) { build(:invoice, default_values: true, company_nit: nil) }
 
       it 'is invalid' do
         expect(invoice).to_not be_valid
@@ -59,14 +29,14 @@ RSpec.describe Invoice, type: :model do
     end
 
     context 'validates numericality of business nit' do
-      it { validate_numericality_of(:business_nit).only_integer }
+      it { validate_numericality_of(:company_nit).only_integer }
 
       context 'with non-numeric value' do
-        let(:invoice) { build(:invoice, default_values: true, business_nit: 'A') }
+        let(:invoice) { build(:invoice, default_values: true, company_nit: 'A') }
 
         it 'is invalid' do
           expect(invoice).to_not be_valid
-          expect(invoice.errors[:business_nit]).to eq ['El NIT debe ser un valor numérico.']
+          expect(invoice.errors[:company_nit]).to eq ['El NIT debe ser un valor numérico.']
         end
       end
     end
@@ -102,6 +72,50 @@ RSpec.describe Invoice, type: :model do
     end
   end
 
+  describe 'municipality attribute' do
+    it { validate_presence_of(:municipality) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, municipality: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        invoice.municipality = ''
+        expect(invoice).to_not be_valid
+      end
+    end
+
+    context 'with special characters' do
+      let(:invoice) { build(:invoice, municipality: '$%^') }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+
+    context 'with allowed characters' do
+      let(:invoice) { build(:invoice, municipality: 'áü -_.') }
+
+      it 'is valid' do
+        expect(invoice).to be_valid
+      end
+    end
+  end
+
+  describe 'phone attribute' do
+    it { validate_presence_of(:phone) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, phone: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        invoice.phone = ''
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
   describe 'number attribute' do
     context 'validates uniqueness of number per invoice' do
       context 'with duplicated number' do
@@ -124,27 +138,131 @@ RSpec.describe Invoice, type: :model do
     end
   end
 
-  describe 'subtotal attribute' do
-    it { validate_presence_of(:subtotal) }
+  describe 'address attribute' do
+    it { validate_presence_of(:address) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, address: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        invoice.address = ''
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'point_of_sale attribute' do
+    it { validate_presence_of(:point_of_sale) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, point_of_sale: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'date attribute' do
+    it { validate_presence_of(:date) }
 
     context 'with nil value' do
-      let(:invoice) { build(:invoice, subtotal: nil) }
+      let(:invoice) { build(:invoice, date: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'business_name attribute' do
+    it { validate_presence_of(:business_name) }
+
+    context 'with nil or emtpy value' do
+      let(:invoice) { build(:invoice, default_values: true, business_name: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        invoice.business_name = ''
+        expect(invoice).to_not be_valid
+      end
+    end
+
+    context 'with special characters' do
+      let(:invoice) { build(:invoice, default_values: true, business_name: '@#$') }
 
       it 'is not valid' do
         expect(invoice).to_not be_valid
       end
     end
 
-    context 'validate numericality of subtotal' do
-      it { validate_numericality_of(:subtotal).only_integer }
+    context 'with allowed characters' do
+      let(:invoice) { build(:invoice, business_name: 'áü -_.') }
+
+      it 'is valid' do
+        expect(invoice).to be_valid
+      end
+    end
+  end
+
+  describe 'document_type attribute' do
+    it { validate_presence_of(:document_type) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, document_type: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'business_nit attribute' do
+    it { validate_presence_of(:business_nit) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, default_values: true, business_nit: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+
+    context 'validates numericality of business nit' do
+      it { validate_numericality_of(:business_nit).only_integer }
 
       context 'with non-numeric value' do
-        let(:invoice) { build(:invoice, subtotal: 'A') }
+        let(:invoice) { build(:invoice, default_values: true, business_nit: 'A') }
 
-        it 'is not invalid' do
+        it 'is invalid' do
           expect(invoice).to_not be_valid
-          expect(invoice.errors[:subtotal]).to eq ['El subtotal debe ser un valor numérico.']
+          expect(invoice.errors[:business_nit]).to eq ['El NIT debe ser un valor numérico.']
         end
+      end
+    end
+  end
+
+  describe 'client_code attribute' do
+    it { validate_presence_of(:client_code) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, client_code: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'payment_method attribute' do
+    it { validate_presence_of(:payment_method) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, payment_method: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
       end
     end
   end
@@ -196,6 +314,67 @@ RSpec.describe Invoice, type: :model do
     end
   end
 
+  describe 'currency_code attribute' do
+    it { validate_presence_of(:currency_code) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, currency_code: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'exchange_rate attribute' do
+    it { validate_presence_of(:exchange_rate) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, exchange_rate: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'currency_total attribute' do
+    it { validate_presence_of(:currency_total) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, currency_total: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'subtotal attribute' do
+    it { validate_presence_of(:subtotal) }
+
+    context 'with nil value' do
+      let(:invoice) { build(:invoice, subtotal: nil) }
+
+      it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+
+    context 'validate numericality of subtotal' do
+      it { validate_numericality_of(:subtotal).only_integer }
+
+      context 'with non-numeric value' do
+        let(:invoice) { build(:invoice, subtotal: 'A') }
+
+        it 'is not invalid' do
+          expect(invoice).to_not be_valid
+          expect(invoice.errors[:subtotal]).to eq ['El subtotal debe ser un valor numérico.']
+        end
+      end
+    end
+  end
+
   describe 'discount attribute' do
     context 'validates discount not greater than subtotal' do
       let(:invoice) { build(:invoice, total: 1, subtotal: 1, discount: 2) }
@@ -203,18 +382,6 @@ RSpec.describe Invoice, type: :model do
       it 'is invalid' do
         expect(invoice).to_not be_valid
         expect(invoice.errors[:discount]).to eq(['Descuento no puede ser mayor al subtotal.'])
-      end
-    end
-  end
-
-  describe 'date attribute' do
-    it { validate_presence_of(:date) }
-
-    context 'with nil value' do
-      let(:invoice) { build(:invoice, date: nil) }
-
-      it 'is not valid' do
-        expect(invoice).to_not be_valid
       end
     end
   end
