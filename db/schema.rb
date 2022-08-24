@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_220_822_153_307) do
+ActiveRecord::Schema[7.0].define(version: 20_220_823_164_155) do
   create_table 'active_storage_attachments', force: :cascade do |t|
     t.string 'name', null: false
     t.string 'record_type', null: false
@@ -61,6 +61,8 @@ ActiveRecord::Schema[7.0].define(version: 20_220_822_153_307) do
     t.integer 'company_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.string 'email'
+    t.string 'phone'
     t.index ['company_id'], name: 'index_clients_on_company_id'
   end
 
@@ -232,6 +234,7 @@ ActiveRecord::Schema[7.0].define(version: 20_220_822_153_307) do
     t.string 'description', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.index ['code'], name: 'index_payment_methods_on_code', unique: true
   end
 
   create_table 'products', force: :cascade do |t|
@@ -244,6 +247,18 @@ ActiveRecord::Schema[7.0].define(version: 20_220_822_153_307) do
     t.datetime 'updated_at', null: false
     t.index %w[company_id primary_code], name: 'index_products_on_company_id_and_primary_code', unique: true
     t.index ['company_id'], name: 'index_products_on_company_id'
+  end
+
+  create_table 'sender_emails', force: :cascade do |t|
+    t.string 'address', null: false
+    t.integer 'port', null: false
+    t.string 'domain', null: false
+    t.string 'user_name', null: false
+    t.string 'password', null: false
+    t.integer 'company_id', null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['company_id'], name: 'index_sender_emails_on_company_id'
   end
 
   create_table 'users', force: :cascade do |t|
@@ -279,4 +294,5 @@ ActiveRecord::Schema[7.0].define(version: 20_220_822_153_307) do
   add_foreign_key 'invoices', 'invoice_statuses'
   add_foreign_key 'legends', 'economic_activities'
   add_foreign_key 'products', 'companies'
+  add_foreign_key 'sender_emails', 'companies'
 end

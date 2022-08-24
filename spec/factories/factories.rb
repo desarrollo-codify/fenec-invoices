@@ -24,8 +24,11 @@ FactoryBot.define do
   end
 
   factory :client do
+    code { '055' }
     name { 'Juan' }
     nit { '123' }
+    email { 'example@example.com' }
+    phone { '12345' }
     company factory: :company
   end
 
@@ -135,5 +138,13 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
     economic_activity factory: :economic_activity
+  end
+
+  factory :sender_email do
+    address { 'smtp.example.com' }
+    port { '25' }
+    domain { 'example.com' }
+    user_name { 'example@example.com' }
+    password { 'passwords' }
   end
 end

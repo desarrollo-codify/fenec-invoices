@@ -6,7 +6,10 @@ RSpec.describe '/api/v1/company/:company_id/clients', type: :request do
   let(:valid_attributes) do
     {
       name: 'Abc',
-      nit: '123'
+      nit: '123',
+      code: '055',
+      phone: '12345',
+      email: 'example@example.com'
     }
   end
 
