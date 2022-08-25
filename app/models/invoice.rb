@@ -10,7 +10,6 @@ class Invoice < ApplicationRecord
             uniqueness: { scope: :cufd_code,
                           message: 'Ya existe este número de factura con el código único de facturación diaria.' }
   validates :address, presence: true
-  validates :point_of_sale, presence: true
   validates :date, presence: true
   validates :business_name, presence: true, format: { with: VALID_NAME_REGEX }
   validates :document_type, presence: true
