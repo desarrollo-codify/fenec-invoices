@@ -5,10 +5,10 @@ class Invoice < ApplicationRecord
                           numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
   validates :company_name, presence: true, format: { with: VALID_NAME_REGEX }
   validates :municipality, presence: true, format: { with: VALID_NAME_REGEX }
-  validates :phone, presence: true
   validates :number,
             uniqueness: { scope: :cufd_code,
                           message: 'Ya existe este número de factura con el código único de facturación diaria.' }
+  validates :cufd_code, presence: true
   validates :address, presence: true
   validates :date, presence: true
   validates :business_name, presence: true, format: { with: VALID_NAME_REGEX }
@@ -22,6 +22,10 @@ class Invoice < ApplicationRecord
   validates :currency_code, presence: true
   validates :exchange_rate, presence: true
   validates :currency_total, presence: true
+  validates :legend, presence: true
+  validates :user, presence: true 
+  validates :document_sector_code, presence: true
+
 
   validates :subtotal, presence: true,
                        numericality: { message: 'El subtotal debe ser un valor numérico.' }

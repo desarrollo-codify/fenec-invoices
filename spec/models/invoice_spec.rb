@@ -102,20 +102,6 @@ RSpec.describe Invoice, type: :model do
     end
   end
 
-  describe 'phone attribute' do
-    it { validate_presence_of(:phone) }
-
-    context 'with nil or empty value' do
-      let(:invoice) { build(:invoice, phone: nil) }
-
-      it 'is invalid' do
-        expect(invoice).to_not be_valid
-        invoice.phone = ''
-        expect(invoice).to_not be_valid
-      end
-    end
-  end
-
   describe 'number attribute' do
     context 'validates uniqueness of number per invoice' do
       context 'with duplicated number' do
@@ -134,6 +120,20 @@ RSpec.describe Invoice, type: :model do
         it 'is valid' do
           expect(subject).to be_valid
         end
+      end
+    end
+  end
+
+  describe 'cufd_code attribute' do
+    it { validate_presence_of(:phone) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, cufd_code: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        invoice.cufd_code = ''
+        expect(invoice).to_not be_valid
       end
     end
   end
@@ -333,6 +333,46 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, currency_total: nil) }
 
       it 'is not valid' do
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+  
+  describe 'legend attribute' do
+    it { validate_presence_of(:legend) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, legend: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        invoice.legend = ''
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'user attribute' do
+    it { validate_presence_of(:user) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, user: nil) }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        invoice.user = ''
+        expect(invoice).to_not be_valid
+      end
+    end
+  end
+
+  describe 'document_sector_code attribute' do
+    it { validate_presence_of(:document_sector_code) }
+
+    context 'with nil or empty value' do
+      let(:invoice) { build(:invoice, document_sector_code: nil) }
+
+      it 'is invalid' do
         expect(invoice).to_not be_valid
       end
     end
