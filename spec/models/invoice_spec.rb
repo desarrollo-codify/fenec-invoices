@@ -152,18 +152,6 @@ RSpec.describe Invoice, type: :model do
     end
   end
 
-  describe 'point_of_sale attribute' do
-    it { validate_presence_of(:point_of_sale) }
-
-    context 'with nil or empty value' do
-      let(:invoice) { build(:invoice, point_of_sale: nil) }
-
-      it 'is invalid' do
-        expect(invoice).to_not be_valid
-      end
-    end
-  end
-
   describe 'date attribute' do
     it { validate_presence_of(:date) }
 

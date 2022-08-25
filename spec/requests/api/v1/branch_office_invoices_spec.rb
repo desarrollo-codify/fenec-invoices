@@ -5,13 +5,15 @@ require 'rails_helper'
 RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :request do
   let(:valid_attributes) do
     {
-      # municipality: 'Santa Cruz',
-      # phone: '12345',
-      # number: '1',
-      # address: 'por ahi',
-      # point_of_sale: 1,
-      # date: '2022-01-01',
-      # total: 100,
+      municipality: 'Santa Cruz',
+      phone: '12345',
+      number: '1',
+      address: 'por ahi',
+      date: '2022-01-01',
+      total: 100,
+
+      company_name: 'Codify',
+      company_nit: '12345',
 
       business_name: 'Juan Perez',
       document_type: 1,
