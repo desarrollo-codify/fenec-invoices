@@ -80,7 +80,6 @@ FactoryBot.define do
     municipality { 'Santa Cruz' }
     phone { '123' }
     address { 'abc' }
-    point_of_sale { 1 }
     date { '2022-01-01' }
     document_type { 1 }
     client_code { '01' }
