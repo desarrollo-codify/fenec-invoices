@@ -25,4 +25,6 @@ Metrics/CyclomaticComplexity:
   Max: 18
 
 AllCops:
-    NewCops: enable
+  NewCops: enable
+  Excludes:
+    - db/**
