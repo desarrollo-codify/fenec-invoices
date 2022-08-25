@@ -80,6 +80,8 @@ FactoryBot.define do
     municipality { 'Santa Cruz' }
     phone { '123' }
     address { 'abc' }
+    cuf { 'abc' }
+    cufd_code { 'abc' }
     date { '2022-01-01' }
     document_type { 1 }
     client_code { '01' }
@@ -90,6 +92,9 @@ FactoryBot.define do
     number { 1 }
     subtotal { 1 }
     total { 1 }
+    document_sector_code { 1 }
+    legend { 'legend' }
+    user { 'jperez' }
     branch_office factory: :branch_office
     invoice_status factory: :invoice_status
 
