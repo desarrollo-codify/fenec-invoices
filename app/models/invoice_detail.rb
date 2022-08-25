@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
 class InvoiceDetail < ApplicationRecord
+  validates :economic_activity_code, presence: true
+  validates :sin_code, presence: true
+  validates :product_code, presence: true
   validates :description, presence: true, format: { with: VALID_NAME_REGEX }
-  validates :unit_price, presence: true,
-                         numericality: { greater_than_or_equal_to: 0, message: 'Precio unitario debe ser mayor o igual a 0.' }
   validates :quantity, presence: true,
                        numericality: { greater_than_or_equal_to: 0, message: 'Cantidad debe ser mayor o igual a 0.' }
+  validates :unit_price, presence: true,
+                         numericality: { greater_than_or_equal_to: 0, message: 'Precio unitario debe ser mayor o igual a 0.' }
   validates :subtotal, presence: true,
                        numericality: { greater_than_or_equal_to: 0, message: 'Subtotal debe ser mayor o igual a 0.' }
   validates :discount, presence: true,
                        numericality: { greater_than_or_equal_to: 0, message: 'Descuento debe ser mayor o igual a 0.' }
   validates :total, presence: true,
                     numericality: { greater_than_or_equal_to: 0, message: 'Total debe ser mayor o igual a 0.' }
+
   validate :discount_cannot_be_greater_than_subtotal
   validate :subtotal_must_be_correctly_calculated
   validate :total_must_be_correctly_calculated

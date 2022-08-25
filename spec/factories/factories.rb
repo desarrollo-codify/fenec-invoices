@@ -24,8 +24,11 @@ FactoryBot.define do
   end
 
   factory :client do
+    code { '055' }
     name { 'Juan' }
     nit { '123' }
+    email { 'example@example.com' }
+    phone { '12345' }
     company factory: :company
   end
 
@@ -72,15 +75,26 @@ FactoryBot.define do
       default_values { false }
     end
 
-    date { '2022-01-01' }
+    company_nit { '123' }
     company_name { 'SRL' }
+    municipality { 'Santa Cruz' }
+    phone { '123' }
+    address { 'abc' }
+    cuf { 'abc' }
+    cufd_code { 'abc' }
+    date { '2022-01-01' }
+    document_type { 1 }
+    client_code { '01' }
+    payment_method { 1 }
+    currency_code { 1 }
+    exchange_rate { 1 }
+    currency_total { 1 }
     number { 1 }
     subtotal { 1 }
     total { 1 }
-    municipality { 'Santa Cruz' }
-    address { 'abc' }
-    phone { '123' }
-    currency_code { 1 }
+    document_sector_code { 1 }
+    legend { 'legend' }
+    user { 'jperez' }
     branch_office factory: :branch_office
     invoice_status factory: :invoice_status
 
@@ -98,6 +112,9 @@ FactoryBot.define do
       default_values { false }
     end
 
+    economic_activity_code { 1 }
+    sin_code { 1 }
+    product_code { '01' }
     description { 'ABC' }
     unit_price { 1 }
     subtotal { 1 }
@@ -135,5 +152,13 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
     economic_activity factory: :economic_activity
+  end
+
+  factory :sender_email do
+    address { 'smtp.example.com' }
+    port { '25' }
+    domain { 'example.com' }
+    user_name { 'example@example.com' }
+    password { 'passwords' }
   end
 end

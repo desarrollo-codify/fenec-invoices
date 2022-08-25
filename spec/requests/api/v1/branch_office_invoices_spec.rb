@@ -5,6 +5,13 @@ require 'rails_helper'
 RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :request do
   let(:valid_attributes) do
     {
+      municipality: 'Santa Cruz',
+      phone: '12345',
+      address: 'por ahi',
+      date: '2022-01-01',
+      total: 100,
+      company_name: 'Codify',
+      company_nit: '12345',
       business_name: 'Juan Perez',
       document_type: 1,
       business_nit: '1234567',
@@ -34,9 +41,40 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
 
   let(:invalid_attributes) do
     {
+      municipality: nil,
+      phone: nil,
+      number: nil,
+      address: nil,
+      date: nil,
+
+      company_name: nil,
+      company_nit: nil,
+
       business_name: nil,
+      document_type: nil,
+      business_nit: nil,
+      client_code: nil,
+      payment_method: nil,
+      gift_card_total: nil,
+      discount: nil,
+      currency_code: nil,
+      exchange_rate: nil,
+      currency_total: nil,
+      user: nil,
       subtotal: -1,
-      total: -1
+      total: -1,
+      invoice_details_attributes: [
+        {
+          economic_activity_code: 12_345,
+          product_code: 'Abc',
+          description: 'Algo bonito',
+          quantity: 1,
+          measurement_id: 1,
+          unit_price: 100,
+          discount: 0,
+          subtotal: 100
+        }
+      ]
     }
   end
 
@@ -65,6 +103,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:measurement) }
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
+      before { create(:client, company: branch_office.company) }
 
       it 'creates a new Invoice' do
         expect do
@@ -82,25 +121,25 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     end
 
     context 'with invalid parameters' do
-      pending "test after implementing validate! #{__FILE__}"
-      # before { create(:cuis_code, branch_office: branch_office) }
-      # before { create(:daily_code, branch_office: branch_office) }
-      # let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
-      # before { create(:legend, economic_activity: economic_activity) }
+      before { create(:cuis_code, branch_office: branch_office) }
+      before { create(:daily_code, branch_office: branch_office) }
+      before { create(:product, company: branch_office.company) }
+      let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+      before { create(:legend, economic_activity: economic_activity) }
 
-      # it 'does not create a new Invoice' do
-      #   expect do
-      #     post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-      #          params: { invoice: invalid_attributes }, as: :json
-      #   end.to change(Invoice, :count).by(0)
-      # end
+      it 'does not create a new Invoice' do
+        expect do
+          post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
+               params: { invoice: invalid_attributes }, as: :json
+        end.to change(Invoice, :count).by(0)
+      end
 
-      # it 'renders a JSON response with errors for the new api_v1_company_branch_office' do
-      #   post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-      #        params: { invoice: invalid_attributes }, headers: valid_headers, as: :json
-      #   expect(response).to have_http_status(:unprocessable_entity)
-      #   expect(response.content_type).to match(a_string_including('application/json'))
-      # end
+      it 'renders a JSON response with errors for the new api_v1_company_branch_office' do
+        post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
+             params: { invoice: invalid_attributes }, headers: valid_headers, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.content_type).to match(a_string_including('application/json'))
+      end
     end
   end
 end

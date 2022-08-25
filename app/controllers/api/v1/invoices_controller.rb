@@ -50,11 +50,11 @@ module Api
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal
           detail.product = company.products.find_by(primary_code: detail.product_code)
+          # debugger
           detail.sin_code = detail.product.sin_code
         end
-
         unless @invoice.valid?
-          render json: @invoice.errors
+          render json: @invoice.errors, status: :unprocessable_entity
           return
         end
 
@@ -62,6 +62,12 @@ module Api
           @invoice.number = invoice_number
           @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
           @invoice.save
+          # test mailer
+
+          @client = company.clients.find_by(code: invoice_params[:client_code])
+          InvoiceMailer.with(client: @client, invoice: @invoice).send_invoice.deliver_now
+
+          # test mailer
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)
           render json: @invoice, status: :created
