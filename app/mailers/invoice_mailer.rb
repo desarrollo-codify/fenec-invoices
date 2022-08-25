@@ -10,6 +10,6 @@ class InvoiceMailer < ApplicationMailer
     @client = params[:client]
     @invoice = params[:invoice]
 
-    mail to: @client.email, subject: "Factura"
+    mail to: @client.email, subject: 'Factura'
   end
 end

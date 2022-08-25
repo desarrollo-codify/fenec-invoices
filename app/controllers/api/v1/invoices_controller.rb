@@ -50,11 +50,11 @@ module Api
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal
           detail.product = company.products.find_by(primary_code: detail.product_code)
+          # debugger
           detail.sin_code = detail.product.sin_code
         end
-
         unless @invoice.valid?
-          render json: @invoice.errors
+          render json: @invoice.errors, status: :unprocessable_entity
           return
         end
 

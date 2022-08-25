@@ -15,10 +15,47 @@ RSpec.describe InvoiceDetail, type: :model do
   let(:invoice) { create(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
 
   subject { build(:invoice_detail, invoice: invoice, measurement: measurement) }
-
   describe 'with valid values' do
     it 'is valid' do
       expect(subject).to be_valid
+    end
+  end
+
+  describe 'economic_activity_code attribute' do
+    it { validate_presence_of(:economic_activity_code) }
+
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, economic_activity_code: nil) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+      end
+    end
+  end
+
+  describe 'sin_code attribute' do
+    it { validate_presence_of(:sin_code) }
+
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, sin_code: nil) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+      end
+    end
+  end
+
+  describe 'product_code attribute' do
+    it { validate_presence_of(:product_code) }
+
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, product_code: nil) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+        invoice_detail.product_code = ''
+        expect(invoice_detail).to_not be_valid
+      end
     end
   end
 
@@ -52,32 +89,6 @@ RSpec.describe InvoiceDetail, type: :model do
     end
   end
 
-  describe 'unit_price attribute' do
-    it { validate_presence_of(:unit_price) }
-
-    context 'with nil value' do
-      let(:invoice_detail) { build(:invoice_detail, unit_price: nil) }
-
-      it 'is invalid' do
-        expect(invoice_detail).to_not be_valid
-      end
-    end
-
-    context 'validates numericality of unit price' do
-      it { validate_numericality_of(:invoice_detail).is_greater_than_or_equal_to(0) }
-
-      context 'with non-numeric or lower than zero value' do
-        let(:invoice_detail) { build(:invoice_detail, unit_price: 'A') }
-
-        it 'is not valid' do
-          expect(invoice_detail).to_not be_valid
-          invoice_detail.unit_price = -1
-          expect(invoice_detail.errors[:unit_price]).to eq(['Precio unitario debe ser mayor o igual a 0.'])
-        end
-      end
-    end
-  end
-
   describe 'quantity attribute' do
     it { validate_presence_of(:quantity) }
 
@@ -99,6 +110,32 @@ RSpec.describe InvoiceDetail, type: :model do
           expect(invoice_detail).to_not be_valid
           invoice_detail.quantity = -1
           expect(invoice_detail.errors[:quantity]).to eq(['Cantidad debe ser mayor o igual a 0.'])
+        end
+      end
+    end
+  end
+
+  describe 'unit_price attribute' do
+    it { validate_presence_of(:unit_price) }
+
+    context 'with nil value' do
+      let(:invoice_detail) { build(:invoice_detail, unit_price: nil) }
+
+      it 'is invalid' do
+        expect(invoice_detail).to_not be_valid
+      end
+    end
+
+    context 'validates numericality of unit price' do
+      it { validate_numericality_of(:invoice_detail).is_greater_than_or_equal_to(0) }
+
+      context 'with non-numeric or lower than zero value' do
+        let(:invoice_detail) { build(:invoice_detail, unit_price: 'A') }
+
+        it 'is not valid' do
+          expect(invoice_detail).to_not be_valid
+          invoice_detail.unit_price = -1
+          expect(invoice_detail.errors[:unit_price]).to eq(['Precio unitario debe ser mayor o igual a 0.'])
         end
       end
     end
