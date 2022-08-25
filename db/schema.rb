@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_220_823_164_155) do
+ActiveRecord::Schema[7.0].define(version: 20_220_823_142_538) do
   create_table 'active_storage_attachments', force: :cascade do |t|
     t.string 'name', null: false
     t.string 'record_type', null: false
@@ -58,11 +58,11 @@ ActiveRecord::Schema[7.0].define(version: 20_220_823_164_155) do
     t.string 'code'
     t.string 'name', null: false
     t.string 'nit', null: false
+    t.string 'email'
+    t.string 'phone'
     t.integer 'company_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
-    t.string 'email'
-    t.string 'phone'
     t.index ['company_id'], name: 'index_clients_on_company_id'
   end
 
@@ -79,10 +79,10 @@ ActiveRecord::Schema[7.0].define(version: 20_220_823_164_155) do
   create_table 'cuis_codes', force: :cascade do |t|
     t.string 'code', null: false
     t.datetime 'expiration_date', null: false
+    t.integer 'current_number', null: false
     t.integer 'branch_office_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
-    t.integer 'current_number'
     t.index ['branch_office_id'], name: 'index_cuis_codes_on_branch_office_id'
   end
 
@@ -126,22 +126,22 @@ ActiveRecord::Schema[7.0].define(version: 20_220_823_164_155) do
   end
 
   create_table 'invoice_details', force: :cascade do |t|
+    t.integer 'economic_activity_code', null: false
+    t.integer 'sin_code', null: false
+    t.string 'product_code', null: false
     t.string 'description', null: false
-    t.string 'product_code'
-    t.decimal 'unit_price', null: false
     t.decimal 'quantity', null: false
+    t.decimal 'unit_price', null: false
     t.decimal 'subtotal', null: false
     t.decimal 'discount', null: false
     t.decimal 'total', null: false
+    t.string 'serial_number'
+    t.string 'imei_code'
     t.integer 'measurement_id', null: false
     t.integer 'product_id', null: false
     t.integer 'invoice_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
-    t.integer 'economic_activity_code'
-    t.integer 'sin_code'
-    t.string 'serial_number'
-    t.string 'imei_code'
     t.index ['invoice_id'], name: 'index_invoice_details_on_invoice_id'
     t.index ['measurement_id'], name: 'index_invoice_details_on_measurement_id'
     t.index ['product_id'], name: 'index_invoice_details_on_product_id'
@@ -154,54 +154,49 @@ ActiveRecord::Schema[7.0].define(version: 20_220_823_164_155) do
   end
 
   create_table 'invoices', force: :cascade do |t|
+    t.string 'company_nit', null: false
+    t.string 'company_name', null: false
+    t.string 'municipality', null: false
+    t.string 'phone'
     t.integer 'number'
-    t.datetime 'date', null: false
-    t.string 'company_name'
-    t.string 'company_nit'
-    t.string 'business_name', null: false
-    t.string 'business_nit', null: false
-    t.string 'authorization'
-    t.string 'key'
-    t.datetime 'end_date'
-    t.string 'activity_type'
+    t.string 'cuf'
+    t.string 'cufd_code', null: false
     t.string 'control_code'
-    t.string 'qr_content'
+    t.integer 'branch_office_number'
+    t.string 'address', null: false
+    t.integer 'point_of_sale'
+    t.datetime 'date', null: false
+    t.string 'business_name', null: false
+    t.integer 'document_type', null: false
+    t.string 'business_nit', null: false
+    t.string 'complement'
+    t.string 'client_code', null: false
+    t.integer 'payment_method', null: false
+    t.string 'card_number'
     t.decimal 'subtotal', null: false
+    t.decimal 'total', null: false
+    t.decimal 'gift_card_total'
     t.decimal 'discount'
+    t.integer 'exception_code'
+    t.integer 'cafc'
+    t.integer 'currency_code', null: false
+    t.decimal 'exchange_rate', null: false
+    t.decimal 'currency_total', null: false
+    t.string 'legend', null: false
+    t.string 'user', null: false
+    t.integer 'document_sector_code', null: false
+    t.datetime 'cancellation_date'
+    t.string 'qr_content'
     t.decimal 'gift_card'
     t.decimal 'advance'
-    t.decimal 'total', null: false
     t.decimal 'cash_paid'
     t.decimal 'qr_paid'
     t.decimal 'card_paid'
     t.decimal 'online_paid'
-    t.decimal 'change'
-    t.datetime 'cancellation_date'
-    t.decimal 'exchange_rate'
-    t.string 'cufd_code'
     t.integer 'branch_office_id', null: false
     t.integer 'invoice_status_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
-    t.string 'cuf'
-    t.integer 'branch_office_number'
-    t.string 'municipality', null: false
-    t.string 'phone', null: false
-    t.string 'address', null: false
-    t.integer 'point_of_sale'
-    t.integer 'document_type'
-    t.string 'complement'
-    t.string 'client_code'
-    t.integer 'payment_method'
-    t.string 'card_number'
-    t.decimal 'gift_card_total'
-    t.decimal 'currency_total'
-    t.integer 'currency_code', null: false
-    t.integer 'exception_code'
-    t.integer 'cafc'
-    t.string 'legend'
-    t.string 'user'
-    t.integer 'document_sector_code'
     t.index ['branch_office_id'], name: 'index_invoices_on_branch_office_id'
     t.index ['invoice_status_id'], name: 'index_invoices_on_invoice_status_id'
     t.index %w[number cufd_code], name: 'index_invoices_on_number_and_cufd_code', unique: true

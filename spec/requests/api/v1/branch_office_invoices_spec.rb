@@ -7,14 +7,11 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     {
       municipality: 'Santa Cruz',
       phone: '12345',
-      number: '1',
       address: 'por ahi',
       date: '2022-01-01',
       total: 100,
-
       company_name: 'Codify',
       company_nit: '12345',
-
       business_name: 'Juan Perez',
       document_type: 1,
       business_nit: '1234567',

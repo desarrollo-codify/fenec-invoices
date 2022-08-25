@@ -9,11 +9,9 @@ class CreateInvoiceDetails < ActiveRecord::Migration[7.0]
       t.string :description, null: false
       t.decimal :quantity, null: false
       t.decimal :unit_price, null: false
-      t.decimal :discount, null: false
       t.decimal :subtotal, null: false
-
+      t.decimal :discount, null: false
       t.decimal :total, null: false
-
       t.string :serial_number
       t.string :imei_code
       t.references :measurement, null: false, foreign_key: true
