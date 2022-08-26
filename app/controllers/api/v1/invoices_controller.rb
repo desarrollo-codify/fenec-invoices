@@ -63,7 +63,7 @@ module Api
           # TODO: implement paper size: 1 roll, 2 half office or half letter
           @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
           @invoice.save
-          
+
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
@@ -238,11 +238,10 @@ module Api
         builder.to_xml
       end
 
-      def qr_content(nit, cuf, number, t)
+      def qr_content(nit, cuf, number, page_size)
         base_url = ENV.fetch('siat_url', nil)
-        params = { nit: nit, cuf: cuf, numero: number, t: t }
-        url = "#{ base_url }?#{ params.to_param }"
-        url
+        params = { nit: nit, cuf: cuf, numero: number, t: page_size }
+        "#{base_url}?#{params.to_param}"
       end
     end
   end
