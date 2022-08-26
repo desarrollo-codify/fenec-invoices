@@ -40,7 +40,10 @@ gem 'devise', '~> 4.8'
 gem 'devise-jwt', '~> 0.9.0'
 gem 'nokogiri', '~> 1.6', '>= 1.6.8'
 gem 'rack-cors'
+gem 'rqrcode'
 gem 'savon', '~> 2.12.0'
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
