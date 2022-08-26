@@ -9,7 +9,11 @@ class InvoiceMailer < ApplicationMailer
   def send_invoice
     @client = params[:client]
     @invoice = params[:invoice]
+    @xml = params[:xml]
+    File.write("#{Rails.root}/tmp/factura.xml", @xml)
 
-    mail to: 'carlos.gutierrez@codify.com.bo', subject: 'Factura'
+    attachments['factura.xml'] = File.read('/tmp/factura.xml')
+
+    mail to: @client.email, subject: 'Factura'
   end
 end

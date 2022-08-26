@@ -14,19 +14,21 @@ Rails.application.configure do
   config.eager_load = false
 
   # config.action_mailer.delivery_method = :letter_opener
+  config.action_mailer.perform_deliveries = true
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:              'codify.com.bo',
-    port:                 465,
-    domain:               'localhost:3000',
-    user_name:            'carlos.gutierrez@codify.com.bo',
-    password:             'Revocatongo33.',
-    authentication:       'plain',
-    enable_starttls_auto: true,
-    open_timeout:         5,
-    read_timeout:         5 }
-
+    address: 'codify.com.bo',
+    port: 465,
+    domain: 'codify.com.bo',
+    user_name: 'carlos.gutierrez@codify.com.bo',
+    password: 'Revocatongo33.',
+    authentication: 'plain',
+    ssl: true,
+    tls: true,
+    open_timeout: 5,
+    read_timeout: 5
+  }
 
   # Show full error reports.
   config.consider_all_requests_local = true

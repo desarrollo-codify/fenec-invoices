@@ -63,9 +63,11 @@ module Api
           @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
           @invoice.save
 
+          # TODO: here or after create?
           @client = company.clients.find_by(code: invoice_params[:client_code])
-          SendMailJob.perform_later(@invoice, @client)
-          
+          @xml = generate_xml(@invoice)
+          SendMailJob.perform_later(@invoice, @client, @xml)
+
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)
           render json: @invoice, status: :created
