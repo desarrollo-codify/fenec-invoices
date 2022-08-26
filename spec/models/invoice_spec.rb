@@ -337,7 +337,7 @@ RSpec.describe Invoice, type: :model do
       end
     end
   end
-  
+
   describe 'legend attribute' do
     it { validate_presence_of(:legend) }
 

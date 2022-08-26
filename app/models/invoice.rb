@@ -23,9 +23,8 @@ class Invoice < ApplicationRecord
   validates :exchange_rate, presence: true
   validates :currency_total, presence: true
   validates :legend, presence: true
-  validates :user, presence: true 
+  validates :user, presence: true
   validates :document_sector_code, presence: true
-
 
   validates :subtotal, presence: true,
                        numericality: { message: 'El subtotal debe ser un valor numérico.' }

@@ -50,7 +50,6 @@ module Api
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal
           detail.product = company.products.find_by(primary_code: detail.product_code)
-          # debugger
           detail.sin_code = detail.product.sin_code
         end
         unless @invoice.valid?
@@ -61,15 +60,10 @@ module Api
         if @invoice.save
           @invoice.number = invoice_number
           @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
+          # TODO: implement paper size: 1 roll, 2 half office or half letter
+          @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
           @invoice.save
-          # test mailer
 
-          @client = company.clients.find_by(code: invoice_params[:client_code])
-          InvoiceMailer.with(client: @client, invoice: @invoice).send_invoice.deliver_now
-
-          # test mailer
-          # TODO: generate and send xml and pdf documents
-          # generate_xml(@invoice)
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
@@ -242,6 +236,12 @@ module Api
         end
 
         builder.to_xml
+      end
+
+      def qr_content(nit, cuf, number, page_size)
+        base_url = ENV.fetch('siat_url', nil)
+        params = { nit: nit, cuf: cuf, numero: number, t: page_size }
+        "#{base_url}?#{params.to_param}"
       end
     end
   end

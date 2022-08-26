@@ -34,6 +34,7 @@ module Api
       # PATCH/PUT /companies/1
       def update
         if @company.update(company_params)
+          @company.logo.attach(company_params[:logo]) if company_params[:logo]
           render json: @company
         else
           render json: @company.errors, status: :unprocessable_entity
