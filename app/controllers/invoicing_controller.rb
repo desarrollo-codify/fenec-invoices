@@ -1,4 +1,5 @@
 class InvoicingController < ActionController::Base
+  require 'rqrcode'
 
   def show
     @invoice = scope.find(3)
@@ -6,6 +7,7 @@ class InvoicingController < ActionController::Base
     @company = @branch_office.company
     @economic_activity = @company.economic_activities.find_by(code: @invoice.invoice_details.first.economic_activity_code)
     @literal_amount = literal_amount(@invoice.total)
+    @qr_code_file = qr_code(@invoice.qr_content, @invoice.cuf)
     render pdf: "file_name",
            template: "layouts/invoice",
            page_width: '8.5cm',
@@ -81,5 +83,19 @@ class InvoicingController < ActionController::Base
     end
 
     words.compact.join(' ')
+  end
+
+  def qr_code(content, cuf)
+    qrcode = RQRCode::QRCode.new(content, level: :m)
+    filename = "public/tmp/qr/#{cuf}.png"
+    png = qrcode.as_png(resize_gte_to: false,
+                        resize_exactly_to: false,
+                        fill: 'white',
+                        color: 'black',
+                        size: 120,
+                        border_modules: 0,
+                        module_px_size: 0,
+                      ).save(filename)
+    return "/tmp/qr/#{cuf}.png"
   end
 end

@@ -50,7 +50,6 @@ module Api
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal
           detail.product = company.products.find_by(primary_code: detail.product_code)
-          # debugger
           detail.sin_code = detail.product.sin_code
         end
         unless @invoice.valid?
@@ -61,6 +60,8 @@ module Api
         if @invoice.save
           @invoice.number = invoice_number
           @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
+          # TODO: implement paper size: 1 roll, 2 half office or half letter
+          @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
           @invoice.save
           
           render json: @invoice, status: :created
@@ -235,6 +236,13 @@ module Api
         end
 
         builder.to_xml
+      end
+
+      def qr_content(nit, cuf, number, t)
+        base_url = ENV.fetch('siat_url', nil)
+        params = { nit: nit, cuf: cuf, numero: number, t: t }
+        url = "#{ base_url }?#{ params.to_param }"
+        url
       end
     end
   end
