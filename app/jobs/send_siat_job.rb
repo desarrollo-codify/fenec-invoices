@@ -29,11 +29,6 @@ class SendSiatJob < ApplicationJob
         if response.success?
           data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
 
-          code = data[:codigo]
-          expiration_date = data[:fecha_vigencia]
-
-          @branch_office.add_cuis_code!(code, expiration_date)
-
           render json: data
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
