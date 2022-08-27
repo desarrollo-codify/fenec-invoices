@@ -26,5 +26,5 @@ Metrics/CyclomaticComplexity:
 
 AllCops:
   NewCops: enable
-  Excludes:
+  Exclude:
     - db/**
