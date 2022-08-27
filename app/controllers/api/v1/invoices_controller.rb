@@ -64,6 +64,16 @@ module Api
           @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
           @invoice.save
 
+          # TODO: here or after create?
+          @client = company.clients.find_by(code: invoice_params[:client_code])
+          @xml = generate_xml(@invoice)
+
+          # SendSiatJob.perform_later(@xml, @branch_office)
+
+          SendMailJob.perform_later(@invoice, @client, @xml, company.mail_setting)
+
+          # TODO: generate and send xml and pdf documents
+          # generate_xml(@invoice)
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity

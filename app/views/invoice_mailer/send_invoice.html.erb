@@ -1,6 +1,51 @@
-<h1>Test of mailer</h1>
-
-<p>
-  <%= @client.name %> <hr>
-  <%= @invoice.business_name %>
-</p>
+<div>
+  <div width="100%">
+    <table border="0" width="100%" cellspacing="0" cellpadding="0">
+      <tbody>
+        <tr> 
+          <td style="padding: 20px 0 20px 0" align="center" valign="top">
+            <table width="700" cellspacing="0" cellpadding="10" bgcolor="#ffffff"> 
+              <tbody>
+                <tr> 
+                  <td bgcolor="#026773" align="center" style="height: 60px">
+                    <font size="6" color="white">CODIFY SRL</font>
+                  </td> 
+                </tr> 
+                <tr> 
+                  <td valign="top" align="center">
+                    <h2>Factura</h2>
+                  </td> 
+                </tr> 
+                <tr> 
+                  <td> 
+                    <div>  <div>
+                      <ul>
+                        <li>Razón Social:<b> <%= @invoice.business_name %> </b></li>
+                        <li>Número Documento:<b> <%= @invoice.business_nit %> </b></li>
+                        <li>Nro Factura :<b> <%= @invoice.number %> </b></li>
+                        <li>Monto :<b>  <%= @invoice.total %> </b></li>
+                        <li>Moneda :<b> BOLIVIANO </b></li>
+                        <li>Fecha :<b> <strong> <%= @invoice.date %> </strong> </b></li>
+                      </ul></div>                  
+                    </div> 
+                  </td> 
+                </tr> 
+              </tbody>
+            </table> 
+            <table width="700" cellspacing="0" cellpadding="10" bgcolor="#">
+              <tbody>
+                <tr> 
+                  <td style="background: #026773; color: white" align="center" bgcolor="#eaeaea">
+                    <center>
+                      <p style="font-size: 12px; margin: 0"></p> 
+                    </center> 
+                  </td> 
+                </tr> 
+              </tbody>
+            </table> 
+          </td> 
+        </tr> 
+      </tbody>
+    </table>
+  </div>
+</div>
