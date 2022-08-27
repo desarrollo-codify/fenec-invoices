@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class CreateSenderEmails < ActiveRecord::Migration[7.0]
+class CreateMailSettings < ActiveRecord::Migration[7.0]
   def change
-    create_table :sender_emails do |t|
+    create_table :mail_settings do |t|
       t.string :address, null: false
       t.integer :port, null: false
       t.string :domain, null: false

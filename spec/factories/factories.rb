@@ -154,7 +154,7 @@ FactoryBot.define do
     economic_activity factory: :economic_activity
   end
 
-  factory :sender_email do
+  factory :mail_setting do
     address { 'smtp.example.com' }
     port { '25' }
     domain { 'example.com' }

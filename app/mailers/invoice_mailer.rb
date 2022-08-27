@@ -10,10 +10,19 @@ class InvoiceMailer < ApplicationMailer
     @client = params[:client]
     @invoice = params[:invoice]
     @xml = params[:xml]
-    File.write("#{Rails.root}/tmp/factura.xml", @xml)
 
-    attachments['factura.xml'] = File.read('/tmp/factura.xml')
+    delivery_options = { user_name: params[:sender].user_name,
+                         password: params[:sender].password,
+                         domain: params[:sender].domain,
+                         port: params[:sender].port,
+                         address: params[:sender].address }
 
-    mail to: @client.email, subject: 'Factura'
+    filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
+    File.write(filename, @xml)
+
+    attachments['factura.xml'] = File.read(filename)
+
+    mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
+    File.delete(filename)
   end
 end
