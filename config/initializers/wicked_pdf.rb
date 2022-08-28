@@ -25,7 +25,7 @@ WickedPdf.config = {
   # layout: 'pdf.html',
   page_width: '10cm',
   page_height: '33cm',
-  page_size: nil,
+  page_size: nil
 
   # Using wkhtmltopdf without an X server can be achieved by enabling the
   # 'use_xvfb' flag. This will wrap all wkhtmltopdf commands around the

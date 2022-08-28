@@ -53,7 +53,7 @@ class InvoiceMailer < ApplicationMailer
       file << pdf
       file.close
     end
-    
+
     attachments['factura.pdf'] = File.read(pdf_path)
     # TODO: use dynamic email subject
     mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
