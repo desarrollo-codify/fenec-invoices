@@ -15,6 +15,16 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
+        @branch_office = @invoice.branch_office
+        @company = @branch_office.company
+        @economic_activity = @company.economic_activities.first
+        @client = @company.clients.first
+
+        @xml = generate_xml(@invoice)
+        # SendSiatJob.perform_later(@xml, @branch_office)
+
+        SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
+
         render json: @invoice
       end
 
@@ -23,7 +33,7 @@ module Api
         # TODO: implement validate!
 
         @invoice = @branch_office.invoices.build(invoice_params)
-        company = @branch_office.company
+        @company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
         @invoice.company_nit = @branch_office.company.nit
@@ -44,12 +54,12 @@ module Api
         @invoice.cash_paid = @invoice.total # TODO: implement different payments
         @invoice.invoice_status_id = 1
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
-        economic_activity = company.economic_activities.find_by(code: activity_code)
-        @invoice.legend = economic_activity.random_legend.description
+        @economic_activity = @company.economic_activities.find_by(code: activity_code)
+        @invoice.legend = @economic_activity.random_legend.description
 
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal
-          detail.product = company.products.find_by(primary_code: detail.product_code)
+          detail.product = @company.products.find_by(primary_code: detail.product_code)
           detail.sin_code = detail.product.sin_code
         end
         unless @invoice.valid?
@@ -65,12 +75,11 @@ module Api
           @invoice.save
 
           # TODO: here or after create?
-          @client = company.clients.find_by(code: invoice_params[:client_code])
+          @client = @company.clients.find_by(code: invoice_params[:client_code])
           @xml = generate_xml(@invoice)
-
           # SendSiatJob.perform_later(@xml, @branch_office)
 
-          SendMailJob.perform_later(@invoice, @client, @xml, company.mail_setting)
+          SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
 
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)

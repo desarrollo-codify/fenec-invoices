@@ -29,6 +29,7 @@ class InvoicingController < ActionController::Base
     ::Invoice.all.includes(:branch_office, invoice_details: [:measurement])
   end
 
+  # TODO: delete these methods after finish testing
   def literal_amount(amount)
     decimal = BigDecimal(amount.to_s).frac.to_s.gsub! '0.', ''
 
