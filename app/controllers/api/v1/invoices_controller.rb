@@ -15,16 +15,6 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
-        @branch_office = @invoice.branch_office
-        @company = @branch_office.company
-        @economic_activity = @company.economic_activities.first
-        @client = @company.clients.first
-
-        @xml = generate_xml(@invoice)
-        # SendSiatJob.perform_later(@xml, @branch_office)
-
-        SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
-
         render json: @invoice
       end
 
@@ -74,23 +64,12 @@ module Api
           @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
           @invoice.save
 
-          # TODO: here or after create?
-          @client = @company.clients.find_by(code: invoice_params[:client_code])
-          @xml = generate_xml(@invoice)
-          # SendSiatJob.perform_later(@xml, @branch_office)
+          send_client_email
 
-          SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
-
-          # TODO: generate and send xml and pdf documents
-          # generate_xml(@invoice)
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
-      end
-
-      def generate
-        render xml: generate_xml(Invoice.last)
       end
 
       # PATCH/PUT /api/v1/invoices/1
@@ -120,8 +99,6 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def invoice_params
-        # TODO: refactor this for unnecessary params when creating, like cancellation_date
-        # TODO: add strong params for details
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user,
@@ -173,6 +150,15 @@ module Api
 
       def hex_base(value)
         value.to_s(16)
+      end
+
+      def send_client_email
+        # TODO: here or after create - invoice model?
+        @client = @company.clients.find_by(code: invoice_params[:client_code])
+        @xml = generate_xml(@invoice)
+
+        # SendSiatJob.perform_later(@xml, @branch_office)
+        SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
       end
 
       def generate_xml(invoice)
@@ -246,7 +232,7 @@ module Api
                 xml.numeroSerie('xsi:nil' => true) unless detail.serial_number
                 xml.numeroSerie detail.serial_number if detail.serial_number
 
-                # card number
+                # imei number
                 xml.numeroImei('xsi:nil' => true) unless detail.imei_code
                 xml.numeroImei detail.imei_code if detail.imei_code
               end
