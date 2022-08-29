@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_23_142538) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -109,7 +109,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_23_142538) do
     t.string "description", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["code"], name: "index_document_types_on_code", unique: true
   end
 
   create_table "economic_activities", force: :cascade do |t|
@@ -216,18 +215,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_23_142538) do
     t.index ["economic_activity_id"], name: "index_legends_on_economic_activity_id"
   end
 
-  create_table "mail_settings", force: :cascade do |t|
-    t.string "address", null: false
-    t.integer "port", null: false
-    t.string "domain", null: false
-    t.string "user_name", null: false
-    t.string "password", null: false
-    t.integer "company_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_mail_settings_on_company_id"
-  end
-
   create_table "measurements", force: :cascade do |t|
     t.string "description"
     t.datetime "created_at", null: false
@@ -252,6 +239,26 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_23_142538) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "primary_code"], name: "index_products_on_company_id_and_primary_code", unique: true
     t.index ["company_id"], name: "index_products_on_company_id"
+  end
+
+  create_table "sender_emails", force: :cascade do |t|
+    t.string "address", null: false
+    t.integer "port", null: false
+    t.string "domain", null: false
+    t.string "user_name", null: false
+    t.string "password", null: false
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_sender_emails_on_company_id"
+  end
+
+  create_table "significative_events", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_significative_events_on_code", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -286,6 +293,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_23_142538) do
   add_foreign_key "invoices", "branch_offices"
   add_foreign_key "invoices", "invoice_statuses"
   add_foreign_key "legends", "economic_activities"
-  add_foreign_key "mail_settings", "companies"
   add_foreign_key "products", "companies"
+  add_foreign_key "sender_emails", "companies"
 end

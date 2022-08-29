@@ -11,3 +11,4 @@ module ApplicationHelper
     "data:#{content_type};base64,#{Rack::Utils.escape(base64_image)}"
   end
 end
+

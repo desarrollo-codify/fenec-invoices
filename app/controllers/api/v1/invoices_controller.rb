@@ -65,7 +65,7 @@ module Api
           @invoice.save
 
           # TODO: here or after create?
-          @client = company.clients.find_by(code: invoice_params[:client_code])
+          @client = @company.clients.find_by(code: invoice_params[:client_code])
           @xml = generate_xml(@invoice)
 
           SendSiatJob.perform_later(@xml, @branch_office)

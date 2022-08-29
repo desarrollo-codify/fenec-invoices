@@ -37,6 +37,8 @@ Rails.application.routes.draw do
         post 'siat/payment_methods'
         post 'siat/legends'
         post 'siat/measurements'
+        post 'siat/significative_events'
+
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]

@@ -161,4 +161,9 @@ FactoryBot.define do
     user_name { 'example@example.com' }
     password { 'passwords' }
   end
+
+  factory :significative_event do
+    code { '12345' }
+    description { 'Abc' }
+  end
 end

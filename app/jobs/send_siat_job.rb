@@ -1,27 +1,19 @@
-# frozen_string_literal: true
+# frozen_string_literal: true    
 
 class SendSiatJob < ApplicationJob
   queue_as :default
   require 'savon'
-  require 'zip'
 
   def perform(xml, branch_office)
     daily_code = branch_office.daily_codes.last
     cuis_code = branch_office.cuis_codes.last
 
+    zip = ActiveSupport::Gzip.compress(xml)
+
     xml_file = File.write("#{Rails.root}/tmp/gzip.xml", xml)
-    gzip = ActiveSupport::Gzip.compress(xml)
-
-    orig = "#{Rails.root}/tmp/gzip.xml"
-    gzip3 = Zlib::GzipWriter.open("#{Rails.root}/tmp/gzip.gz") do |gz|
-              gz.mtime = File.mtime(orig)
-              gz.orig_name = orig
-              gz.write IO.binread(orig)
-            end
-
-    zipfile_name = "#{Rails.root}/tmp/zipfile.zip"
-    gzip2 = ActiveSupport::Gzip.decompress(gzip)
-    hash = Digest::SHA256.hexdigest(gzip3)
+    base_64 = Base64.strict_encode64(file.read(zip))
+    debugger
+    hash = Digest::SHA256.hexdigest(base_64)
 
     client = Savon.client(
       wsdl: ENV.fetch('send_siat'.to_s, nil),
