@@ -21,7 +21,7 @@ Rails.application.configure do
     address: 'codify.com.bo',
     port: 465,
     domain: 'codify.com.bo',
-    user_name: 'carlos.gutierrez@codify.com.bo',
+    user_name: 'roger.vaca@codify.com.bo',
     password: 'Revocatongo33.',
     authentication: 'plain',
     ssl: true,

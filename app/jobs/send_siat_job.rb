@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SendSiatJob < ApplicationJob
   queue_as :default
   require 'savon'
