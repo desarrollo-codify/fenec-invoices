@@ -16,6 +16,11 @@ class BranchOffice < ApplicationRecord
   end
 
   def add_daily_code!(code, control_code, effective_date)
-    daily_codes.create(code: code, control_code: control_code, effective_date: effective_date)
+    daily_code = daily_codes.find_by(effective_date: effective_date.beginning_of_day..effective_date.end_of_day)
+    if daily_code
+      daily_code.update(code: code, control_code: control_code)
+    else
+      daily_codes.create(code: code, control_code: control_code, effective_date: effective_date)
+    end
   end
 end

@@ -3,6 +3,8 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
+      require "zlib"
+
       before_action :set_invoice, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create generate]
 
@@ -15,7 +17,49 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
-        render json: @invoice
+        client = Savon.client(
+          wsdl: ENV.fetch('siat_invoices', nil),
+          headers: {
+            'apikey' => ENV.fetch('api_key', nil),
+            'SOAPAction' => ''
+          },
+          namespace: ENV.fetch('siat_namespace', nil),
+          convert_request_keys_to: :none
+        )
+
+        filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
+        zipped_filename = "#{filename}.gz"
+
+        Zlib::GzipWriter.open(zipped_filename) do |gz|
+          gz.write IO.binread(filename)
+        end
+        base64_file = Base64.strict_encode64(IO.binread(zipped_filename))
+        hash = Digest::SHA2.hexdigest(base64_file)
+
+        body = {
+          SolicitudServicioRecepcionFactura: {
+            codigoAmbiente: 2,
+            codigoPuntoVenta: 0,
+            codigoSistema: ENV.fetch('system_code', nil),
+            codigoSucursal: @invoice.branch_office.number,
+            nit: @invoice.branch_office.company.nit.to_i,
+            codigoDocumentoSector: 1,
+            codigoEmision: 1,
+            codigoModalidad: 2,
+            cufd: @invoice.cufd_code,
+            cuis: @invoice.branch_office.cuis_codes.last.code,
+            tipoFacturaDocumento: 1,
+            archivo: base64_file,
+            fechaEnvio: @invoice.date.strftime('%Y-%m-%dT%H:%M:%S.%L'),
+            hashArchivo: hash.downcase
+          }
+        }
+
+        debugger
+        return
+        response = client.call(:recepcion_factura, message: body)
+
+        render json: data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first 
       end
 
       # POST /api/v1/invoices
@@ -101,7 +145,7 @@ module Api
       def invoice_params
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
-                                        :currency_code, :exchange_rate, :currency_total, :user,
+                                        :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
@@ -164,7 +208,7 @@ module Api
       def generate_xml(invoice)
         header = Nokogiri::XML('<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>')
         builder = Nokogiri::XML::Builder.with(header) do |xml|
-          xml.facturaComputarizadaCompraVenta('xsi:noNamespaceSchemaLocation' => 'facturaComputarizadaCompraVenta.xsd',
+          xml.facturaComputarizadaCompraVenta('xsi:noNamespaceSchemaLocation' => '/compraVenta/facturaComputarizadaCompraVenta.xsd',
                                               'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance') do
             xml.cabecera do
               xml.nitEmisor invoice.company_nit
@@ -185,7 +229,11 @@ module Api
               xml.nombreRazonSocial invoice.business_name
               xml.codigoTipoDocumentoIdentidad invoice.document_type
               xml.numeroDocumento invoice.business_nit
-              xml.complemento invoice.complement || nil
+              
+              # complement
+              xml.complemento('xsi:nil' => true) unless invoice.complement
+              xml.complemento invoice.complement if invoice.complement
+
               xml.codigoCliente invoice.client_code
               xml.codigoMetodoPago invoice.payment_method
 
@@ -214,7 +262,7 @@ module Api
 
               # document sector
               xml.codigoDocumentoSector('xsi:nil' => true) unless invoice.document_sector_code
-              xml.codigoDocumentoSector invoice.cafc if invoice.document_sector_code
+              xml.codigoDocumentoSector invoice.document_sector_code if invoice.document_sector_code
             end
             invoice.invoice_details.each do |detail|
               xml.detalle do
