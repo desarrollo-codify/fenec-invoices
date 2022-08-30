@@ -3,7 +3,7 @@
 module Api
   module V1
     class BranchOfficesController < ApplicationController
-      before_action :set_branch_office, only: %i[show update destroy create_contingecy]
+      before_action :set_branch_office, only: %i[show update destroy]
       before_action :set_company, only: %i[index create]
 
       # GET /api/v1/companies/:company_id/branch_offices

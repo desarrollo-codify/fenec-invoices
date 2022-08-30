@@ -30,4 +30,22 @@ RSpec.describe Contingency, type: :model do
       end
     end
   end
+  describe 'branch_office_id attribute' do
+    context 'with nil value' do
+      let(:contingency) { build(:contingency, branch_office_id: nil) }
+
+      it 'is invalid' do
+        expect(contingency).to_not be_valid
+      end
+    end
+  end
+  describe 'significative_event_id attribute' do
+    context 'with nil value' do
+      let(:contingency) { build(:contingency, significative_event_id: nil) }
+
+      it 'is invalid' do
+        expect(contingency).to_not be_valid
+      end
+    end
+  end
 end

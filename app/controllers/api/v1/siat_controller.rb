@@ -293,9 +293,9 @@ module Api
           response_data = data.map do |a|
             a.values_at :codigo_clasificador, :descripcion
           end
-          activities = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+          events = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
 
-          SignificativeEvent.bulk_load(activities)
+          SignificativeEvent.bulk_load(events)
 
           render json: data
         else
