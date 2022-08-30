@@ -68,7 +68,6 @@ module Api
 
           code = data[:codigo]
           control_code = data[:codigo_control]
-
           @branch_office.add_daily_code!(code, control_code, Date.today)
 
           render json: data

@@ -44,6 +44,7 @@ gem 'rqrcode'
 gem 'savon', '~> 2.12.0'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
+gem 'zlib'
 
 gem 'rubyzip'
 
