@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -74,6 +74,17 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
     t.index ["name"], name: "index_companies_on_name", unique: true
   end
 
+  create_table "contingencies", force: :cascade do |t|
+    t.datetime "start_date", null: false
+    t.datetime "end_date"
+    t.integer "branch_office_id", null: false
+    t.integer "significative_event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_office_id"], name: "index_contingencies_on_branch_office_id"
+    t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
+  end
+
   create_table "cuis_codes", force: :cascade do |t|
     t.string "code", null: false
     t.datetime "expiration_date", null: false
@@ -109,6 +120,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
     t.string "description", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_document_types_on_code", unique: true
   end
 
   create_table "economic_activities", force: :cascade do |t|
@@ -215,6 +227,18 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
     t.index ["economic_activity_id"], name: "index_legends_on_economic_activity_id"
   end
 
+  create_table "mail_settings", force: :cascade do |t|
+    t.string "address", null: false
+    t.integer "port", null: false
+    t.string "domain", null: false
+    t.string "user_name", null: false
+    t.string "password", null: false
+    t.integer "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_mail_settings_on_company_id"
+  end
+
   create_table "measurements", force: :cascade do |t|
     t.string "description"
     t.datetime "created_at", null: false
@@ -239,18 +263,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "primary_code"], name: "index_products_on_company_id_and_primary_code", unique: true
     t.index ["company_id"], name: "index_products_on_company_id"
-  end
-
-  create_table "sender_emails", force: :cascade do |t|
-    t.string "address", null: false
-    t.integer "port", null: false
-    t.string "domain", null: false
-    t.string "user_name", null: false
-    t.string "password", null: false
-    t.integer "company_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_sender_emails_on_company_id"
   end
 
   create_table "significative_events", force: :cascade do |t|
@@ -283,6 +295,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "branch_offices", "companies"
   add_foreign_key "clients", "companies"
+  add_foreign_key "contingencies", "branch_offices"
+  add_foreign_key "contingencies", "significative_events"
   add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"
@@ -293,6 +307,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_29_221315) do
   add_foreign_key "invoices", "branch_offices"
   add_foreign_key "invoices", "invoice_statuses"
   add_foreign_key "legends", "economic_activities"
+  add_foreign_key "mail_settings", "companies"
   add_foreign_key "products", "companies"
-  add_foreign_key "sender_emails", "companies"
 end

@@ -74,7 +74,7 @@ module Api
 
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)
-          # render json: @invoice, status: :created
+          render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end

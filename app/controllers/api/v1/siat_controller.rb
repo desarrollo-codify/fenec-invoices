@@ -303,7 +303,6 @@ module Api
         end
       end
 
-
       private
 
       def set_branch_office

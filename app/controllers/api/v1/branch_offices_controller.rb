@@ -3,7 +3,7 @@
 module Api
   module V1
     class BranchOfficesController < ApplicationController
-      before_action :set_branch_office, only: %i[show update destroy]
+      before_action :set_branch_office, only: %i[show update destroy create_contingecy]
       before_action :set_company, only: %i[index create]
 
       # GET /api/v1/companies/:company_id/branch_offices
@@ -43,6 +43,23 @@ module Api
         @branch_office.destroy
       end
 
+      # TODO: refactor
+      def create_contingecy
+        @branch_office.contingencies.each do |contingency|
+          contingency.start_date = branch_office_params[:contingency].first[:start_date]
+          contingency.significative_event_id = @branch_office.significative_events.find_by(
+            branch_office_params[:significative_event].first[:code]
+          )
+        end
+      end
+
+      def update_contingecy
+        @branch_office.contingencies.each do |contingency|
+          contingency.start_date = branch_office_params[:contingency].first[:start_date]
+          contingency.end_date = branch_office_params[:contingency].first[:end_date]
+        end
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
@@ -56,7 +73,8 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def branch_office_params
-        params.require(:branch_office).permit(:name, :phone, :address, :city, :number)
+        params.require(:branch_office).permit(:name, :phone, :address, :city, :number, significative_event: %i[code],
+                                                                                       contingency: %i[start_date end_date])
       end
     end
   end

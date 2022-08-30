@@ -38,13 +38,16 @@ Rails.application.routes.draw do
         post 'siat/legends'
         post 'siat/measurements'
         post 'siat/significative_events'
-
+        post 'create_contingecy'
+        post 'update_contingecy'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
       end
       resources :document_types, only: %i[index]
       resources :payment_methods, only: %i[index]
+      resources :significative_events, only: %i[index]
+      resources :contingencies, only: %i[index]
 
       # siat controller
       post 'siat/bulk_products_update'

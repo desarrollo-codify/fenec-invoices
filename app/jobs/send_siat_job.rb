@@ -1,4 +1,4 @@
-# frozen_string_literal: true    
+# frozen_string_literal: true
 
 class SendSiatJob < ApplicationJob
   queue_as :default
@@ -10,9 +10,8 @@ class SendSiatJob < ApplicationJob
 
     zip = ActiveSupport::Gzip.compress(xml)
 
-    xml_file = File.write("#{Rails.root}/tmp/gzip.xml", xml)
+    # xml_file = File.write("#{Rails.root}/tmp/gzip.xml", xml)
     base_64 = Base64.strict_encode64(file.read(zip))
-    debugger
     hash = Digest::SHA256.hexdigest(base_64)
 
     client = Savon.client(
@@ -42,13 +41,13 @@ class SendSiatJob < ApplicationJob
         hashArchivo: hash
       }
     }
-    debugger
     response = client.call(:recepcion_factura, message: body)
-    if response.success?
-      data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first 
-    else
-      data = 'La solicitud a SIAT obtuvo un error.'
-      # TODO: Handle errors
-    end
+    data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    #   if response.success?
+    #            response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    #          else
+    #            'La solicitud a SIAT obtuvo un error.'
+    #            # TODO: Handle errors
+    #          end
   end
 end

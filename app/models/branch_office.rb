@@ -10,7 +10,8 @@ class BranchOffice < ApplicationRecord
   has_many :daily_codes, dependent: :destroy
   has_many :invoices
   has_many :cuis_codes, dependent: :destroy
-  
+  has_many :contingencies, dependent: :destroy
+
   def add_cuis_code!(code, expiration_date)
     cuis_codes.create(code: code, expiration_date: expiration_date) unless cuis_codes.find_by(code: code).present?
   end

@@ -166,4 +166,10 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
   end
+
+  factory :contingency do
+    start_date { '2022-08-30' }
+    branch_office factory: :branch_office
+    significative_event factory: :significative_event
+  end
 end
