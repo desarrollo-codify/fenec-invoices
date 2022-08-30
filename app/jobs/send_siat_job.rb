@@ -2,45 +2,20 @@
 
 class SendSiatJob < ApplicationJob
   queue_as :default
+  require 'savon'
 
   def perform(xml, branch_office)
-    @branch_office = branch_office
-    xml = File.write("#{Rails.root}/tmp/factura.xml", xml)
-    hash = Digest::SHA256.hexdigest(@xml)
+    daily_code = branch_office.daily_codes.last
+    cuis_code = branch_office.cuis_codes.last
 
-    client = siat_client('siat_invoices')
-    body = {
-      SolicitudServicioRecepcionFactura: {
-        codigoAmbiente: 2,
-        codigoSistema: ENV.fetch('system_code', nil),
-        codigoSucursal: @branch_office.number,
-        nit: @branch_office.company.nit.to_i,
-        codigoDocumentoSector: 1,
-        codigoEmision: 1,
-        codigoModalidad: 2,
-        cufd: @branch_office.daily_code.code,
-        cuis: @branch_office.cuis_code.code,
-        tipoFacturaDocumento: 1,
-        archivo: xml,
-        fechaEnvio: Date.today,
-        hashArchivo: hash
-      }
-    }
+    zip = ActiveSupport::Gzip.compress(xml)
 
-    response = client.call(:recepcion_factura, message: body)
-    if response.success?
-      data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    # xml_file = File.write("#{Rails.root}/tmp/gzip.xml", xml)
+    base_64 = Base64.strict_encode64(file.read(zip))
+    hash = Digest::SHA256.hexdigest(base_64)
 
-      render json: data
-    else
-      render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
-    end
-  end
-
-  # TODO: refactor and send this method to another class
-  def siat_client(wsdl_name)
-    Savon.client(
-      wsdl: ENV.fetch(wsdl_name.to_s, nil),
+    client = Savon.client(
+      wsdl: ENV.fetch('send_siat'.to_s, nil),
       headers: {
         'apikey' => ENV.fetch('api_key', nil),
         'SOAPAction' => ''
@@ -48,5 +23,31 @@ class SendSiatJob < ApplicationJob
       namespace: ENV.fetch('siat_namespace', nil),
       convert_request_keys_to: :none
     )
+    body = {
+      SolicitudServicioRecepcionFactura: {
+        codigoAmbiente: 2,
+        codigoPuntoVenta: 0,
+        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSucursal: branch_office.number,
+        nit: branch_office.company.nit.to_i,
+        codigoDocumentoSector: 1,
+        codigoEmision: 1,
+        codigoModalidad: 2,
+        cufd: daily_code.code,
+        cuis: cuis_code.code,
+        tipoFacturaDocumento: 1,
+        archivo: gzip3,
+        fechaEnvio: Date.today,
+        hashArchivo: hash
+      }
+    }
+    response = client.call(:recepcion_factura, message: body)
+    data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    #   if response.success?
+    #            response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    #          else
+    #            'La solicitud a SIAT obtuvo un error.'
+    #            # TODO: Handle errors
+    #          end
   end
 end
