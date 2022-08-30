@@ -10,11 +10,11 @@ class SendSiatJob < ApplicationJob
     filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
         zipped_filename = "#{filename}.gz"
 
-        Zlib::GzipWriter.open(zipped_filename) do |gz|
-          gz.write IO.binread(filename)
-        end
-        base64_file = Base64.strict_encode64(IO.binread(zipped_filename))
-        hash = Digest::SHA2.hexdigest(base64_file)
+    Zlib::GzipWriter.open(zipped_filename) do |gz|
+      gz.write IO.binread(filename)
+    end
+    base64_file = Base64.strict_encode64(IO.binread(zipped_filename))
+    hash = Digest::SHA2.hexdigest(base64_file)
 
     client = Savon.client(
       wsdl: ENV.fetch('send_siat'.to_s, nil),
@@ -38,7 +38,7 @@ class SendSiatJob < ApplicationJob
         cufd: daily_code.code,
         cuis: cuis_code.code,
         tipoFacturaDocumento: 1,
-        archivo: gzip3,
+        archivo: base64_file,
         fechaEnvio: Date.today,
         hashArchivo: hash
       }
