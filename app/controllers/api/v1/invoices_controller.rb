@@ -68,10 +68,6 @@ module Api
           @client = @company.clients.find_by(code: invoice_params[:client_code])
           @xml = generate_xml(@invoice)
 
-          SendSiatJob.perform_later(@xml, @branch_office)
-
-          # SendMailJob.perform_later(@invoice, @client, @xml)
-
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)
           render json: @invoice, status: :created
