@@ -17,49 +17,7 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
-        client = Savon.client(
-          wsdl: ENV.fetch('siat_invoices', nil),
-          headers: {
-            'apikey' => ENV.fetch('api_key', nil),
-            'SOAPAction' => ''
-          },
-          namespace: ENV.fetch('siat_namespace', nil),
-          convert_request_keys_to: :none
-        )
-
-        filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
-        zipped_filename = "#{filename}.gz"
-
-        Zlib::GzipWriter.open(zipped_filename) do |gz|
-          gz.write IO.binread(filename)
-        end
-        base64_file = Base64.strict_encode64(IO.binread(zipped_filename))
-        hash = Digest::SHA2.hexdigest(base64_file)
-
-        body = {
-          SolicitudServicioRecepcionFactura: {
-            codigoAmbiente: 2,
-            codigoPuntoVenta: 0,
-            codigoSistema: ENV.fetch('system_code', nil),
-            codigoSucursal: @invoice.branch_office.number,
-            nit: @invoice.branch_office.company.nit.to_i,
-            codigoDocumentoSector: 1,
-            codigoEmision: 1,
-            codigoModalidad: 2,
-            cufd: @invoice.cufd_code,
-            cuis: @invoice.branch_office.cuis_codes.last.code,
-            tipoFacturaDocumento: 1,
-            archivo: base64_file,
-            fechaEnvio: @invoice.date.strftime('%Y-%m-%dT%H:%M:%S.%L'),
-            hashArchivo: hash.downcase
-          }
-        }
-
-        debugger
-        return
-        response = client.call(:recepcion_factura, message: body)
-
-        render json: data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first 
+        
       end
 
       # POST /api/v1/invoices
