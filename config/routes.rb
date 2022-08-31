@@ -49,6 +49,7 @@ Rails.application.routes.draw do
 
       # siat controller
       post 'siat/bulk_products_update'
+      post 'siat/verify_communication'
     end
   end
 end

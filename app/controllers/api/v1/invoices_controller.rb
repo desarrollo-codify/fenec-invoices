@@ -70,6 +70,8 @@ module Api
           @client = @company.clients.find_by(code: invoice_params[:client_code])
           @xml = generate_xml(@invoice)
 
+          send_client_email(@client, @xml, @invoice, @branch_office, @company)
+
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)
           render json: @invoice, status: :created
@@ -158,13 +160,19 @@ module Api
         value.to_s(16)
       end
 
-      def send_client_email
+      def send_client_email(client, xml, invoice, branch_office, company)
         # TODO: here or after create - invoice model?
-        @client = @company.clients.find_by(code: invoice_params[:client_code])
-        @xml = generate_xml(@invoice)
+        data = VerifyCommunication()
 
-        SendSiatJob.perform_later(@xml, @branch_office)
-        SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
+        if data == "926"
+          SendSiatJob.perform_later(xml, branch_office)
+          # TODO: improve this
+          invoice.send_at = 'Send'
+        else
+          filename = "#{Rails.root}/tmp/invoices//#{invoice.cuf}.xml"
+          File.write(filename, xml)
+        end
+        SendMailJob.perform_later(invoice, client, xml, company.mail_setting)
       end
 
       def generate_xml(invoice)

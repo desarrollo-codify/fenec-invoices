@@ -8,7 +8,7 @@ class SendSiatJob < ApplicationJob
     cuis_code = branch_office.cuis_codes.last
 
     filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
-        zipped_filename = "#{filename}.gz"
+    zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
       gz.write IO.binread(filename)

@@ -5,8 +5,8 @@ module Api
     class SiatController < ApplicationController
       require 'savon'
 
-      before_action :set_branch_office
-      before_action :set_cuis_code, except: %i[generate_cuis show_cufd]
+      before_action :set_branch_office, except: %i[verify_communication]
+      before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
 
       def generate_cuis
         client = siat_client('cuis_wsdl')
@@ -272,7 +272,7 @@ module Api
       end
 
       def significative_events
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_invoices')
 
         body = {
           SolicitudSincronizacion: {
@@ -296,6 +296,19 @@ module Api
 
           SignificativeEvent.bulk_load(events)
 
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def verify_communication
+        client = siat_client('siat_invoices')
+
+        response = client.call(:verificar_comunicacion)
+        if response.success?
+          data = response.to_array(:verificar_comunicacion_response).first
+          debugger
           render json: data
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
