@@ -2,6 +2,7 @@ default: &default
   cuis_wsdl: 'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionCodigos?wsdl'
   products_wsdl: 'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionSincronizacion?wsdl'
   siat_invoices: 'https://pilotosiatservicios.impuestos.gob.bo/v1/ServicioFacturacionComputarizada?wsdl'
+  siat_operations: 'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionOperaciones?wsdl'
   siat_namespace: 'https://siat.impuestos.gob.bo/'
   api_key: "TokenApi eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEb21pVXAiLCJjb2RpZ29TaXN0ZW1hIjoiNzIxOUYyOUI2MzExNkNFMDQ2QTc2M0UiLCJuaXQiOiJINHNJQUFBQUFBQUFBRE14TURReXRqQXdNZ01BTGVnQWdna0FBQUE9IiwiaWQiOjMwMTQ3MTksImV4cCI6MTY2NDQ5NjAwMCwiaWF0IjoxNjYwNTc1MjgwLCJuaXREZWxlZ2FkbyI6NDAxMjM4MDI2LCJzdWJzaXN0ZW1hIjoiU0ZFIn0.pAOEdkalOYZrm5G8sYwlv5SNt4H-t1MgGYfz-N3QM73WeHCcYmo8FMHq2GBmSxnsGlNDLx2rb4somiD7S4Gfsg"
   system_code: 7219F29B63116CE046A763E
