@@ -3,7 +3,7 @@
 class SendSiatJob < ApplicationJob
   queue_as :default
 
-  def perform(xml, branch_office)
+  def perform(xml, invoice, branch_office)
     daily_code = branch_office.daily_codes.last
     cuis_code = branch_office.cuis_codes.last
 
@@ -45,6 +45,7 @@ class SendSiatJob < ApplicationJob
     }
     response = client.call(:recepcion_factura, message: body)
     if response.success?
+      invoice.update(send_at: DateTime.now)
       data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first 
     else
       render json: 'La solicitud a SIAT obtuvo un error.' 

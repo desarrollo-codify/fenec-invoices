@@ -4,6 +4,7 @@ module Api
   module V1
     class InvoicesController < ApplicationController
       require "zlib"
+      require "invoice_xml"
 
       before_action :set_invoice, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create generate]
@@ -68,12 +69,10 @@ module Api
 
           # TODO: here or after create?
           @client = @company.clients.find_by(code: invoice_params[:client_code])
-          @xml = generate_xml(@invoice)
+          @xml = InvoiceXml.generate(@invoice)
 
-          send_client(@client, @xml, @invoice, @branch_office, @company)
+          send_to_client(@client, @xml, @invoice, @company)
 
-          # TODO: generate and send xml and pdf documents
-          # generate_xml(@invoice)
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
@@ -160,26 +159,22 @@ module Api
         value.to_s(16)
       end
 
-      def send_client(client, xml, invoice, branch_office, company)
+      def send_to_client(client, xml, invoice, company)
+        # TODO: validate if the email was sent
+        SendMailJob.perform_later(invoice, client, xml, company.mail_setting)
+      end
+
+      def send_to_siat
         # TODO: here or after create - invoice model?
         if siat_available
-          if SendSiatJob.perform_later(xml, branch_office)
-            invoice.send_at = DateTime.now
-          end
+          SendSiatJob.perform_later(xml, invoice, branch_office)
         else
-          # Registre contingency
-          branch_office.contingencies.build(start_date: DateTime.now, significative_event_id: 2)
-
+          create_contingency unless @branch_office.contingencies.pending.any?
         end
-        # overcome the contingency
-        # Significant event log
-        ContingencyRecord(branch_office, invoice)
-        InvoiceReceip.perform_later(branch_office)
-        # TODO: create model for save code of invoice receip?
-        ReceptionValidation(branch_office)
+      end
 
-
-        SendMailJob.perform_later(invoice, client, xml, company.mail_setting)
+      def create_contingency
+        branch_office.contingencies.build(start_date: DateTime.now, significative_event_id: 2)
       end
 
       def qr_content(nit, cuf, number, page_size)

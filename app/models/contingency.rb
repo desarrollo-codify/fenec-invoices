@@ -5,4 +5,11 @@ class Contingency < ApplicationRecord
 
   belongs_to :branch_office
   belongs_to :significative_event
+
+  scope :pending, -> { where(end_date: nil) }
+
+  def close!
+    self.end_date = DateTime.now
+    save
+  end
 end

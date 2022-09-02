@@ -3,7 +3,7 @@
 module Api
   module V1
     class ContingenciesController < ApplicationController
-      before_action :set_contingency, only: %i[show update destroy]
+      before_action :set_contingency, only: %i[show close update destroy]
       before_action :set_branch_office, only: %i[index create]
       # GET /api/v1/contingencies
       def index
@@ -22,6 +22,27 @@ module Api
         @contingency = @branch_office.contingencies.build(contingency_params)
 
         if @contingency.save
+          render json: @contingency, status: :created
+        else
+          render json: @contingency.errors, status: :unprocessable_entity
+        end
+      end
+
+      # POST api/v1/contingencies/:contingency_id/close
+      def close
+        @contingency.close!
+
+        send_contingency(@contingency)
+        
+        # TODO: create model for save code of invoice receip?
+        ReceptionValidation(branch_office)
+        
+        1. Actualizar contingencia
+        if @contingency.save
+          en un job.perform_now:
+          2. registrar la contingencia en el siat
+          3. codigo = enviar facturas pendientes en un paquete
+          4. verificar codigo de envio
           render json: @contingency, status: :created
         else
           render json: @contingency.errors, status: :unprocessable_entity

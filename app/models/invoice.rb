@@ -37,6 +37,9 @@ class Invoice < ApplicationRecord
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
   accepts_nested_attributes_for :invoice_details, reject_if: :all_blank
 
+  scope :for_sending, -> { where(sent_at: nil ) }
+  scope :between_dates, -> (start_date, end_date) { for_sending.where(date: start_date..end_date) }
+
   after_initialize :default_values
 
   def validate!
