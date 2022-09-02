@@ -31,18 +31,10 @@ module Api
       # POST api/v1/contingencies/:contingency_id/close
       def close
         @contingency.close!
-
-        send_contingency(@contingency)
         
-        # TODO: create model for save code of invoice receip?
-        ReceptionValidation(branch_office)
-        
-        1. Actualizar contingencia
         if @contingency.save
-          en un job.perform_now:
-          2. registrar la contingencia en el siat
-          3. codigo = enviar facturas pendientes en un paquete
-          4. verificar codigo de envio
+          Contingency.perform_now(@contingency)
+          ReceptionValidation(@contingency)
           render json: @contingency, status: :created
         else
           render json: @contingency.errors, status: :unprocessable_entity

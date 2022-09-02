@@ -23,12 +23,9 @@ class ApplicationController < ActionController::API
     data == '926'
   end
 
-  
-
-  def ReceptionValidation(branch_office)
-    cuis_code = branch_office.cuis_codes.last
-    cufd_code = branch_office.daily_codes.last
-    contingency = branch_office.contingencies.last
+  def ReceptionValidation(contingency)
+    cuis_code = contingency.branch_offices.cuis_codes.last
+    cufd_code = contingency.branch_offices.daily_codes.last
     client =Savon.client(
       wsdl: ENV.fetch('siat_invoices'.to_s, nil),
       headers: {
@@ -51,16 +48,23 @@ class ApplicationController < ActionController::API
         cufd: cufd_code.code,
         cuis: cuis_code.code,
         tipoFacturaDocumento: 1
-        codigoRecepcion: 
+        codigoRecepcion: contingency.reception_code
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion , :mensajes_list)
-      data = data[:return]
+      data = data[:codigoEstado]
     else
       data = {return: 'communication error'}
     end
-    return data
+    if data == '908'
+      data = 'valid'
+    else 
+      if data == '904'
+        data = 'observed'
+      else
+        data = 'pending' if data == '901'
+    end
   end
 end

@@ -2,8 +2,8 @@ class ContingencyJob < ApplicationJob
   queue_as :default
 
   def perform(contingency)
-    current_cuis = branch_office.cuis_codes.last.code
-    current_cufd = branch_office.daily_codes.last.code
+    current_cuis = contingency.branch_offices.cuis_codes.last.code
+    current_cufd = contingency.branch_offices.daily_codes.last.code
     pending_invoices = contingency.branch_office.invoices.between_dates(contigency.start_date, contigency.end_date)
 
     return if pending_invoices.empty?
@@ -48,11 +48,10 @@ class ContingencyJob < ApplicationJob
     response = client.call(:registro_evento_significativo, message: body)
     if response.success?
       data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos, :mensajes_list)
-      data = data[:return]
+      contingency.update(reception_code: data[:codigoRecepcion])
     else
-      data = {return: 'Communication error'}
+      data = 'Communication error'
     end
-    return data
   end
 
   def send_package(invoices, contingency, current_cuis, current_cufd)
