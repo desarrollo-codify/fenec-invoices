@@ -35,12 +35,14 @@ Rails.application.routes.draw do
         post 'siat/payment_methods'
         post 'siat/legends'
         post 'siat/measurements'
+        post 'siat/cancellation_reasons'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
       end
       resources :document_types, only: %i[index]
       resources :payment_methods, only: %i[index]
+      resources :cancellation_reasons, only: %i[index]
 
       # siat controller
       post 'siat/bulk_products_update'
