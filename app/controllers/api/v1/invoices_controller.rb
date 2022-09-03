@@ -18,7 +18,7 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
-        render json: @invoice
+        render json: @invoice, include: :invoice_details
       end
 
       # POST /api/v1/invoices
@@ -73,7 +73,7 @@ module Api
 
           send_to_client(@client, @xml, @invoice, @company)
 
-          render json: @invoice, status: :created
+          render json: @invoice, include: :invoice_details, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
@@ -86,6 +86,10 @@ module Api
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
+      end
+
+      def cancel
+        # borrar
       end
 
       # DELETE /api/v1/invoices/1
@@ -164,10 +168,14 @@ module Api
         SendMailJob.perform_later(invoice, client, xml, company.mail_setting)
       end
 
-      def send_to_siat
+      def send_to_siat(invoice)
         # TODO: here or after create - invoice model?
+
+        filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+        xml = File.read(filename)
+
         if siat_available
-          SendSiatJob.perform_later(xml, invoice, branch_office)
+          SendSiatJob.perform_later(xml, invoice, invoice.branch_office)
         else
           create_contingency unless @branch_office.contingencies.pending.any?
         end

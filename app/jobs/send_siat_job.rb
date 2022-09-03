@@ -7,17 +7,18 @@ class SendSiatJob < ApplicationJob
     daily_code = branch_office.daily_codes.last
     cuis_code = branch_office.cuis_codes.last
 
-    filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
+    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
     zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
       gz.write IO.binread(filename)
     end
-    base64_file = Base64.strict_encode64(IO.binread(zipped_filename))
+    
+    base64_file = Base64.encode64(open(zipped_filename) { |io| io.read })
     hash = Digest::SHA2.hexdigest(base64_file)
-
+    debugger
     client = Savon.client(
-      wsdl: ENV.fetch('send_siat'.to_s, nil),
+      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
       headers: {
         'apikey' => ENV.fetch('api_key', nil),
         'SOAPAction' => ''
@@ -43,6 +44,7 @@ class SendSiatJob < ApplicationJob
         hashArchivo: hash
       }
     }
+    debugger
     response = client.call(:recepcion_factura, message: body)
     if response.success?
       invoice.update(send_at: DateTime.now)

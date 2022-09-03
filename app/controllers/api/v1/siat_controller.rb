@@ -308,7 +308,6 @@ module Api
         response = client.call(:verificar_comunicacion)
         if response.success?
           data = response.to_array(:verificar_comunicacion_response).first
-          debugger
           render json: data
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error

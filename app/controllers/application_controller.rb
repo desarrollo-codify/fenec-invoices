@@ -42,12 +42,12 @@ class ApplicationController < ActionController::API
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: 1
-        codigoEmision: 2
-        codigoModalidad: 2
+        codigoDocumentoSector: 1,
+        codigoEmision: 2,
+        codigoModalidad: 2,
         cufd: cufd_code.code,
         cuis: cuis_code.code,
-        tipoFacturaDocumento: 1
+        tipoFacturaDocumento: 1,
         codigoRecepcion: contingency.reception_code
       }
     }
@@ -65,6 +65,7 @@ class ApplicationController < ActionController::API
         data = 'observed'
       else
         data = 'pending' if data == '901'
+      end
     end
   end
 end
