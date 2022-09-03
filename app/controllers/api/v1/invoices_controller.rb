@@ -16,6 +16,12 @@ module Api
         render json: @invoices
       end
 
+      def pending
+        @pending_invoices = @branch_office.invoices.for_sending
+
+        render json: @pending_invoices
+      end
+
       # GET /api/v1/invoices/1
       def show
         render json: @invoice, include: :invoice_details

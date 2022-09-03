@@ -45,9 +45,7 @@ Rails.application.routes.draw do
       resources :payment_methods, only: %i[index]
       resources :significative_events, only: %i[index]
       
-      resources :invoices, only: %i[show update destroy] do
-        post :cancel, on: :member
-      end
+      resources :invoices, only: %i[show update destroy]
 
       # siat controller
       post 'siat/bulk_products_update'
