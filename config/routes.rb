@@ -8,6 +8,8 @@ Rails.application.routes.draw do
              },
              defaults: { format: :json }
 
+  resources :invoicing, only: :show
+
   namespace :api do
     namespace :v1 do
       resources :companies do
@@ -24,6 +26,7 @@ Rails.application.routes.draw do
       end
       resources :branch_offices, only: %i[show edit update destroy] do
         resources :daily_codes, shallow: true
+        resources :contingencies, shallow: true
         resources :invoices, shallow: true
         post 'siat/generate_cuis'
         get 'siat/show_cuis'
@@ -35,6 +38,7 @@ Rails.application.routes.draw do
         post 'siat/payment_methods'
         post 'siat/legends'
         post 'siat/measurements'
+        post 'siat/significative_events'
         post 'siat/cancellation_reasons'
       end
       resources :economic_activities, only: :show do
@@ -42,6 +46,7 @@ Rails.application.routes.draw do
       end
       resources :document_types, only: %i[index]
       resources :payment_methods, only: %i[index]
+      resources :significative_events, only: %i[index]
       resources :cancellation_reasons, only: %i[index]
 
       # siat controller

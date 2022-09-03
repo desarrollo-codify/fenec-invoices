@@ -23,7 +23,7 @@ module Api
         # TODO: implement validate!
 
         @invoice = @branch_office.invoices.build(invoice_params)
-        company = @branch_office.company
+        @company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
         @invoice.company_nit = @branch_office.company.nit
@@ -44,40 +44,36 @@ module Api
         @invoice.cash_paid = @invoice.total # TODO: implement different payments
         @invoice.invoice_status_id = 1
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
-        economic_activity = company.economic_activities.find_by(code: activity_code)
-        @invoice.legend = economic_activity.random_legend.description
+        @economic_activity = @company.economic_activities.find_by(code: activity_code)
+        @invoice.legend = @economic_activity.random_legend.description
 
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal
-          detail.product = company.products.find_by(primary_code: detail.product_code)
+          detail.product = @company.products.find_by(primary_code: detail.product_code)
           detail.sin_code = detail.product.sin_code
         end
-
         unless @invoice.valid?
-          render json: @invoice.errors
+          render json: @invoice.errors, status: :unprocessable_entity
           return
         end
 
         if @invoice.save
           @invoice.number = invoice_number
           @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
+          # TODO: implement paper size: 1 roll, 2 half office or half letter
+          @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
           @invoice.save
-          # test mailer
 
-          @client = company.clients.find_by(code: invoice_params[:client_code])
-          InvoiceMailer.with(client: @client, invoice: @invoice).send_invoice.deliver_now
+          # TODO: here or after create?
+          @client = @company.clients.find_by(code: invoice_params[:client_code])
+          @xml = generate_xml(@invoice)
 
-          # test mailer
           # TODO: generate and send xml and pdf documents
           # generate_xml(@invoice)
           render json: @invoice, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
-      end
-
-      def generate
-        render xml: generate_xml(Invoice.last)
       end
 
       # PATCH/PUT /api/v1/invoices/1
@@ -107,8 +103,6 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def invoice_params
-        # TODO: refactor this for unnecessary params when creating, like cancellation_date
-        # TODO: add strong params for details
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user,
@@ -160,6 +154,15 @@ module Api
 
       def hex_base(value)
         value.to_s(16)
+      end
+
+      def send_client_email
+        # TODO: here or after create - invoice model?
+        @client = @company.clients.find_by(code: invoice_params[:client_code])
+        @xml = generate_xml(@invoice)
+
+        # SendSiatJob.perform_later(@xml, @branch_office)
+        SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
       end
 
       def generate_xml(invoice)
@@ -233,7 +236,7 @@ module Api
                 xml.numeroSerie('xsi:nil' => true) unless detail.serial_number
                 xml.numeroSerie detail.serial_number if detail.serial_number
 
-                # card number
+                # imei number
                 xml.numeroImei('xsi:nil' => true) unless detail.imei_code
                 xml.numeroImei detail.imei_code if detail.imei_code
               end
@@ -242,6 +245,12 @@ module Api
         end
 
         builder.to_xml
+      end
+
+      def qr_content(nit, cuf, number, page_size)
+        base_url = ENV.fetch('siat_url', nil)
+        params = { nit: nit, cuf: cuf, numero: number, t: page_size }
+        "#{base_url}?#{params.to_param}"
       end
     end
   end

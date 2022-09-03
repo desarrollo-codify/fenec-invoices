@@ -8,7 +8,6 @@ class CreateBranchOffices < ActiveRecord::Migration[7.0]
       t.string :address
       t.string :city, null: false
       t.integer :number, null: false
-      t.string :cuis_number
       t.references :company, null: false, foreign_key: true
 
       t.timestamps

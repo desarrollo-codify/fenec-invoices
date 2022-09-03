@@ -1,64 +1,35 @@
 # frozen_string_literal: true
 
-class InvoiceMailer < ApplicationMailer
-  include ActionController::Helpers
-  helper ApplicationHelper
+class InvoicingController < ActionController::Base
+  require 'rqrcode'
 
-  def send_invoice
-    @client = params[:client]
-    @invoice = params[:invoice]
-    xml = params[:xml]
-
+  def show
+    @invoice = scope.find(3)
     @branch_office = @invoice.branch_office
     @company = @branch_office.company
-    @economic_activity = @company.economic_activities.first
+    @economic_activity = @company.economic_activities.find_by(code: @invoice.invoice_details.first.economic_activity_code)
     @literal_amount = literal_amount(@invoice.total)
     @qr_code_file = qr_code(@invoice.qr_content, @invoice.cuf)
-
-    delivery_options = { user_name: params[:sender].user_name,
-                         password: params[:sender].password,
-                         domain: params[:sender].domain,
-                         port: params[:sender].port,
-                         address: params[:sender].address }
-
-    filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
-    File.write(filename, xml)
-    attachments['factura.xml'] = File.read(filename)
-
-    # TODO: make dynamic
-    options = {
-      page_height: '33cm'
-    }
-
-    pdf = WickedPdf.new.pdf_from_string(
-      render_to_string(
-        pdf: 'file_name',
-        template: 'layouts/invoice',
-        page_width: '8.5cm',
-        page_height: '33cm',
-        page_size: nil,
-        title: '',
-        margin: {
-          top: '5mm',
-          bottom: '5mm',
-          left: '2mm',
-          right: '2mm'
-        }
-      ),
-      options
-    )
-
-    pdf_path = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.pdf"
-    File.open(pdf_path, 'wb') do |file|
-      file << pdf
-      file.close
-    end
-
-    attachments['factura.pdf'] = File.read(pdf_path)
-    # TODO: use dynamic email subject
-    mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
+    render pdf: 'file_name',
+           template: 'layouts/invoice',
+           page_width: '8.5cm',
+           page_height: '33cm',
+           page_size: nil,
+           margin: {
+             top: '5mm',
+             bottom: '5mm',
+             left: '2mm',
+             right: '2mm'
+           }
   end
 
+  private
+
+  def scope
+    ::Invoice.all.includes(:branch_office, invoice_details: [:measurement])
+  end
+
+  # TODO: delete these methods after finish testing
   def literal_amount(amount)
     decimal = BigDecimal(amount.to_s).frac.to_s.gsub! '0.', ''
 
@@ -126,6 +97,6 @@ class InvoiceMailer < ApplicationMailer
                   size: 120,
                   border_modules: 0,
                   module_px_size: 0).save(filename)
-    filename
+    "/tmp/qr/#{cuf}.png"
   end
 end

@@ -75,15 +75,26 @@ FactoryBot.define do
       default_values { false }
     end
 
-    date { '2022-01-01' }
+    company_nit { '123' }
     company_name { 'SRL' }
+    municipality { 'Santa Cruz' }
+    phone { '123' }
+    address { 'abc' }
+    cuf { 'abc' }
+    cufd_code { 'abc' }
+    date { '2022-01-01' }
+    document_type { 1 }
+    client_code { '01' }
+    payment_method { 1 }
+    currency_code { 1 }
+    exchange_rate { 1 }
+    currency_total { 1 }
     number { 1 }
     subtotal { 1 }
     total { 1 }
-    municipality { 'Santa Cruz' }
-    address { 'abc' }
-    phone { '123' }
-    currency_code { 1 }
+    document_sector_code { 1 }
+    legend { 'legend' }
+    user { 'jperez' }
     branch_office factory: :branch_office
     invoice_status factory: :invoice_status
 
@@ -101,6 +112,9 @@ FactoryBot.define do
       default_values { false }
     end
 
+    economic_activity_code { 1 }
+    sin_code { 1 }
+    product_code { '01' }
     description { 'ABC' }
     unit_price { 1 }
     subtotal { 1 }
@@ -140,11 +154,22 @@ FactoryBot.define do
     economic_activity factory: :economic_activity
   end
 
-  factory :sender_email do
+  factory :mail_setting do
     address { 'smtp.example.com' }
     port { '25' }
     domain { 'example.com' }
     user_name { 'example@example.com' }
     password { 'passwords' }
+  end
+
+  factory :significative_event do
+    code { '12345' }
+    description { 'Abc' }
+  end
+
+  factory :contingency do
+    start_date { '2022-08-30' }
+    branch_office factory: :branch_office
+    significative_event factory: :significative_event
   end
 end

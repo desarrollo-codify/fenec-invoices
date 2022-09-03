@@ -13,7 +13,7 @@ Metrics/MethodLength:
   Max: 75
 
 Metrics/ClassLength:
-  Max: 250
+  Max: 280
 
 Metrics/AbcSize:
   Enabled: false
@@ -25,4 +25,6 @@ Metrics/CyclomaticComplexity:
   Max: 18
 
 AllCops:
-    NewCops: enable
+  NewCops: enable
+  Exclude:
+    - db/**
