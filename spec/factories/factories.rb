@@ -172,4 +172,9 @@ FactoryBot.define do
     branch_office factory: :branch_office
     significative_event factory: :significative_event
   end
+
+  factory :cancellation_reason do
+    code { '12345' }
+    description { 'Abc' }
+  end
 end

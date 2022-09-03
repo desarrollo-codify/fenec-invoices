@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_03_210837) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -50,6 +50,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "number"], name: "index_branch_offices_on_company_id_and_number", unique: true
     t.index ["company_id"], name: "index_branch_offices_on_company_id"
+  end
+
+  create_table "cancellation_reasons", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_cancellation_reasons_on_code", unique: true
   end
 
   create_table "clients", force: :cascade do |t|
