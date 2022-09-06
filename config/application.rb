@@ -33,7 +33,7 @@ module FenecInvoices
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
-    config.time_zone = "La Paz"
+    config.time_zone = 'La Paz'
     config.active_record.default_timezone = :local
 
     # rubocop:disable all

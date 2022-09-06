@@ -23,6 +23,7 @@ module Api
         @point_of_sale = @branch_office.point_of_sales.build(point_of_sale_params)
 
         if @point_of_sale.save
+          PointOfSaleJob.perform_now(@point_of_sale) if Rails.env.development? || Rails.env.production?
           render json: @point_of_sale, status: :created
         else
           render json: @point_of_sale.errors, status: :unprocessable_entity
@@ -56,7 +57,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def point_of_sale_params
-        params.require(:point_of_sale).permit(:name, :code, :number, :description, :branch_office_id)
+        params.require(:point_of_sale).permit(:name, :code, :description, :branch_office_id)
       end
     end
   end

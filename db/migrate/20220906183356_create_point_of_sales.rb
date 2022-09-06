@@ -3,9 +3,8 @@
 class CreatePointOfSales < ActiveRecord::Migration[7.0]
   def change
     create_table :point_of_sales do |t|
-      t.string :name
-      t.integer :number, null: false
-      t.integer :code
+      t.string :name, null: false
+      t.integer :code, null: false
       t.string :description
       t.references :branch_office, null: false, foreign_key: true
 
