@@ -31,7 +31,7 @@ RSpec.describe 'Api::V1::Contingencies', type: :request do
         put api_v1_contingency_url(contingency),
             params: { contingency: new_attributes }, headers: valid_headers, as: :json
         contingency.reload
-        expect(contingency.end_date).to eq('2022-08-31')
+        expect(contingency.end_date.strftime('%Y-%m-%d')).to eq('2022-08-31')
       end
 
       it 'renders a JSON response with the contingency' do

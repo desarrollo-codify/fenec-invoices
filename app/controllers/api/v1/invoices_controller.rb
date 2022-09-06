@@ -3,11 +3,12 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
-      require "zlib"
-      require "invoice_xml"
+      require 'zlib'
 
       before_action :set_invoice, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create generate]
+
+      Time.zone = 'La Paz'
 
       # GET /api/v1/invoices
       def index
@@ -67,17 +68,9 @@ module Api
         end
 
         if @invoice.save
-          @invoice.number = invoice_number
-          @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
-          # TODO: implement paper size: 1 roll, 2 half office or half letter
-          @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
-          @invoice.save
+          process_pending_data(@invoice)
 
-          # TODO: here or after create?
-          @client = @company.clients.find_by(code: invoice_params[:client_code])
-          @xml = InvoiceXml.generate(@invoice)
-
-          send_to_client(@client, @xml, @invoice, @company)
+          SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
 
           render json: @invoice, include: :invoice_details, status: :created
         else
@@ -124,11 +117,19 @@ module Api
                                                                        economic_activity_code])
       end
 
+      def process_pending_data(invoice)
+        invoice.number = invoice_number
+        invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code)
+        # TODO: implement paper size: 1 roll, 2 half office or half letter
+        invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
+        invoice.save
+      end
+
       def cuf(invoice_date, invoice_number, control_code)
         nit = @branch_office.company.nit.rjust(13, '0')
         date = invoice_date.strftime('%Y%m%d%H%M%S%L')
         branch_office = @branch_office.number.to_s.rjust(4, '0')
-        modality = '1' # TODO: save modality in company or branch office
+        modality = '2' # TODO: save modality in company or branch office
         generation_type = '1' # TODO: add generation types for: online, offline and massive
         invoice_type = '1' # TODO: add invoice types table
         sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
@@ -167,28 +168,6 @@ module Api
 
       def hex_base(value)
         value.to_s(16)
-      end
-
-      def send_to_client(client, xml, invoice, company)
-        # TODO: validate if the email was sent
-        SendMailJob.perform_later(invoice, client, xml, company.mail_setting)
-      end
-
-      def send_to_siat(invoice)
-        # TODO: here or after create - invoice model?
-
-        filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
-        xml = File.read(filename)
-
-        if siat_available
-          SendSiatJob.perform_later(xml, invoice, invoice.branch_office)
-        else
-          create_contingency unless @branch_office.contingencies.pending.any?
-        end
-      end
-
-      def create_contingency
-        branch_office.contingencies.build(start_date: DateTime.now, significative_event_id: 2)
       end
 
       def qr_content(nit, cuf, number, page_size)
