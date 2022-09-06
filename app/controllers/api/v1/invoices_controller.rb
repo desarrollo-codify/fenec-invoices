@@ -3,8 +3,12 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
+      require 'zlib'
+
       before_action :set_invoice, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create generate]
+
+      Time.zone = 'La Paz'
 
       # GET /api/v1/invoices
       def index
@@ -15,7 +19,7 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
-        render json: @invoice
+        render json: @invoice, include: :invoice_details
       end
 
       # POST /api/v1/invoices
@@ -58,19 +62,11 @@ module Api
         end
 
         if @invoice.save
-          @invoice.number = invoice_number
-          @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
-          # TODO: implement paper size: 1 roll, 2 half office or half letter
-          @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
-          @invoice.save
+          process_pending_data(@invoice)
 
-          # TODO: here or after create?
-          @client = @company.clients.find_by(code: invoice_params[:client_code])
-          @xml = generate_xml(@invoice)
+          SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
 
-          # TODO: generate and send xml and pdf documents
-          # generate_xml(@invoice)
-          render json: @invoice, status: :created
+          render json: @invoice, include: :invoice_details, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
@@ -105,17 +101,25 @@ module Api
       def invoice_params
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
-                                        :currency_code, :exchange_rate, :currency_total, :user,
+                                        :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
+      end
+
+      def process_pending_data(invoice)
+        invoice.number = invoice_number
+        invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code)
+        # TODO: implement paper size: 1 roll, 2 half office or half letter
+        invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
+        invoice.save
       end
 
       def cuf(invoice_date, invoice_number, control_code)
         nit = @branch_office.company.nit.rjust(13, '0')
         date = invoice_date.strftime('%Y%m%d%H%M%S%L')
         branch_office = @branch_office.number.to_s.rjust(4, '0')
-        modality = '1' # TODO: save modality in company or branch office
+        modality = '2' # TODO: save modality in company or branch office
         generation_type = '1' # TODO: add generation types for: online, offline and massive
         invoice_type = '1' # TODO: add invoice types table
         sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
@@ -154,97 +158,6 @@ module Api
 
       def hex_base(value)
         value.to_s(16)
-      end
-
-      def send_client_email
-        # TODO: here or after create - invoice model?
-        @client = @company.clients.find_by(code: invoice_params[:client_code])
-        @xml = generate_xml(@invoice)
-
-        # SendSiatJob.perform_later(@xml, @branch_office)
-        SendMailJob.perform_later(@invoice, @client, @xml, @company.mail_setting)
-      end
-
-      def generate_xml(invoice)
-        header = Nokogiri::XML('<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>')
-        builder = Nokogiri::XML::Builder.with(header) do |xml|
-          xml.facturaComputarizadaCompraVenta('xsi:noNamespaceSchemaLocation' => 'facturaComputarizadaCompraVenta.xsd',
-                                              'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance') do
-            xml.cabecera do
-              xml.nitEmisor invoice.company_nit
-              xml.razonSocialEmisor invoice.company_name
-              xml.municipio invoice.municipality
-              xml.telefono invoice.phone
-              xml.numeroFactura invoice.number
-              xml.cuf invoice.cuf
-              xml.cufd invoice.cufd_code
-              xml.codigoSucursal invoice.branch_office_number
-              xml.direccion invoice.address
-
-              # point of sale
-              xml.codigoPuntoVenta('xsi:nil' => true) unless invoice.point_of_sale
-              xml.codigoPuntoVenta invoice.point_of_sale if invoice.point_of_sale
-
-              xml.fechaEmision invoice.date.strftime('%FT%T.%L') # format: "2022-08-21T19:26:40.905"
-              xml.nombreRazonSocial invoice.business_name
-              xml.codigoTipoDocumentoIdentidad invoice.document_type
-              xml.numeroDocumento invoice.business_nit
-              xml.complemento invoice.complement || nil
-              xml.codigoCliente invoice.client_code
-              xml.codigoMetodoPago invoice.payment_method
-
-              # card number
-              xml.numeroTarjeta('xsi:nil' => true) unless invoice.card_number
-              xml.numeroTarjeta @invoice.card_number if invoice.card_number
-
-              xml.montoTotal invoice.total
-              xml.montoTotalSujetoIva invoice.total # TODO: check for not IVA
-              xml.codigoMoneda invoice.currency_code
-              xml.tipoCambio invoice.exchange_rate
-              xml.montoTotalMoneda invoice.currency_total
-              xml.montoGiftCard invoice.gift_card_total
-              xml.descuentoAdicional invoice.discount
-
-              # exception code
-              xml.codigoExcepcion('xsi:nil' => true) unless invoice.exception_code
-              xml.codigoExcepcion invoice.exception_code if invoice.exception_code
-
-              # cafc
-              xml.cafc('xsi:nil' => true) unless invoice.cafc
-              xml.cafc @invoice.cafc if invoice.cafc
-
-              xml.leyenda invoice.legend
-              xml.usuario invoice.user
-
-              # document sector
-              xml.codigoDocumentoSector('xsi:nil' => true) unless invoice.document_sector_code
-              xml.codigoDocumentoSector invoice.cafc if invoice.document_sector_code
-            end
-            invoice.invoice_details.each do |detail|
-              xml.detalle do
-                xml.actividadEconomica detail.economic_activity_code # invoice.invoice_details.activity_type
-                xml.codigoProductoSin detail.sin_code
-                xml.codigoProducto detail.product_code
-                xml.descripcion detail.description
-                xml.cantidad detail.quantity
-                xml.unidadMedida detail.measurement_id
-                xml.precioUnitario detail.unit_price
-                xml.montoDescuento detail.discount
-                xml.subTotal detail.subtotal
-
-                # card number
-                xml.numeroSerie('xsi:nil' => true) unless detail.serial_number
-                xml.numeroSerie detail.serial_number if detail.serial_number
-
-                # imei number
-                xml.numeroImei('xsi:nil' => true) unless detail.imei_code
-                xml.numeroImei detail.imei_code if detail.imei_code
-              end
-            end
-          end
-        end
-
-        builder.to_xml
       end
 
       def qr_content(nit, cuf, number, page_size)
