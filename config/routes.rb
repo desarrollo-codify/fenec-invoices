@@ -30,6 +30,7 @@ Rails.application.routes.draw do
         resources :daily_codes, shallow: true
         resources :contingencies, shallow: true
         resources :invoices, shallow: true
+        resources :point_of_sales, shallow: true
         post 'siat/generate_cuis'
         get 'siat/show_cuis'
         post 'siat/generate_cufd'
@@ -41,6 +42,7 @@ Rails.application.routes.draw do
         post 'siat/legends'
         post 'siat/measurements'
         post 'siat/significative_events'
+        post 'siat/pos_types'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]

@@ -42,5 +42,10 @@ RSpec.describe Api::V1::ProductsController, type: :routing do
     it 'routes to #legends' do
       expect(post: '/api/v1/branch_offices/1/siat/legends').to route_to('api/v1/siat#legends', branch_office_id: '1')
     end
+
+    it 'routes to #pos_types' do
+      expect(post: '/api/v1/branch_offices/1/siat/pos_types').to route_to('api/v1/siat#pos_types',
+                                                                          branch_office_id: '1')
+    end
   end
 end
