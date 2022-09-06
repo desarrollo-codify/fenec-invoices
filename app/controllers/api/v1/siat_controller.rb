@@ -303,7 +303,7 @@ module Api
         end
       end
 
-      def post_types
+      def pos_types
         client = siat_client('products_wsdl')
 
         body = {
