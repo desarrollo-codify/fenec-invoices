@@ -101,11 +101,7 @@ module Api
         end
 
         if @invoice.save
-          @invoice.number = invoice_number
-          @invoice.cuf = cuf(@invoice.date, @invoice.number, @invoice.control_code)
-          # TODO: implement paper size: 1 roll, 2 half office or half letter
-          @invoice.qr_content = qr_content(@invoice.company_nit, @invoice.cuf, @invoice.number, 1)
-          @invoice.save
+          populate(invoice)
 
           send_client_email
 
@@ -148,6 +144,14 @@ module Api
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
+      end
+
+      def populate(invoice)
+        invoice.number = invoice_number
+        invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code)
+        # TODO: implement paper size: 1 roll, 2 half office or half letter
+        invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
+        invoice.save
       end
 
       def cuf(invoice_date, invoice_number, control_code)
