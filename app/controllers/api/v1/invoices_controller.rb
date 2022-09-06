@@ -8,6 +8,8 @@ module Api
       before_action :set_invoice, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create generate]
 
+      Time.zone = "La Paz"
+
       # GET /api/v1/invoices
       def index
         @invoices = @branch_office.invoices # or company?
@@ -18,7 +20,7 @@ module Api
       # GET /api/v1/invoices/1
       def show
         client = Savon.client(
-          wsdl: ENV.fetch('siat_invoices', nil),
+          wsdl: ENV.fetch('siat_pilot_invoices', nil),
           headers: {
             'apikey' => ENV.fetch('api_key', nil),
             'SOAPAction' => ''
@@ -50,16 +52,13 @@ module Api
             cuis: @invoice.branch_office.cuis_codes.last.code,
             tipoFacturaDocumento: 1,
             archivo: base64_file,
-            fechaEnvio: @invoice.date.strftime('%Y-%m-%dT%H:%M:%S.%L'),
-            hashArchivo: hash.downcase
+            fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
+            hashArchivo: hash
           }
         }
-
-        debugger
-        return
         response = client.call(:recepcion_factura, message: body)
 
-        render json: data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first 
+        render json: response.to_array(:recepcion_factura_response)
       end
 
       # POST /api/v1/invoices
@@ -110,7 +109,7 @@ module Api
 
           send_client_email
 
-          render json: @invoice, status: :created
+          render json: @invoice, include: :invoice_details, status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
@@ -155,7 +154,7 @@ module Api
         nit = @branch_office.company.nit.rjust(13, '0')
         date = invoice_date.strftime('%Y%m%d%H%M%S%L')
         branch_office = @branch_office.number.to_s.rjust(4, '0')
-        modality = '1' # TODO: save modality in company or branch office
+        modality = '2' # TODO: save modality in company or branch office
         generation_type = '1' # TODO: add generation types for: online, offline and massive
         invoice_type = '1' # TODO: add invoice types table
         sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
