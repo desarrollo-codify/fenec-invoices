@@ -15,7 +15,9 @@ Rails.application.routes.draw do
       resources :companies do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
-        resources :products, shallow: true
+        resources :products, shallow: true do
+          post :homologate, on: :collection
+        end
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
