@@ -16,6 +16,10 @@ RSpec.describe Api::V1::ProductsController, type: :routing do
       expect(post: '/api/v1/companies/1/products').to route_to('api/v1/products#create', company_id: '1')
     end
 
+    it 'routes to #homologate' do
+      expect(post: '/api/v1/companies/1/products/homologate').to route_to('api/v1/products#homologate', company_id: '1')
+    end
+
     it 'routes to #update via PUT' do
       expect(put: '/api/v1/products/1').to route_to('api/v1/products#update', id: '1')
     end

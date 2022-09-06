@@ -42,7 +42,7 @@ module Api
         @product.destroy
       end
 
-
+      # POST /api/v1/companies/:company_id/products/homologate
       def homologate
         product_ids = homologate_product_params[:product_ids]
         if @company.products.where(id: product_ids).update(sin_code: homologate_product_params[:sin_code])
