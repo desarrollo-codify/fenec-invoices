@@ -19,7 +19,9 @@ Rails.application.routes.draw do
           resources :invoices, shallow: true
           post 'invoices/generate'
         end
-        resources :products, shallow: true
+        resources :products, shallow: true do
+          post :homologate, on: :collection
+        end
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
