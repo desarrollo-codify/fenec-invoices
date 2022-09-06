@@ -148,6 +148,11 @@ FactoryBot.define do
     description { 'Abc' }
   end
 
+  factory :pos_type do
+    code { '12345' }
+    description { 'Abc' }
+  end
+
   factory :legend do
     code { '12345' }
     description { 'Abc' }
