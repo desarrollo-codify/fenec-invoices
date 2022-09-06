@@ -3,12 +3,12 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
-      require "zlib"
+      require 'zlib'
 
       before_action :set_invoice, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create generate]
 
-      Time.zone = "La Paz"
+      Time.zone = 'La Paz'
 
       # GET /api/v1/invoices
       def index

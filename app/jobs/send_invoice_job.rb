@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SendInvoiceJob < ApplicationJob
   queue_as :default
 
@@ -26,9 +28,9 @@ class SendInvoiceJob < ApplicationJob
     zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
-      gz.write IO.binread(filename)
+      gz.write File.binread(filename)
     end
-    
+
     base64_file = generate_gzip_file(invoice)
     body = {
       SolicitudServicioRecepcionFactura: {
@@ -58,9 +60,9 @@ class SendInvoiceJob < ApplicationJob
     zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
-      gz.write IO.binread(filename)
+      gz.write File.binread(filename)
     end
-    Base64.strict_encode64(IO.binread(zipped_filename))
+    Base64.strict_encode64(File.binread(zipped_filename))
   end
 
   def file_hash(file)
@@ -91,7 +93,7 @@ class SendInvoiceJob < ApplicationJob
           xml.nombreRazonSocial invoice.business_name
           xml.codigoTipoDocumentoIdentidad invoice.document_type
           xml.numeroDocumento invoice.business_nit
-          
+
           # complement
           xml.complemento('xsi:nil' => true) unless invoice.complement
           xml.complemento invoice.complement if invoice.complement
