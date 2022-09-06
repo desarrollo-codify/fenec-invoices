@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_06_183356) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -81,6 +81,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
     t.integer "significative_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "reception_code"
     t.index ["branch_office_id"], name: "index_contingencies_on_branch_office_id"
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
@@ -206,6 +207,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
     t.integer "invoice_status_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "send_at"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
     t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true
@@ -251,6 +253,18 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_payment_methods_on_code", unique: true
+  end
+
+  create_table "point_of_sales", force: :cascade do |t|
+    t.string "name"
+    t.integer "number", null: false
+    t.integer "code"
+    t.string "description"
+    t.integer "branch_office_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_office_id", "code"], name: "index_point_of_sales_on_branch_office_id_and_code", unique: true
+    t.index ["branch_office_id"], name: "index_point_of_sales_on_branch_office_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -308,5 +322,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_30_141403) do
   add_foreign_key "invoices", "invoice_statuses"
   add_foreign_key "legends", "economic_activities"
   add_foreign_key "mail_settings", "companies"
+  add_foreign_key "point_of_sales", "branch_offices"
   add_foreign_key "products", "companies"
 end
