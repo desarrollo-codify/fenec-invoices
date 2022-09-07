@@ -272,7 +272,7 @@ module Api
       end
 
       def significative_events
-        client = siat_client('siat_invoices')
+        client = siat_client('products_wsdl')
 
         body = {
           SolicitudSincronizacion: {

@@ -10,7 +10,13 @@ class SendInvoiceJob < ApplicationJob
     @xml = generate_xml(@invoice)
 
     InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
-    send_to_siat(@invoice)
+    if siat_available
+      # if Contingency? ContingencyJob
+      @invoice.update(sent_at: DateTime.now)
+      send_to_siat(@invoice)
+    else
+      create_contingency(@invoice) unless @invoice.branch_office.contingencies.pending.any?
+    end
   end
 
   def send_to_siat(invoice)
@@ -153,5 +159,30 @@ class SendInvoiceJob < ApplicationJob
     end
 
     builder.to_xml
+  end
+
+  def create_contingency(invoice)
+    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 1)
+  end
+
+  def siat_available
+    client = Savon.client(
+      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
+      headers: {
+        'apikey' => ENV.fetch('api_key', nil),
+        'SOAPAction' => ''
+      },
+      namespace: ENV.fetch('siat_namespace', nil),
+      convert_request_keys_to: :none
+    )
+
+    response = client.call(:verificar_comunicacion)
+    if response.success?
+      data = response.to_array(:verificar_comunicacion_response).first
+      data = data[:return]
+    else
+      data = { return: 'Communication error' }
+    end
+    data == '927'
   end
 end

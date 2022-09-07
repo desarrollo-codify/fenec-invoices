@@ -6,7 +6,7 @@ module Api
       require 'zlib'
 
       before_action :set_invoice, only: %i[show update destroy]
-      before_action :set_branch_office, only: %i[index create generate]
+      before_action :set_branch_office, only: %i[index create generate pending]
 
       Time.zone = 'La Paz'
 

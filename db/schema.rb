@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_02_212454) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_31_153446) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -77,11 +77,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_02_212454) do
   create_table "contingencies", force: :cascade do |t|
     t.datetime "start_date", null: false
     t.datetime "end_date"
+    t.string "reception_code"
+    t.string "cufd_code"
     t.integer "branch_office_id", null: false
     t.integer "significative_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "reception_code"
     t.index ["branch_office_id"], name: "index_contingencies_on_branch_office_id"
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
@@ -208,6 +209,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_02_212454) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "send_at"
+    t.string "sent_at"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
     t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true

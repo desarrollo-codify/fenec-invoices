@@ -24,7 +24,9 @@ Rails.application.routes.draw do
       end
       resources :branch_offices, only: %i[show update destroy] do
         resources :daily_codes, shallow: true
-        resources :contingencies, shallow: true
+        resources :contingencies, shallow: true do
+          post :close, on: :member
+        end
         resources :invoices, only: %i[index create] do
           get :pending, on: :collection
         end
@@ -46,7 +48,7 @@ Rails.application.routes.draw do
       resources :document_types, only: %i[index]
       resources :payment_methods, only: %i[index]
       resources :significative_events, only: %i[index]
-      
+
       resources :invoices, only: %i[show update destroy]
 
       # siat controller

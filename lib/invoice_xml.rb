@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InvoiceXml
   def self.generate(invoice)
     header = Nokogiri::XML('<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>')
@@ -23,7 +25,7 @@ class InvoiceXml
           xml.nombreRazonSocial invoice.business_name
           xml.codigoTipoDocumentoIdentidad invoice.document_type
           xml.numeroDocumento invoice.business_nit
-          
+
           # complement
           xml.complemento('xsi:nil' => true) unless invoice.complement
           xml.complemento invoice.complement if invoice.complement
@@ -83,6 +85,5 @@ class InvoiceXml
     end
 
     builder.to_xml
-    
   end
 end

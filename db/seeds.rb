@@ -14,3 +14,4 @@ Product.create(primary_code: '123', description: 'Algo bonito', company: company
 InvoiceStatus.create(description: 'VIGENTE')
 InvoiceStatus.create(description: 'ANULADA')
 Client.create(code: '055', name: 'Carlos', nit: '401238026', email: 'carlos.gutierrez@codify.com', company: company)
+MailSetting.create(address: 'codify.com.bo', port: 465, domain: 'codify.com.bo', user_name: 'carlos.gutierrez@codify.com.bo', password: 'Revocatongo33.', company: company)
