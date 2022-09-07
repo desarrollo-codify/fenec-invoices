@@ -2,7 +2,7 @@
 
 class ContingencyJob < ApplicationJob
   queue_as :default
-
+  require 'rubygems/package'
   def perform(contingency)
     current_cuis = contingency.branch_office.cuis_codes.last.code
     current_cufd = contingency.branch_office.daily_codes.last.code
@@ -12,7 +12,13 @@ class ContingencyJob < ApplicationJob
     return if pending_invoices.empty?
 
     event_cufd = pending_invoices.first.cufd_code
+    send_contingency(contingency, event_cufd, current_cuis, current_cufd)
     send_package(pending_invoices, contingency, current_cuis, current_cufd)
+    invoices.each do |invoice|
+      filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
+      File.delete(filename)
+    end
+    reception_validation(contingency)
   end
 
   def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)
@@ -47,8 +53,10 @@ class ContingencyJob < ApplicationJob
 
     if response.success?
       data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
+      
       code = data[:codigo_recepcion_evento_significativo]
-      contingency.update(reception_code: data[:codigo_recepcion_evento_significativo])
+      contingency.update(reception_code_se: code)
+      
     else
       data = 'Communication error'
     end
@@ -60,37 +68,20 @@ class ContingencyJob < ApplicationJob
       filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
       File.write(filename, xml)
     end
-    # TODO: comprimir todo?
+
     filename = "#{Rails.root}/tmp/invoices/"
-    zipped_filename = "#{filename}prueba.gz"
+    tar = create_tarball(filename)
+    zipped_filename = "#{tar}.gz"
 
-    # # Add a path and its content to a gzipped tar archive
-    # writer = GZippedTar::Writer.new
-    # invoices.each do |invoice|
-    #   xml = generate_xml(invoice)
-    #   writer.add "facturas.xml", xml
-    # end
-    # file = writer.output
-    # debugger
-    # base = Base64.strict_encode64(file)
-    # debugger
-
-    # # Write that archive to disk:
-    # File.write zipped_filename, writer.output
-    # debugger
-
-    # tar = create_tarball(filename)
-    # cdtargz(filename, zipped_filename, src)
-
-    # Zlib::GzipWriter.open(zipped_filename) do |gz|
-    #   gz.write IO.binread(filename)
-    # end
+    Zlib::GzipWriter.open(zipped_filename) do |gz|
+      gz.write IO.binread(tar)
+    end
 
     base64_file = Base64.strict_encode64(File.binread(zipped_filename))
     hash = Digest::SHA2.hexdigest(base64_file)
-
+    
     client = Savon.client(
-      wsdl: ENV.fetch('send_siat'.to_s, nil),
+      wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
         'apikey' => ENV.fetch('api_key', nil),
         'SOAPAction' => ''
@@ -98,7 +89,7 @@ class ContingencyJob < ApplicationJob
       namespace: ENV.fetch('siat_namespace', nil),
       convert_request_keys_to: :none
     )
-
+    
     branch_office = contingency.branch_office
     body = {
       SolicitudServicioRecepcionPaquete: {
@@ -114,15 +105,20 @@ class ContingencyJob < ApplicationJob
         cuis: current_cuis,
         tipoFacturaDocumento: 1,
         archivo: base64_file,
-        fechaEnvio: Date.today,
+        fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
         hashArchivo: hash,
         cantidadFacturas: invoices.count,
-        codigoEvento: contingency.significative_event_id
+        codigoEvento: contingency.reception_code_se
       }
     }
+    
     response = client.call(:recepcion_paquete_factura, message: body)
     if response.success?
-      data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion)
+      data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
+      
+      code = data[:codigo_recepcion]
+      contingency.update(reception_code: code)  
+       
     else
       render json: 'La solicitud a SIAT obtuvo un error.'
     end
@@ -133,7 +129,7 @@ class ContingencyJob < ApplicationJob
     cuis_code = contingency.branch_office.cuis_codes.last
     cufd_code = contingency.branch_office.daily_codes.last
     client = Savon.client(
-      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
+      wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
         'apikey' => ENV.fetch('api_key', nil),
         'SOAPAction' => ''
@@ -159,8 +155,9 @@ class ContingencyJob < ApplicationJob
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
     if response.success?
-      data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion, :mensajes_list)
-      data = data[:codigoEstado]
+      data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
+      description = data[:codigo_descripcion]
+      contingency.update(status: description) 
     else
       data = { return: 'communication error' }
     end
@@ -257,11 +254,13 @@ class ContingencyJob < ApplicationJob
   BLOCKSIZE_TO_READ = 1024 * 1000
 
   def create_tarball(path)
+    
     tar_filename = "#{Pathname.new(path).realpath.to_path}.tar"
 
     File.open(tar_filename, 'wb') do |tarfile|
       Gem::Package::TarWriter.new(tarfile) do |tar|
-        Dir[File.join(path, '**/*')].each do |file|
+        
+        Dir[File.join(path, '*')].each do |file|
           mode = File.stat(file).mode
           relative_file = file.sub(%r{^#{Regexp.escape(path)}/?}, '')
 
@@ -281,39 +280,6 @@ class ContingencyJob < ApplicationJob
         end
       end
     end
-
     tar_filename
-  end
-
-  def cdtargz(cdpath, targzfile, *src)
-    path = Pathname.new(cdpath)
-    raise "path #{cdpath} should be an absolute path" unless path.absolute?
-    raise "path #{cdpath} should be a directory" unless File.directory? cdpath
-    raise "Destination tar.gz file #{targzfile} already exists" if File.exist? targzfile
-    raise 'no file or directory to tar' if !src || src.length.zero?
-
-    src.each { |p| p.sub!(/^/, "#{cdpath}/") }
-    File.open targzfile, 'wb' do |otargzfile|
-      Zlib::GzipWriter.wrap otargzfile do |gz|
-        Gem::Package::TarWriter.new gz do |tar|
-          Find.find(*src) do |f|
-            relative_path = f.sub "#{cdpath}/", ''
-            mode = File.stat(f).mode
-            size = File.stat(f).size
-            if File.directory? f
-              tar.mkdir relative_path, mode
-            else
-              tar.add_file_simple relative_path, mode, size do |tio|
-                File.open f, 'rb' do |rio|
-                  while buffer = rio.read(BLOCKSIZE_TO_READ)
-                    tio.write buffer
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-    end
   end
 end
