@@ -31,6 +31,7 @@ Rails.application.routes.draw do
         resources :contingencies, shallow: true
         resources :invoices, shallow: true
         resources :point_of_sales, shallow: true
+        post 'siat/pruebas'
         post 'siat/generate_cuis'
         get 'siat/show_cuis'
         post 'siat/generate_cufd'

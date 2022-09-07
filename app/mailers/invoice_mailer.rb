@@ -25,6 +25,18 @@ class InvoiceMailer < ApplicationMailer
     File.write(filename, xml)
     attachments['factura.xml'] = File.read(filename)
 
+    pdf_path = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.pdf"
+    File.open(pdf_path, 'wb') do |file|
+      file << generate_pdf
+      file.close
+    end
+
+    attachments['factura.pdf'] = File.read(pdf_path)
+    # TODO: use dynamic email subject
+    mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
+  end
+
+  def generate_pdf
     # TODO: make dynamic
     options = {
       page_height: '33cm'
@@ -47,16 +59,7 @@ class InvoiceMailer < ApplicationMailer
       ),
       options
     )
-
-    pdf_path = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.pdf"
-    File.open(pdf_path, 'wb') do |file|
-      file << pdf
-      file.close
-    end
-
-    attachments['factura.pdf'] = File.read(pdf_path)
-    # TODO: use dynamic email subject
-    mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
+    pdf
   end
 
   def literal_amount(amount)

@@ -9,6 +9,37 @@ module Api
       before_action :set_branch_office
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd]
 
+      def pruebas
+        @branch_office = BranchOffice.first
+        (1..10).each do |i|
+          client = siat_client('cuis_wsdl')
+          body = {
+            SolicitudCufd: {
+              codigoAmbiente: 2,
+              codigoSistema: ENV.fetch('system_code', nil),
+              nit: @branch_office.company.nit.to_i,
+              codigoModalidad: 2,
+              cuis: 'BF840B24',
+              codigoSucursal: @branch_office.number,
+              codigoPuntoVenta: 0
+            }
+          }
+
+          response = client.call(:cufd, message: body)
+          if response.success?
+            data = response.to_array(:cufd_response, :respuesta_cufd).first
+
+            code = data[:codigo]
+            control_code = data[:codigo_control]
+            @branch_office.add_daily_code!(code, control_code, Date.today)
+
+            (1..12).each do |j|
+
+            end
+          end
+        end
+      end
+
       def generate_cuis
         client = siat_client('cuis_wsdl')
         body = {
