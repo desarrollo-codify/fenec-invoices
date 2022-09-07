@@ -19,7 +19,9 @@ Rails.application.routes.draw do
           resources :invoices, shallow: true
           post 'invoices/generate'
         end
-        resources :products, shallow: true
+        resources :products, shallow: true do
+          post :homologate, on: :collection
+        end
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
@@ -28,6 +30,8 @@ Rails.application.routes.draw do
         resources :daily_codes, shallow: true
         resources :contingencies, shallow: true
         resources :invoices, shallow: true
+        resources :point_of_sales, shallow: true
+        post 'siat/pruebas'
         post 'siat/generate_cuis'
         get 'siat/show_cuis'
         post 'siat/generate_cufd'
@@ -39,6 +43,7 @@ Rails.application.routes.draw do
         post 'siat/legends'
         post 'siat/measurements'
         post 'siat/significative_events'
+        post 'siat/pos_types'
         post 'siat/cancellation_reasons'
       end
       resources :economic_activities, only: :show do

@@ -2,11 +2,42 @@
 
 module Api
   module V1
+    # rubocop:disable Metrics/ClassLength
     class SiatController < ApplicationController
       require 'savon'
 
       before_action :set_branch_office
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd]
+
+      def pruebas
+        @branch_office = BranchOffice.first
+        (1..10).each do |_i|
+          client = siat_client('cuis_wsdl')
+          body = {
+            SolicitudCufd: {
+              codigoAmbiente: 2,
+              codigoSistema: ENV.fetch('system_code', nil),
+              nit: @branch_office.company.nit.to_i,
+              codigoModalidad: 2,
+              cuis: 'BF840B24',
+              codigoSucursal: @branch_office.number,
+              codigoPuntoVenta: 0
+            }
+          }
+
+          response = client.call(:cufd, message: body)
+          next unless response.success?
+
+          data = response.to_array(:cufd_response, :respuesta_cufd).first
+
+          code = data[:codigo]
+          control_code = data[:codigo_control]
+          @branch_office.add_daily_code!(code, control_code, Date.today)
+
+          (1..12).each do |j|
+          end
+        end
+      end
 
       def generate_cuis
         client = siat_client('cuis_wsdl')
@@ -68,7 +99,6 @@ module Api
 
           code = data[:codigo]
           control_code = data[:codigo_control]
-
           @branch_office.add_daily_code!(code, control_code, Date.today)
 
           render json: data
@@ -303,6 +333,37 @@ module Api
         end
       end
 
+      def pos_types
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_punto_venta, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_punto_venta_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          types = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          PosType.bulk_load(types)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
       def cancellation_reasons
         client = siat_client('products_wsdl')
 
@@ -356,5 +417,6 @@ module Api
         @cuis_code = @branch_office.cuis_codes.last
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

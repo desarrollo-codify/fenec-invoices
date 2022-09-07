@@ -89,6 +89,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_05_134221) do
     t.integer "significative_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "reception_code"
     t.index ["branch_office_id"], name: "index_contingencies_on_branch_office_id"
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
@@ -263,6 +264,25 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_05_134221) do
     t.index ["code"], name: "index_payment_methods_on_code", unique: true
   end
 
+  create_table "point_of_sales", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "code", null: false
+    t.string "description"
+    t.integer "branch_office_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["branch_office_id", "code"], name: "index_point_of_sales_on_branch_office_id_and_code", unique: true
+    t.index ["branch_office_id"], name: "index_point_of_sales_on_branch_office_id"
+  end
+
+  create_table "pos_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_pos_types_on_code", unique: true
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "primary_code", null: false
     t.string "description", null: false
@@ -318,5 +338,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_05_134221) do
   add_foreign_key "invoices", "invoice_statuses"
   add_foreign_key "legends", "economic_activities"
   add_foreign_key "mail_settings", "companies"
+  add_foreign_key "point_of_sales", "branch_offices"
   add_foreign_key "products", "companies"
 end

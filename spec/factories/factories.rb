@@ -148,6 +148,11 @@ FactoryBot.define do
     description { 'Abc' }
   end
 
+  factory :pos_type do
+    code { '12345' }
+    description { 'Abc' }
+  end
+
   factory :legend do
     code { '12345' }
     description { 'Abc' }
@@ -171,6 +176,12 @@ FactoryBot.define do
     start_date { '2022-08-30' }
     branch_office factory: :branch_office
     significative_event factory: :significative_event
+  end
+
+  factory :point_of_sale do
+    name { 'ABC' }
+    code { 1 }
+    branch_office factory: :branch_office
   end
 
   factory :cancellation_reason do
