@@ -42,7 +42,7 @@ class InvoiceMailer < ApplicationMailer
       page_height: '33cm'
     }
 
-    pdf = WickedPdf.new.pdf_from_string(
+    WickedPdf.new.pdf_from_string(
       render_to_string(
         pdf: 'file_name',
         template: 'layouts/invoice',
@@ -59,7 +59,6 @@ class InvoiceMailer < ApplicationMailer
       ),
       options
     )
-    pdf
   end
 
   def literal_amount(amount)

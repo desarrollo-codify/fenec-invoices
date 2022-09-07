@@ -11,7 +11,7 @@ module Api
 
       def pruebas
         @branch_office = BranchOffice.first
-        (1..10).each do |i|
+        (1..10).each do |_i|
           client = siat_client('cuis_wsdl')
           body = {
             SolicitudCufd: {
@@ -26,16 +26,15 @@ module Api
           }
 
           response = client.call(:cufd, message: body)
-          if response.success?
-            data = response.to_array(:cufd_response, :respuesta_cufd).first
+          next unless response.success?
 
-            code = data[:codigo]
-            control_code = data[:codigo_control]
-            @branch_office.add_daily_code!(code, control_code, Date.today)
+          data = response.to_array(:cufd_response, :respuesta_cufd).first
 
-            (1..12).each do |j|
+          code = data[:codigo]
+          control_code = data[:codigo_control]
+          @branch_office.add_daily_code!(code, control_code, Date.today)
 
-            end
+          (1..12).each do |j|
           end
         end
       end
