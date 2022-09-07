@@ -23,6 +23,7 @@ RSpec.describe PaymentMethod, type: :model do
         expect(payment_method).to_not be_valid
       end
     end
+
     context 'validates uniqueness of key' do
       context 'with duplicated value' do
         before { create(:payment_method) }
@@ -39,6 +40,7 @@ RSpec.describe PaymentMethod, type: :model do
       end
     end
   end
+
   describe 'description attribute' do
     it { validate_presence_of(:payment_method) }
 

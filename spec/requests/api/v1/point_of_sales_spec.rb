@@ -33,7 +33,7 @@ RSpec.describe '/point_of_sales', type: :request do
         put api_v1_point_of_sale_url(point_of_sale),
             params: { point_of_sale: new_attributes }, headers: valid_headers, as: :json
         point_of_sale.reload
-        skip('Add assertions for updated state')
+        expect(point_of_sale.description).to eq('xyz')
       end
 
       it 'renders a JSON response with the point_of_sale' do

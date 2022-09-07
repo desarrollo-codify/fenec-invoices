@@ -256,9 +256,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_06_202428) do
   end
 
   create_table "point_of_sales", force: :cascade do |t|
-    t.string "name"
-    t.integer "number", null: false
-    t.integer "code"
+    t.string "name", null: false
+    t.integer "code", null: false
     t.string "description"
     t.integer "branch_office_id", null: false
     t.datetime "created_at", null: false

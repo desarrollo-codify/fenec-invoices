@@ -6,16 +6,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: 
   let(:valid_attributes) do
     {
       name: 'abc',
-      code: 123,
-      number: 1
+      code: 123
     }
   end
 
   let(:invalid_attributes) do
     {
       name: nil,
-      code: nil,
-      number: nil
+      code: nil
     }
   end
 
