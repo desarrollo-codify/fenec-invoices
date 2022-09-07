@@ -24,7 +24,7 @@ class PointOfSaleJob < ApplicationJob
         codigoAmbiente: 2,
         codigoModalidad: 2,
         codigoSistema: ENV.fetch('system_code', nil),
-        codigoSucursal: point_of_sale.code,
+        codigoSucursal: branch_office.number,
         codigoTipoPuntoVenta: 2,
         cuis: branch_office.cuis_codes.last.code,
         descripcion: point_of_sale.description,
@@ -32,6 +32,7 @@ class PointOfSaleJob < ApplicationJob
         nit: branch_office.company.nit.to_i
       }
     }
+
     response = client.call(:registro_punto_venta, message: body)
     puts response
     # TODO: process all possible scenarios
