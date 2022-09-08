@@ -56,7 +56,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def daily_code_params
-        params.require(:daily_code).permit(:code, :effective_date, :control_code)
+        params.require(:daily_code).permit(:code, :effective_date, :control_code, :end_date)
       end
     end
   end

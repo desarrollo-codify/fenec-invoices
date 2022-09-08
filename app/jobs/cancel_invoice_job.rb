@@ -9,7 +9,7 @@ class CancelInvoiceJob < ApplicationJob
 
   def send_to_siat(invoice)
     branch_office = invoice.branch_office
-    daily_code = branch_office.daily_codes.last
+    daily_code = branch_office.daily_codes.current
     cuis_code = branch_office.cuis_codes.last
 
     client = Savon.client(

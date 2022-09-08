@@ -33,7 +33,7 @@ module Api
         @invoice.phone = @branch_office.phone
         # TODO: add some scope for getting the current daily code number
         # it might not be the last one
-        daily_code = @branch_office.daily_codes.last
+        daily_code = @branch_office.daily_codes.current
         @invoice.cufd_code = daily_code.code
         @invoice.date = DateTime.now
         @invoice.control_code = daily_code.control_code

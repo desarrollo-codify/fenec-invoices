@@ -36,6 +36,7 @@ FactoryBot.define do
     code { 'ABC' }
     effective_date { '2022-01-01' }
     control_code { '123abc' }
+    end_date { '2022-01-01' }
     branch_office factory: :branch_office
   end
 
