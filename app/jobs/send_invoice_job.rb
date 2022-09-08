@@ -7,12 +7,9 @@ class SendInvoiceJob < ApplicationJob
     @invoice = invoice
     @company = invoice.branch_office.company
     @client = @company.clients.find_by(code: client_code)
-    @xml = generate_xml(@invoice)
+    generate_xml(@invoice)
 
-    filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
-    File.write(filename, @xml)
-
-    # InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+    InvoiceMailer.with(client: @client, invoice: invoice, sender: @company.mail_setting).send_invoice.deliver_now
     send_to_siat(@invoice)
   end
 
@@ -157,6 +154,7 @@ class SendInvoiceJob < ApplicationJob
       end
     end
 
-    builder.to_xml
+    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+    File.write(filename, builder.to_xml)
   end
 end
