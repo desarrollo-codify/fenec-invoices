@@ -20,18 +20,6 @@ module Api
         render json: @invoice, include: :invoice_details
       end
 
-      def siat_client(wsdl_name)
-        Savon.client(
-          wsdl: ENV.fetch(wsdl_name.to_s, nil),
-          headers: {
-            'apikey' => ENV.fetch('api_key', nil),
-            'SOAPAction' => ''
-          },
-          namespace: ENV.fetch('siat_namespace', nil),
-          convert_request_keys_to: :none
-        )
-      end
-
       # POST /api/v1/invoices
       def create
         # TODO: implement validate!
