@@ -415,7 +415,7 @@ module Api
       end
 
       def set_cuis_code
-        @cuis_code = @branch_office.cuis_codes.last
+        @cuis_code = @branch_office.cuis_codes.current
       end
     end
     # rubocop:enable Metrics/ClassLength

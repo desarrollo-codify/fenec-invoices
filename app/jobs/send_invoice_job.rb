@@ -43,7 +43,7 @@ class SendInvoiceJob < ApplicationJob
         codigoEmision: 1,
         codigoModalidad: 2,
         cufd: invoice.cufd_code,
-        cuis: invoice.branch_office.cuis_codes.last.code,
+        cuis: invoice.branch_office.cuis_codes.current.code,
         tipoFacturaDocumento: 1,
         archivo: base64_file,
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),

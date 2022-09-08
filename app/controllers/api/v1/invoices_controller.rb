@@ -148,7 +148,7 @@ module Api
       def invoice_number
         # TODO: add some scope for getting the current cuis code
         # it might not be the last one
-        cuis_code = @branch_office.cuis_codes.last
+        cuis_code = @branch_office.cuis_codes.current
         current_number = cuis_code.current_number
         cuis_code.increment!
         current_number

@@ -10,7 +10,7 @@ class CancelInvoiceJob < ApplicationJob
   def send_to_siat(invoice)
     branch_office = invoice.branch_office
     daily_code = branch_office.daily_codes.current
-    cuis_code = branch_office.cuis_codes.last
+    cuis_code = branch_office.cuis_codes.current
 
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices', nil),
