@@ -7,7 +7,8 @@ class Invoice < ApplicationRecord
   validates :municipality, presence: true, format: { with: VALID_NAME_REGEX }
   validates :number,
             uniqueness: { scope: :cufd_code,
-                          message: 'Ya existe este número de factura con el código único de facturación diaria.' }
+                          message: 'Ya existe este número de factura con el código único de facturación diaria.',
+                          unless: -> { number.blank? }}
   validates :cufd_code, presence: true
   validates :address, presence: true
   validates :date, presence: true
@@ -35,6 +36,7 @@ class Invoice < ApplicationRecord
   belongs_to :branch_office
   belongs_to :invoice_status
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
+  has_one :cancellation_reason
   accepts_nested_attributes_for :invoice_details, reject_if: :all_blank
 
   scope :for_sending, -> { where(sent_at: nil) }

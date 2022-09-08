@@ -30,6 +30,8 @@ Rails.application.routes.draw do
         resources :invoices, only: %i[index create] do
           get :pending, on: :collection
         end
+        resources :point_of_sales, shallow: true
+        post 'siat/pruebas'
         post 'siat/generate_cuis'
         get 'siat/show_cuis'
         post 'siat/generate_cufd'
@@ -41,6 +43,8 @@ Rails.application.routes.draw do
         post 'siat/legends'
         post 'siat/measurements'
         post 'siat/significative_events'
+        post 'siat/pos_types'
+        post 'siat/cancellation_reasons'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
@@ -48,8 +52,10 @@ Rails.application.routes.draw do
       resources :document_types, only: %i[index]
       resources :payment_methods, only: %i[index]
       resources :significative_events, only: %i[index]
-
-      resources :invoices, only: %i[show update destroy]
+      resources :cancellation_reasons, only: %i[index]
+      resources :invoices, only: %i[show update destroy] do
+        post :cancel, on: :member
+      end
 
       # siat controller
       post 'siat/bulk_products_update'

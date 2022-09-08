@@ -7,7 +7,6 @@ class InvoiceMailer < ApplicationMailer
   def send_invoice
     @client = params[:client]
     @invoice = params[:invoice]
-    xml = params[:xml]
 
     @branch_office = @invoice.branch_office
     @company = @branch_office.company
@@ -22,15 +21,26 @@ class InvoiceMailer < ApplicationMailer
                          address: params[:sender].address }
 
     filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
-    File.write(filename, xml)
     attachments['factura.xml'] = File.read(filename)
 
+    pdf_path = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.pdf"
+    File.open(pdf_path, 'wb') do |file|
+      file << generate_pdf
+      file.close
+    end
+
+    attachments['factura.pdf'] = File.read(pdf_path)
+    # TODO: use dynamic email subject
+    mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
+  end
+
+  def generate_pdf
     # TODO: make dynamic
     options = {
       page_height: '33cm'
     }
 
-    pdf = WickedPdf.new.pdf_from_string(
+    WickedPdf.new.pdf_from_string(
       render_to_string(
         pdf: 'file_name',
         template: 'layouts/invoice',
@@ -47,16 +57,6 @@ class InvoiceMailer < ApplicationMailer
       ),
       options
     )
-
-    pdf_path = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.pdf"
-    File.open(pdf_path, 'wb') do |file|
-      file << pdf
-      file.close
-    end
-
-    attachments['factura.pdf'] = File.read(pdf_path)
-    # TODO: use dynamic email subject
-    mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
   end
 
   def literal_amount(amount)
