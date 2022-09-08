@@ -36,7 +36,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: 1,
         codigoSistema: ENV.fetch('system_code', nil),
         nit: branch_office.company.nit.to_i,
         cuis: current_cuis,
@@ -100,7 +100,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: 1,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
@@ -154,7 +154,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: 1,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,

@@ -20,6 +20,7 @@ module Api
       end
 
       def pruebas
+        Invoice.destroy_all
         (1..500).each do |i|
           @invoice = @branch_office.invoices.build(invoice_params)
           @company = @branch_office.company
@@ -57,6 +58,7 @@ module Api
 
           if @invoice.save
             process_pending_data(@invoice)
+            SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code], i)
           end
 
           puts ' '
@@ -128,7 +130,7 @@ module Api
         body = {
           SolicitudCuis: {
             codigoAmbiente: 2,
-            codigoPuntoVenta:0,
+            codigoPuntoVenta: 1,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
@@ -170,7 +172,7 @@ module Api
         body = {
           SolicitudCufd: {
             codigoAmbiente: 2,
-            codigoPuntoVenta: 0,
+            codigoPuntoVenta: 1,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
