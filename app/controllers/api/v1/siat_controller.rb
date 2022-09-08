@@ -13,6 +13,7 @@ module Api
         body = {
           SolicitudCuis: {
             codigoAmbiente: 2,
+            codigoPuntoVenta:0,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
@@ -54,6 +55,7 @@ module Api
         body = {
           SolicitudCufd: {
             codigoAmbiente: 2,
+            codigoPuntoVenta: 0,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,

@@ -47,7 +47,7 @@ module Api
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
-        @invoice.point_of_sale = nil
+        @invoice.point_of_sale = 0
         @invoice.cafc = nil # TODO: implement cafc
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal

@@ -8,13 +8,14 @@ class ContingencyJob < ApplicationJob
     current_cufd = contingency.branch_office.daily_codes.last.code
     invoices = contingency.branch_office.invoices
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
-
+    
     return if pending_invoices.empty?
 
     event_cufd = pending_invoices.first.cufd_code
     send_contingency(contingency, event_cufd, current_cuis, current_cufd)
     send_package(pending_invoices, contingency, current_cuis, current_cufd)
-    invoices.each do |invoice|
+    pending_invoices.each do |invoice|
+      invoice.update(sent_at: DateTime.now)
       filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
       File.delete(filename)
     end
@@ -35,12 +36,12 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
+        codigoPuntoVenta: 0,
         codigoSistema: ENV.fetch('system_code', nil),
         nit: branch_office.company.nit.to_i,
         cuis: current_cuis,
         cufd: current_cufd,
         codigoSucursal: branch_office.number,
-        codigoPuntoVenta: 0,
         codigoMotivoEvento: contingency.significative_event_id,
         descripcion: contingency.significative_event.description,
         fechaHoraInicioEvento: contingency.start_date.strftime('%Y-%m-%dT%H:%M:%S.%L'),
@@ -50,6 +51,11 @@ class ContingencyJob < ApplicationJob
     }
 
     response = client.call(:registro_evento_significativo, message: body)
+    puts '************************'
+    puts '************************'
+    puts '************************'
+    puts '************************'
+    puts response
 
     if response.success?
       data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
@@ -70,7 +76,7 @@ class ContingencyJob < ApplicationJob
     end
 
     filename = "#{Rails.root}/tmp/invoices/"
-    tar = create_tarball(filename)
+    tar = create_tar(filename)
     zipped_filename = "#{tar}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
@@ -113,6 +119,13 @@ class ContingencyJob < ApplicationJob
     }
     
     response = client.call(:recepcion_paquete_factura, message: body)
+
+    puts '************************'
+    puts '************************'
+    puts '************************'
+    puts '************************'
+    puts response
+
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       
@@ -141,6 +154,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {
         codigoAmbiente: 2,
+        codigoPuntoVenta: 0,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
@@ -154,6 +168,13 @@ class ContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
+
+    puts '************************'
+    puts '************************'
+    puts '************************'
+    puts '************************'
+    puts response
+
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       description = data[:codigo_descripcion]
@@ -253,7 +274,7 @@ class ContingencyJob < ApplicationJob
 
   BLOCKSIZE_TO_READ = 1024 * 1000
 
-  def create_tarball(path)
+  def create_tar(path)
     
     tar_filename = "#{Pathname.new(path).realpath.to_path}.tar"
 

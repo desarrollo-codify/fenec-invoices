@@ -9,7 +9,7 @@ class SendInvoiceJob < ApplicationJob
     @client = @company.clients.find_by(code: client_code)
     @xml = generate_xml(@invoice)
 
-    InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+    #InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
     if siat_available
       # if Contingency? ContingencyJob
       @invoice.update(sent_at: DateTime.now)
@@ -162,7 +162,7 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def create_contingency(invoice)
-    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 2)
+    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 1)
   end
 
   def siat_available
