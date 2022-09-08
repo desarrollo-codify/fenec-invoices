@@ -52,6 +52,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_06_202428) do
     t.index ["company_id"], name: "index_branch_offices_on_company_id"
   end
 
+  create_table "cancellation_reasons", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_cancellation_reasons_on_code", unique: true
+  end
+
   create_table "clients", force: :cascade do |t|
     t.string "code"
     t.string "name", null: false
@@ -208,7 +216,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_06_202428) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "send_at"
+    t.integer "cancellation_reason_id"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
+    t.index ["cancellation_reason_id"], name: "index_invoices_on_cancellation_reason_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
     t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true
   end

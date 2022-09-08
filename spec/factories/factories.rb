@@ -183,4 +183,9 @@ FactoryBot.define do
     code { 1 }
     branch_office factory: :branch_office
   end
+
+  factory :cancellation_reason do
+    code { '12345' }
+    description { 'Abc' }
+  end
 end

@@ -7,7 +7,6 @@ class InvoiceMailer < ApplicationMailer
   def send_invoice
     @client = params[:client]
     @invoice = params[:invoice]
-    xml = params[:xml]
 
     @branch_office = @invoice.branch_office
     @company = @branch_office.company
@@ -22,7 +21,6 @@ class InvoiceMailer < ApplicationMailer
                          address: params[:sender].address }
 
     filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
-    File.write(filename, xml)
     attachments['factura.xml'] = File.read(filename)
 
     pdf_path = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.pdf"

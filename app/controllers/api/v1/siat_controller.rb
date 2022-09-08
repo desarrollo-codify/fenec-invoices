@@ -364,6 +364,37 @@ module Api
         end
       end
 
+      def cancellation_reasons
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_motivo_anulacion, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_motivo_anulacion_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          reasons = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          CancellationReason.bulk_load(reasons)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
       private
 
       def set_branch_office

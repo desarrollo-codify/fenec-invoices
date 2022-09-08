@@ -3,9 +3,7 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
-      require 'zlib'
-
-      before_action :set_invoice, only: %i[show update destroy]
+      before_action :set_invoice, only: %i[show update destroy cancel]
       before_action :set_branch_office, only: %i[index create generate]
 
       Time.zone = 'La Paz'
@@ -41,7 +39,7 @@ module Api
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
-        @invoice.point_of_sale = nil
+        @invoice.point_of_sale = 0
         @invoice.cafc = nil # TODO: implement cafc
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal
@@ -63,7 +61,6 @@ module Api
 
         if @invoice.save
           process_pending_data(@invoice)
-
           SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
 
           render json: @invoice, include: :invoice_details, status: :created
@@ -86,6 +83,20 @@ module Api
         @invoice.destroy
       end
 
+      # POST /api/v1/invoices/1/cancel
+      def cancel
+        if @invoice.cancellation_date?
+          return render json: "La factura ya fue anulada el #{@invoice.cancellation_date}",
+                        status: :unprocessable_entity
+        end
+
+        CancelInvoiceJob.perform_later(@invoice)
+
+        # TODO: send cancellation_reason_id in body
+        @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: 1)
+        render json: @invoice
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
@@ -102,6 +113,7 @@ module Api
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
+                                        :cancellation_reason_id,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])

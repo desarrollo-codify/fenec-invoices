@@ -16,8 +16,6 @@ Rails.application.routes.draw do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, shallow: true do
           resources :daily_codes, shallow: true
-          resources :invoices, shallow: true
-          post 'invoices/generate'
         end
         resources :products, shallow: true do
           post :homologate, on: :collection
@@ -29,7 +27,7 @@ Rails.application.routes.draw do
       resources :branch_offices, only: %i[show edit update destroy] do
         resources :daily_codes, shallow: true
         resources :contingencies, shallow: true
-        resources :invoices, shallow: true
+        resources :invoices, only: %i[index create]
         resources :point_of_sales, shallow: true
         post 'siat/pruebas'
         post 'siat/generate_cuis'
@@ -44,6 +42,7 @@ Rails.application.routes.draw do
         post 'siat/measurements'
         post 'siat/significative_events'
         post 'siat/pos_types'
+        post 'siat/cancellation_reasons'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
@@ -51,6 +50,10 @@ Rails.application.routes.draw do
       resources :document_types, only: %i[index]
       resources :payment_methods, only: %i[index]
       resources :significative_events, only: %i[index]
+      resources :cancellation_reasons, only: %i[index]
+      resources :invoices, only: %i[show update destroy] do
+        post :cancel, on: :member
+      end
 
       # siat controller
       post 'siat/bulk_products_update'
