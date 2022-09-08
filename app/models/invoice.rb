@@ -7,7 +7,8 @@ class Invoice < ApplicationRecord
   validates :municipality, presence: true, format: { with: VALID_NAME_REGEX }
   validates :number,
             uniqueness: { scope: :cufd_code,
-                          message: 'Ya existe este número de factura con el código único de facturación diaria.' }
+                          message: 'Ya existe este número de factura con el código único de facturación diaria.',
+                          unless: -> { number.blank? }}
   validates :cufd_code, presence: true
   validates :address, presence: true
   validates :date, presence: true
