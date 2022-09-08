@@ -20,18 +20,9 @@ module Api
         render json: @invoice, include: :invoice_details
       end
 
-      # POST /api/v1/invoices/invoices_id/cancel
-      def cancel
-        return render json: "La Factura ya fue anulada el #{@invoice.cancellation_date}" if @invoice.cancellation_date?
-
-        @invoice.update(cancellation_date: Datetime.now, cancellation_reason_id: invoice_params)
-
-        # send to siat
-        branch_office = @invoice.branch_office
-        daily_code = branch_office.daily_codes.last
-        cuis_code = branch_office.cuis_codes.last
-        client = Savon.client(
-          wsdl: ENV.fetch('send_siat'.to_s, nil),
+      def siat_client(wsdl_name)
+        Savon.client(
+          wsdl: ENV.fetch(wsdl_name.to_s, nil),
           headers: {
             'apikey' => ENV.fetch('api_key', nil),
             'SOAPAction' => ''
@@ -39,32 +30,6 @@ module Api
           namespace: ENV.fetch('siat_namespace', nil),
           convert_request_keys_to: :none
         )
-        body = {
-          SolicitudServicioAnulacionFactura: {
-            codigoAmbiente: 2,
-            codigoPuntoVenta: 0,
-            codigoSistema: ENV.fetch('system_code', nil),
-            codigoSucursal: branch_office.number,
-            nit: branch_office.company.nit.to_i,
-            codigoDocumentoSector: 1,
-            codigoEmision: 1,
-            codigoModalidad: 2,
-            cufd: daily_code.code,
-            cuis: cuis_code.code,
-            tipoFacturaDocumento: 1,
-            codigoMotivo: @invoice.cancellation_reason_id,
-            cuf: @invoice.cuf
-          }
-        }
-        response = client.call(:anulacion_factura, message: body)
-
-        if response.success?
-          data = response.to_array(:anulacion_factura_response, :respuesta_servicio_facturacion, :mensajes_list)
-          render json: data
-        else
-          @invoice.update(cancellation_date: nil, cancellation_reason_id: nil)
-          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
-        end
       end
 
       # POST /api/v1/invoices
@@ -86,7 +51,7 @@ module Api
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
-        @invoice.point_of_sale = nil
+        @invoice.point_of_sale = 0
         @invoice.cafc = nil # TODO: implement cafc
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal
@@ -108,7 +73,6 @@ module Api
 
         if @invoice.save
           process_pending_data(@invoice)
-
           SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
 
           render json: @invoice, include: :invoice_details, status: :created
@@ -131,6 +95,20 @@ module Api
         @invoice.destroy
       end
 
+      # POST /api/v1/invoices/1/cancel
+      def cancel
+        if @invoice.cancellation_date?
+          return render json: "La factura ya fue anulada el #{@invoice.cancellation_date}",
+                        status: :unprocessable_entity
+        end
+
+        CancelInvoiceJob.perform_later(@invoice)
+
+        # TODO: send cancellation_reason_id in body
+        @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: 1)
+        render json: @invoice
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
@@ -146,7 +124,8 @@ module Api
       def invoice_params
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
-                                        :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code, :cancellation_reason_id,
+                                        :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
+                                        :cancellation_reason_id,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])

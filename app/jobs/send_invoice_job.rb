@@ -9,7 +9,10 @@ class SendInvoiceJob < ApplicationJob
     @client = @company.clients.find_by(code: client_code)
     @xml = generate_xml(@invoice)
 
-    InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+    filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
+    File.write(filename, @xml)
+
+    # InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
     send_to_siat(@invoice)
   end
 
@@ -50,8 +53,10 @@ class SendInvoiceJob < ApplicationJob
         hashArchivo: file_hash(base64_file)
       }
     }
+
     response = client.call(:recepcion_factura, message: body)
-    puts response.to_array(:recepcion_factura_response)
+    data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    puts data
     # TODO: process all possible scenarios
   end
 
