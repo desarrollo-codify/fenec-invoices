@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_09_135255) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_09_214914) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -91,7 +91,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_09_135255) do
     t.integer "significative_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "reception_code_se"
+    t.string "event_reception_code"
     t.string "status"
     t.index ["branch_office_id"], name: "index_contingencies_on_branch_office_id"
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
