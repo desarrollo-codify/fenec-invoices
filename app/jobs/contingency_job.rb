@@ -36,7 +36,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 1,
+        codigoPuntoVenta: 0,
         codigoSistema: ENV.fetch('system_code', nil),
         nit: branch_office.company.nit.to_i,
         cuis: current_cuis,
@@ -51,11 +51,6 @@ class ContingencyJob < ApplicationJob
     }
 
     response = client.call(:registro_evento_significativo, message: body)
-    puts '************************'
-    puts '************************'
-    puts '************************'
-    puts '************************'
-    puts response
 
     if response.success?
       data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
@@ -97,10 +92,11 @@ class ContingencyJob < ApplicationJob
     )
     
     branch_office = contingency.branch_office
+    
     body = {
       SolicitudServicioRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 1,
+        codigoPuntoVenta: 0,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
@@ -109,6 +105,7 @@ class ContingencyJob < ApplicationJob
         codigoModalidad: 2,
         cufd: current_cufd,
         cuis: current_cuis,
+        cafc: '101993501D57D',
         tipoFacturaDocumento: 1,
         archivo: base64_file,
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
@@ -119,12 +116,6 @@ class ContingencyJob < ApplicationJob
     }
     
     response = client.call(:recepcion_paquete_factura, message: body)
-
-    puts '************************'
-    puts '************************'
-    puts '************************'
-    puts '************************'
-    puts response
 
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
@@ -154,7 +145,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 1,
+        codigoPuntoVenta: 0,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
@@ -168,12 +159,6 @@ class ContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
-
-    puts '************************'
-    puts '************************'
-    puts '************************'
-    puts '************************'
-    puts response
 
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
@@ -220,7 +205,7 @@ class ContingencyJob < ApplicationJob
 
           # card number
           xml.numeroTarjeta('xsi:nil' => true) unless invoice.card_number
-          xml.numeroTarjeta @invoice.card_number if invoice.card_number
+          xml.numeroTarjeta invoice.card_number if invoice.card_number
 
           xml.montoTotal invoice.total
           xml.montoTotalSujetoIva invoice.total # TODO: check for not IVA
@@ -236,7 +221,7 @@ class ContingencyJob < ApplicationJob
 
           # cafc
           xml.cafc('xsi:nil' => true) unless invoice.cafc
-          xml.cafc @invoice.cafc if invoice.cafc
+          xml.cafc invoice.cafc if invoice.cafc
 
           xml.leyenda invoice.legend
           xml.usuario invoice.user

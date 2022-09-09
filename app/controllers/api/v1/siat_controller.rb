@@ -37,7 +37,7 @@ module Api
           @invoice.control_code = daily_code.control_code
           @invoice.branch_office_number = @branch_office.number
           @invoice.address = @branch_office.address
-          @invoice.cafc = nil # TODO: implement cafc
+          @invoice.cafc = '101993501D57D' # TODO: implement cafc
           @invoice.document_sector_code = 1
           @invoice.total = @invoice.subtotal
           @invoice.cash_paid = @invoice.total # TODO: implement different payments
@@ -58,7 +58,7 @@ module Api
 
           if @invoice.save
             process_pending_data(@invoice)
-            SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code], i)
+            SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
           end
 
           puts ' '
@@ -130,7 +130,7 @@ module Api
         body = {
           SolicitudCuis: {
             codigoAmbiente: 2,
-            codigoPuntoVenta: 1,
+            codigoPuntoVenta: 0,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
@@ -172,7 +172,7 @@ module Api
         body = {
           SolicitudCufd: {
             codigoAmbiente: 2,
-            codigoPuntoVenta: 1,
+            codigoPuntoVenta: 0,
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
