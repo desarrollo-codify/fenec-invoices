@@ -39,7 +39,7 @@ module Api
         @invoice.phone = @branch_office.phone
         # TODO: add some scope for getting the current daily code number
         # it might not be the last one
-        daily_code = @branch_office.daily_codes.last
+        daily_code = @branch_office.daily_codes.current
         @invoice.cufd_code = daily_code.code
         @invoice.date = DateTime.now
         @invoice.control_code = daily_code.control_code
@@ -153,7 +153,7 @@ module Api
       def invoice_number
         # TODO: add some scope for getting the current cuis code
         # it might not be the last one
-        cuis_code = @branch_office.cuis_codes.last
+        cuis_code = @branch_office.cuis_codes.current
         current_number = cuis_code.current_number
         cuis_code.increment!
         current_number

@@ -5,8 +5,11 @@ class DailyCode < ApplicationRecord
   validates :effective_date, presence: true, uniqueness: { scope: :branch_office_id,
                                                            message: 'Solo puede ser un codigo diario por sucursal.' }
   validate :date_cannot_be_lower_than_last_one
+  validates :end_date, presence: true
 
   belongs_to :branch_office
+
+  scope :current, -> { where('end_date >= ?', DateTime.now).last }
 
   private
 

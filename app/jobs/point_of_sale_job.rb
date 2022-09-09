@@ -26,7 +26,7 @@ class PointOfSaleJob < ApplicationJob
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         codigoTipoPuntoVenta: 2,
-        cuis: branch_office.cuis_codes.last.code,
+        cuis: branch_office.cuis_codes.current.code,
         descripcion: point_of_sale.description,
         nombrePuntoVenta: point_of_sale.name,
         nit: branch_office.company.nit.to_i

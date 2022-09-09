@@ -187,7 +187,8 @@ module Api
 
           code = data[:codigo]
           control_code = data[:codigo_control]
-          @branch_office.add_daily_code!(code, control_code, Date.today)
+          end_date = data[:fecha_vigencia]
+          @branch_office.add_daily_code!(code, control_code, Date.today, end_date)
 
           render json: data
         else
@@ -196,7 +197,7 @@ module Api
       end
 
       def show_cufd
-        @daily_code = @branch_office.daily_codes.last
+        @daily_code = @branch_office.daily_codes.current
         if @daily_code
           render json: @daily_code.code
         else
@@ -514,7 +515,7 @@ module Api
       end
 
       def set_cuis_code
-        @cuis_code = @branch_office.cuis_codes.last
+        @cuis_code = @branch_office.cuis_codes.current
       end
     end
     # rubocop:enable Metrics/ClassLength
