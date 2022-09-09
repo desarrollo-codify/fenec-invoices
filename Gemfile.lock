@@ -119,7 +119,6 @@ GEM
     gyoku (1.4.0)
       builder (>= 2.1.2)
       rexml (~> 3.0)
-    gzipped_tar (0.1.2)
     httpi (2.5.0)
       rack
       socksify
@@ -295,7 +294,6 @@ DEPENDENCIES
   dotenv-rails
   factory_bot_rails
   faker
-  gzipped_tar (~> 0.1.2)
   letter_opener (~> 1.4, >= 1.4.1)
   nokogiri (~> 1.6, >= 1.6.8)
   puma (~> 5.0)
