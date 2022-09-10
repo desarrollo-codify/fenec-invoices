@@ -31,10 +31,10 @@ module Api
         @invoice.company_nit = @branch_office.company.nit
         @invoice.municipality = @branch_office.city
         @invoice.phone = @branch_office.phone
-        # TODO: add some scope for getting the current daily code number
-        # it might not be the last one
+        
         daily_code = @branch_office.daily_codes.current
         @invoice.cufd_code = daily_code.code
+        
         @invoice.date = DateTime.now
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
@@ -146,36 +146,10 @@ module Api
       end
 
       def invoice_number
-        # TODO: add some scope for getting the current cuis code
-        # it might not be the last one
         cuis_code = @branch_office.cuis_codes.current
         current_number = cuis_code.current_number
         cuis_code.increment!
         current_number
-      end
-
-      # TODO: refactor module_eleven and hex_base, move them to a calculator class
-      def module_eleven(code, limit)
-        sum = 0
-        multiplier = 2
-        code.reverse.each_char.with_index do |character, _i|
-          sum += multiplier * character.to_i
-          multiplier += 1
-          multiplier = 2 if multiplier > limit
-        end
-        digit = sum % 11
-        last_char = digit == 10 ? '1' : digit.to_s
-        code + last_char
-      end
-
-      def hex_base(value)
-        value.to_s(16)
-      end
-
-      def qr_content(nit, cuf, number, page_size)
-        base_url = ENV.fetch('siat_url', nil)
-        params = { nit: nit, cuf: cuf, numero: number, t: page_size }
-        "#{base_url}?#{params.to_param}"
       end
     end
   end
