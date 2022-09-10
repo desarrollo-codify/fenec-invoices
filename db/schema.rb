@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_08_205023) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_09_135255) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -34,7 +34,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_08_205023) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.integer "blob_id", null: false
+    t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -85,11 +85,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_08_205023) do
   create_table "contingencies", force: :cascade do |t|
     t.datetime "start_date", null: false
     t.datetime "end_date"
+    t.string "reception_code"
+    t.string "cufd_code"
     t.integer "branch_office_id", null: false
     t.integer "significative_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "reception_code"
+    t.string "reception_code_se"
+    t.string "status"
     t.index ["branch_office_id"], name: "index_contingencies_on_branch_office_id"
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
@@ -197,7 +200,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_08_205023) do
     t.decimal "gift_card_total"
     t.decimal "discount"
     t.integer "exception_code"
-    t.integer "cafc"
+    t.string "cafc"
     t.integer "currency_code", null: false
     t.decimal "exchange_rate", null: false
     t.decimal "currency_total", null: false
@@ -217,6 +220,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_08_205023) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "send_at"
+    t.string "sent_at"
     t.integer "cancellation_reason_id"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
     t.index ["cancellation_reason_id"], name: "index_invoices_on_cancellation_reason_id"

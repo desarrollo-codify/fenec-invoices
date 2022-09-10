@@ -13,4 +13,5 @@ BranchOffice.create(name: 'CASA MATRIZ', number: 0, city: 'Santa Cruz', company:
 Product.create(primary_code: '123', description: 'Algo bonito', company: company, sin_code: 83141)
 InvoiceStatus.create(description: 'VIGENTE')
 InvoiceStatus.create(description: 'ANULADA')
-Client.create(code: '055', name: 'Codify', nit: '401238026', email: 'test@example.com', company: company)
+Client.create(code: '055', name: 'Carlos', nit: '401238026', email: 'carlos.gutierrez@codify.com', company: company)
+MailSetting.create(address: 'codify.com.bo', port: 465, domain: 'codify.com.bo', user_name: 'carlos.gutierrez@codify.com.bo', password: 'Revocatongo33.', company: company)

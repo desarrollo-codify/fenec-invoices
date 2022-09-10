@@ -25,4 +25,8 @@ class BranchOffice < ApplicationRecord
       daily_codes.create(code: code, control_code: control_code, effective_date: effective_date, end_date: end_date)
     end
   end
+
+  def create_contingency
+    contingencies.create(start_date: DateTime.now, significative_event_id: 2)
+  end
 end

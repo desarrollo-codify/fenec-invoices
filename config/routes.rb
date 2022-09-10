@@ -14,9 +14,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :companies do
         resources :delegated_tokens, shallow: true
-        resources :branch_offices, shallow: true do
-          resources :daily_codes, shallow: true
-        end
+        resources :branch_offices, only: %i[index create]
         resources :products, shallow: true do
           post :homologate, on: :collection
         end
@@ -24,10 +22,14 @@ Rails.application.routes.draw do
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
       end
-      resources :branch_offices, only: %i[show edit update destroy] do
+      resources :branch_offices, only: %i[show update destroy] do
         resources :daily_codes, shallow: true
-        resources :contingencies, shallow: true
-        resources :invoices, only: %i[index create]
+        resources :contingencies, shallow: true do
+          post :close, on: :member
+        end
+        resources :invoices, only: %i[index create] do
+          get :pending, on: :collection
+        end
         resources :point_of_sales, shallow: true
         post 'siat/pruebas'
         post 'siat/generate_cuis'
@@ -57,6 +59,7 @@ Rails.application.routes.draw do
 
       # siat controller
       post 'siat/bulk_products_update'
+      post 'siat/verify_communication'
     end
   end
 end

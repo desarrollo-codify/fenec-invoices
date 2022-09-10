@@ -4,7 +4,7 @@ module Api
   module V1
     class InvoicesController < ApplicationController
       before_action :set_invoice, only: %i[show update destroy cancel]
-      before_action :set_branch_office, only: %i[index create generate]
+      before_action :set_branch_office, only: %i[index create generate pending]
 
       Time.zone = 'La Paz'
 
@@ -13,6 +13,12 @@ module Api
         @invoices = @branch_office.invoices # or company?
 
         render json: @invoices
+      end
+
+      def pending
+        @pending_invoices = @branch_office.invoices.for_sending
+
+        render json: @pending_invoices
       end
 
       # GET /api/v1/invoices/1
@@ -39,8 +45,7 @@ module Api
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
-        @invoice.point_of_sale = 0
-        @invoice.cafc = nil # TODO: implement cafc
+        @invoice.cafc = '101993501D57D' # TODO: implement cafc
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal
         @invoice.cash_paid = @invoice.total # TODO: implement different payments
@@ -113,7 +118,7 @@ module Api
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
-                                        :cancellation_reason_id,
+                                        :cancellation_reason_id, :point_of_sale,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])

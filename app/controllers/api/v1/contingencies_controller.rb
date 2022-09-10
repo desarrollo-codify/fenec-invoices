@@ -3,7 +3,7 @@
 module Api
   module V1
     class ContingenciesController < ApplicationController
-      before_action :set_contingency, only: %i[show update destroy]
+      before_action :set_contingency, only: %i[show close update destroy]
       before_action :set_branch_office, only: %i[index create]
       # GET /api/v1/contingencies
       def index
@@ -22,6 +22,18 @@ module Api
         @contingency = @branch_office.contingencies.build(contingency_params)
 
         if @contingency.save
+          render json: @contingency, status: :created
+        else
+          render json: @contingency.errors, status: :unprocessable_entity
+        end
+      end
+
+      # POST api/v1/contingencies/:contingency_id/close
+      def close
+        @contingency.close!
+
+        if @contingency.save
+          ContingencyJob.perform_later(@contingency)
           render json: @contingency, status: :created
         else
           render json: @contingency.errors, status: :unprocessable_entity

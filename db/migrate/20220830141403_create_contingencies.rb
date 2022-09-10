@@ -5,6 +5,8 @@ class CreateContingencies < ActiveRecord::Migration[7.0]
     create_table :contingencies do |t|
       t.datetime :start_date, null: false
       t.datetime :end_date
+      t.string :reception_code
+      t.string :cufd_code
       t.references :branch_office, null: false, foreign_key: true
       t.references :significative_event, null: false, foreign_key: true
 

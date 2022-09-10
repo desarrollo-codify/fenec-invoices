@@ -1,83 +1,7 @@
 # frozen_string_literal: true
 
-class SendInvoiceJob < ApplicationJob
-  queue_as :default
-
-  def perform(invoice, client_code)
-    @invoice = invoice
-    @company = invoice.branch_office.company
-    @client = @company.clients.find_by(code: client_code)
-    generate_xml(@invoice)
-
-    InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
-    if siat_available
-      # TODO: if Contingency? ContingencyJob
-      @invoice.update(sent_at: DateTime.now)
-      send_to_siat(@invoice)
-    else
-      create_contingency(@invoice) unless @invoice.branch_office.contingencies.pending.any?
-    end
-  end
-
-  def send_to_siat(invoice)
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices', nil),
-      headers: {
-        'apikey' => ENV.fetch('api_key', nil),
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
-
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
-    zipped_filename = "#{filename}.gz"
-
-    Zlib::GzipWriter.open(zipped_filename) do |gz|
-      gz.write File.binread(filename)
-    end
-
-    base64_file = generate_gzip_file(invoice)
-    body = {
-      SolicitudServicioRecepcionFactura: {
-        codigoAmbiente: 2,
-        codigoPuntoVenta: invoice.point_of_sale,
-        codigoSistema: ENV.fetch('system_code', nil),
-        codigoSucursal: invoice.branch_office.number,
-        nit: invoice.branch_office.company.nit.to_i,
-        codigoDocumentoSector: 1,
-        codigoEmision: 1,
-        codigoModalidad: 2,
-        cufd: invoice.cufd_code,
-        cuis: invoice.branch_office.cuis_codes.current.code,
-        tipoFacturaDocumento: 1,
-        archivo: base64_file,
-        fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
-        hashArchivo: file_hash(base64_file)
-      }
-    }
-
-    response = client.call(:recepcion_factura, message: body)
-    data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-    puts data
-    # TODO: process all possible scenarios
-  end
-
-  def generate_gzip_file(invoice)
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
-    zipped_filename = "#{filename}.gz"
-
-    Zlib::GzipWriter.open(zipped_filename) do |gz|
-      gz.write File.binread(filename)
-    end
-    Base64.strict_encode64(File.binread(zipped_filename))
-  end
-
-  def file_hash(file)
-    Digest::SHA2.hexdigest(file)
-  end
-
-  def generate_xml(invoice)
+class InvoiceXml
+  def self.generate(invoice)
     header = Nokogiri::XML('<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>')
     builder = Nokogiri::XML::Builder.with(header) do |xml|
       xml.facturaComputarizadaCompraVenta('xsi:noNamespaceSchemaLocation' => '/compraVenta/facturaComputarizadaCompraVenta.xsd',
@@ -127,7 +51,7 @@ class SendInvoiceJob < ApplicationJob
 
           # cafc
           xml.cafc('xsi:nil' => true) unless invoice.cafc
-          xml.cafc invoice.cafc if invoice.cafc
+          xml.cafc @invoice.cafc if invoice.cafc
 
           xml.leyenda invoice.legend
           xml.usuario invoice.user
@@ -160,32 +84,6 @@ class SendInvoiceJob < ApplicationJob
       end
     end
 
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
-    File.write(filename, builder.to_xml)
-  end
-
-  def create_contingency(invoice)
-    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 7)
-  end
-
-  def siat_available
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
-      headers: {
-        'apikey' => ENV.fetch('api_key', nil),
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
-
-    response = client.call(:verificar_comunicacion)
-    if response.success?
-      data = response.to_array(:verificar_comunicacion_response).first
-      data = data[:return]
-    else
-      data = { return: 'Communication error' }
-    end
-    data == '926'
+    builder.to_xml
   end
 end
