@@ -37,8 +37,8 @@ module Api
           @invoice.control_code = daily_code.control_code
           @invoice.branch_office_number = @branch_office.number
           @invoice.address = @branch_office.address
-          @invoice.cafc = '101993501D57D' # TODO: implement cafc
-          @invoice.document_sector_code = 1
+          @invoice.cafc = nil, # '101993501D57D' # TODO: implement cafc
+                          @invoice.document_sector_code = 1
           @invoice.total = @invoice.subtotal
           @invoice.cash_paid = @invoice.total # TODO: implement different payments
           @invoice.invoice_status_id = 1
