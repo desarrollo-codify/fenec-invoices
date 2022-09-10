@@ -108,7 +108,7 @@ class ContingencyJob < ApplicationJob
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
         hashArchivo: hash,
         cantidadFacturas: invoices.count,
-        codigoEvento: contingency.reception_code_se
+        codigoEvento: contingency.event_reception_code
       }
     }
 
