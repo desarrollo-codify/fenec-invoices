@@ -15,7 +15,7 @@ class SendInvoiceJob < ApplicationJob
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
     else
-      create_contingency(@invoice) unless @invoice.branch_office.contingencies.pending.any? 
+      create_contingency(@invoice) unless @invoice.branch_office.contingencies.pending.any?
     end
   end
 

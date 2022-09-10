@@ -8,7 +8,7 @@ class ContingencyJob < ApplicationJob
     current_cufd = contingency.branch_office.daily_codes.last.code
     invoices = contingency.branch_office.invoices
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
-    
+
     return if pending_invoices.empty?
 
     event_cufd = pending_invoices.first.cufd_code
@@ -52,15 +52,12 @@ class ContingencyJob < ApplicationJob
 
     response = client.call(:registro_evento_significativo, message: body)
 
-    if response.success?
-      data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
-      
-      code = data[:codigo_recepcion_evento_significativo]
-      contingency.update(reception_code_se: code)
-      
-    else
-      data = 'Communication error'
-    end
+    return unless response.success?
+
+    data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
+
+    code = data[:codigo_recepcion_evento_significativo]
+    contingency.update(reception_code_se: code)
   end
 
   def send_package(invoices, contingency, current_cuis, current_cufd)
@@ -75,12 +72,12 @@ class ContingencyJob < ApplicationJob
     zipped_filename = "#{tar}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
-      gz.write IO.binread(tar)
+      gz.write File.binread(tar)
     end
 
     base64_file = Base64.strict_encode64(File.binread(zipped_filename))
     hash = Digest::SHA2.hexdigest(base64_file)
-    
+
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
@@ -90,9 +87,9 @@ class ContingencyJob < ApplicationJob
       namespace: ENV.fetch('siat_namespace', nil),
       convert_request_keys_to: :none
     )
-    
+
     branch_office = contingency.branch_office
-    
+
     body = {
       SolicitudServicioRecepcionPaquete: {
         codigoAmbiente: 2,
@@ -114,15 +111,15 @@ class ContingencyJob < ApplicationJob
         codigoEvento: contingency.reception_code_se
       }
     }
-    
+
     response = client.call(:recepcion_paquete_factura, message: body)
 
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
-      
+
       code = data[:codigo_recepcion]
-      contingency.update(reception_code: code)  
-       
+      contingency.update(reception_code: code)
+
     else
       render json: 'La solicitud a SIAT obtuvo un error.'
     end
@@ -163,9 +160,9 @@ class ContingencyJob < ApplicationJob
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       description = data[:codigo_descripcion]
-      contingency.update(status: description) 
+      contingency.update(status: description)
     else
-      data = { return: 'communication error' }
+      'Communication error'
     end
   end
 
@@ -260,12 +257,10 @@ class ContingencyJob < ApplicationJob
   BLOCKSIZE_TO_READ = 1024 * 1000
 
   def create_tar(path)
-    
     tar_filename = "#{Pathname.new(path).realpath.to_path}.tar"
 
     File.open(tar_filename, 'wb') do |tarfile|
       Gem::Package::TarWriter.new(tarfile) do |tar|
-        
         Dir[File.join(path, '*')].each do |file|
           mode = File.stat(file).mode
           relative_file = file.sub(%r{^#{Regexp.escape(path)}/?}, '')

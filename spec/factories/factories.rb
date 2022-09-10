@@ -34,9 +34,9 @@ FactoryBot.define do
 
   factory :daily_code do
     code { 'ABC' }
-    effective_date { '2022-01-01' }
+    effective_date { Date.today }
     control_code { '123abc' }
-    end_date { '2022-01-01' }
+    end_date { DateTime.now + 1.hour }
     branch_office factory: :branch_office
   end
 
@@ -51,7 +51,7 @@ FactoryBot.define do
       default_values { false }
     end
     code { 'ABC' }
-    expiration_date { '2022-01-01' }
+    expiration_date { DateTime.now + 1.hour }
     branch_office factory: :branch_office
 
     after(:build) do |cuis_code, evaluator|
