@@ -57,7 +57,7 @@ class ContingencyJob < ApplicationJob
     data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
 
     code = data[:codigo_recepcion_evento_significativo]
-    contingency.update(reception_code_se: code)
+    contingency.update(event_reception_code: code)
   end
 
   def send_package(invoices, contingency, current_cuis, current_cufd)

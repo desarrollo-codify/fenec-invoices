@@ -37,10 +37,10 @@ module Api
         @invoice.company_nit = @branch_office.company.nit
         @invoice.municipality = @branch_office.city
         @invoice.phone = @branch_office.phone
-        
+
         daily_code = @branch_office.daily_codes.current
         @invoice.cufd_code = daily_code.code
-        
+
         @invoice.date = DateTime.now
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
