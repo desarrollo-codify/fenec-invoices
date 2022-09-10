@@ -52,15 +52,12 @@ class ContingencyJob < ApplicationJob
 
     response = client.call(:registro_evento_significativo, message: body)
 
-    if response.success?
-      data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
+    return unless response.success?
 
-      code = data[:codigo_recepcion_evento_significativo]
-      contingency.update(event_reception_code: code)
+    data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
 
-    else
-      data = 'Communication error'
-    end
+    code = data[:codigo_recepcion_evento_significativo]
+    contingency.update(reception_code_se: code)
   end
 
   def send_package(invoices, contingency, current_cuis, current_cufd)
@@ -165,7 +162,7 @@ class ContingencyJob < ApplicationJob
       description = data[:codigo_descripcion]
       contingency.update(status: description)
     else
-      data = { return: 'communication error' }
+      'Communication error'
     end
   end
 

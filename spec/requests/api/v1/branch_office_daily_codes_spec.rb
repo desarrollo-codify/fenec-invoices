@@ -7,7 +7,8 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/daily_codes', type: :re
     {
       code: '123',
       effective_date: '2022-01-01',
-      control_code: '123'
+      control_code: '123',
+      end_date: '2022-01-01'
     }
   end
 
@@ -15,7 +16,8 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/daily_codes', type: :re
     {
       code: nil,
       effective_date: nil,
-      control_code: nil
+      control_code: nil,
+      end_date: nil
     }
   end
 
