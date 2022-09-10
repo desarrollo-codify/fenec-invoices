@@ -10,7 +10,8 @@
 
 company = Company.create(name: 'Codify', nit: '401238026', phone: '123', address: 'En algun lugar por ahi')
 BranchOffice.create(name: 'CASA MATRIZ', number: 0, city: 'Santa Cruz', company: company, address: 'por ahi', phone: '123')
-Product.create(primary_code: '123', description: 'Algo bonito', company: company)
+Product.create(primary_code: '123', description: 'Algo bonito', company: company, sin_code: 83141)
 InvoiceStatus.create(description: 'VIGENTE')
 InvoiceStatus.create(description: 'ANULADA')
-Client.create(code: '055', name: 'Codify', nit: '401238026', email: 'test@example.com')
+Client.create(code: '055', name: 'Carlos', nit: '401238026', email: 'carlos.gutierrez@codify.com', company: company)
+MailSetting.create(address: 'codify.com.bo', port: 465, domain: 'codify.com.bo', user_name: 'carlos.gutierrez@codify.com.bo', password: 'Revocatongo33.', company: company)

@@ -1,18 +1,34 @@
 # frozen_string_literal: true
 
 class Invoice < ApplicationRecord
-  validates :business_name, presence: true, format: { with: VALID_NAME_REGEX }
-  validates :company_name, format: { with: VALID_NAME_REGEX }
-  validates :date, presence: true
-  validates :business_nit, presence: true,
-                           numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
+  validates :company_nit, presence: true,
+                          numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
+  validates :company_name, presence: true, format: { with: VALID_NAME_REGEX }
+  validates :municipality, presence: true, format: { with: VALID_NAME_REGEX }
   validates :number,
             uniqueness: { scope: :cufd_code,
-                          message: 'Ya existe este número de factura con el código único de facturación diaria.' }
-  validates :subtotal, presence: true,
-                       numericality: { message: 'El subtotal debe ser un valor numérico.' }
+                          message: 'Ya existe este número de factura con el código único de facturación diaria.',
+                          unless: -> { number.blank? } }
+  validates :cufd_code, presence: true
+  validates :address, presence: true
+  validates :date, presence: true
+  validates :business_name, presence: true, format: { with: VALID_NAME_REGEX }
+  validates :document_type, presence: true
+  validates :business_nit, presence: true,
+                           numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
+  validates :client_code, presence: true
+  validates :payment_method, presence: true
   validates :total, presence: true,
                     numericality: { message: 'El total debe ser un valor numérico.' }
+  validates :currency_code, presence: true
+  validates :exchange_rate, presence: true
+  validates :currency_total, presence: true
+  validates :legend, presence: true
+  validates :user, presence: true
+  validates :document_sector_code, presence: true
+
+  validates :subtotal, presence: true,
+                       numericality: { message: 'El subtotal debe ser un valor numérico.' }
   validate :discount_cannot_be_greater_than_subtotal
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total
@@ -20,7 +36,11 @@ class Invoice < ApplicationRecord
   belongs_to :branch_office
   belongs_to :invoice_status
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
+  has_one :cancellation_reason
   accepts_nested_attributes_for :invoice_details, reject_if: :all_blank
+
+  scope :for_sending, -> { where(sent_at: nil) }
+  scope :by_cufd, ->(cufd) { for_sending.where(cufd_code: cufd) }
 
   after_initialize :default_values
 

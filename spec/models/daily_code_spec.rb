@@ -29,6 +29,18 @@ RSpec.describe DailyCode, type: :model do
     end
   end
 
+  describe 'end_date attribute' do
+    it { validate_presence_of(:end_date) }
+
+    context 'with nil or empty value' do
+      let(:daily_code) { build(:daily_code, end_date: nil) }
+
+      it 'is invalid' do
+        expect(daily_code).to_not be_valid
+      end
+    end
+  end
+
   describe 'efective_date attribute' do
     it { validate_presence_of(:effective_date) }
 
