@@ -11,13 +11,19 @@ module Api
       def index
         @companies = Company.all
 
-        render json: @companies
+        render json: @companies.map { |company|
+                       company.as_json.merge(
+                         logo: url_for(company.logo)
+                       )
+                     }
       end
 
       # GET /companies/1
       def show
-        render json: @company.as_json.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
-        render json: @company unless @company.logo&.attached?
+        result = @company.as_json(except: [:created_at, :updated_at], include: {economic_activities: {except: [:created_at, :updated_at, :company_id]}})
+
+        result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
+        render json: result
       end
 
       # POST /companies
