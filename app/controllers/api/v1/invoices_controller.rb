@@ -48,12 +48,9 @@ module Api
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         contingency = @branch_office.contingencies.pending.last
-        if contingency && params[:is_manual].present?
-          @invoice.cafc = contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
-          debugger
-        else
-          @invoice.cafc = nil
-        end
+        @invoice.cafc = if contingency && params[:is_manual].present?
+                          contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
+                        end
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal
         @invoice.cash_paid = @invoice.total # TODO: implement different payments

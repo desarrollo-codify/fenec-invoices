@@ -168,7 +168,7 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def create_contingency(invoice)
-    contingency = @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 1)
+    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 1)
   end
 
   def siat_available
