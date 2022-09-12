@@ -130,7 +130,7 @@ module Api
         body = {
           SolicitudCuis: {
             codigoAmbiente: 2,
-            codigoPuntoVenta: 0,
+            codigoPuntoVenta: params[:point_of_sale],
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
@@ -145,7 +145,7 @@ module Api
           code = data[:codigo]
           expiration_date = data[:fecha_vigencia]
 
-          @branch_office.add_cuis_code!(code, expiration_date)
+          @branch_office.add_cuis_code!(code, expiration_date, params[:point_of_sale])
 
           render json: data
         else
@@ -172,7 +172,7 @@ module Api
         body = {
           SolicitudCufd: {
             codigoAmbiente: 2,
-            codigoPuntoVenta: 0,
+            codigoPuntoVenta: params[:point_of_sale],
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
@@ -188,7 +188,7 @@ module Api
           code = data[:codigo]
           control_code = data[:codigo_control]
           end_date = data[:fecha_vigencia]
-          @branch_office.add_daily_code!(code, control_code, Date.today, end_date)
+          @branch_office.add_daily_code!(code, control_code, Date.today, end_date, params[:point_of_sale])
 
           render json: data
         else
@@ -774,7 +774,7 @@ module Api
       end
 
       def set_cuis_code
-        @cuis_code = @branch_office.cuis_codes.current
+        @cuis_code = @branch_office.cuis_codes.where('point_of_sale = ?', params[:point_of_sale]).current
       end
     end
     # rubocop:enable Metrics/ClassLength

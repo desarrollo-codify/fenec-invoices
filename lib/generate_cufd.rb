@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GenerateCufd
-  def self.generate(branch_office)
+  def self.generate(branch_office, invoice)
     cuis_code = branch_office.cuis_codes.current.code
 
     client = Savon.client(
@@ -16,7 +16,7 @@ class GenerateCufd
     body = {
       SolicitudCufd: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: invoice.last.point_of_sale,
         codigoSistema: ENV.fetch('system_code', nil),
         nit: branch_office.company.nit.to_i,
         codigoModalidad: 2,
@@ -33,6 +33,7 @@ class GenerateCufd
     code = data[:codigo]
     control_code = data[:codigo_control]
     end_date = data[:fecha_vigencia]
-    branch_office.add_daily_code!(code, control_code, Date.today, end_date)
+    point_of_sale = invoice.last.point_of_sale
+    branch_office.add_daily_code!(code, control_code, Date.today, end_date, point_of_sale)
   end
 end

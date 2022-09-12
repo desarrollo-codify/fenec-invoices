@@ -193,7 +193,7 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def close_contingencies(branch_office, invoice)
-    GenerateCufd.generate(branch_office)
+    GenerateCufd.generate(branch_office, invoice)
     @contingency = invoice.branch_office.contingencies.pending.last
     @contingency.close!
     ContingencyJob.perform_now(@contingency)
