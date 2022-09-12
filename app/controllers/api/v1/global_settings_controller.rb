@@ -14,4 +14,9 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @countries = Country.all
     render json: @countries
   end
+
+  def document_types
+    @document_types = DocumentType.all
+    render json: @document_types
+  end
 end
