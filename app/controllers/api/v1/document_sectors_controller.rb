@@ -6,7 +6,7 @@ module Api
       before_action :set_economic_activity
 
       def index
-        @document_sectors = @economic_activity.document_sectors.all
+        @document_sectors = @economic_activity.document_sectors.all.order(:code)
 
         render json: @document_sectors
       end
