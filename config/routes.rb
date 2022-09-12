@@ -42,15 +42,20 @@ Rails.application.routes.draw do
         post 'siat/payment_methods'
         post 'siat/legends'
         post 'siat/measurements'
+        post 'siat/significative_events'
         post 'siat/pos_types'
         post 'siat/countries'
         post 'siat/issuance_types'
         post 'siat/room_types'
         post 'siat/currency_types'
         post 'siat/invoice_types'
+        post 'siat/cancellation_reasons'
+        post 'siat/document_sectors'
+
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
+        resources :document_sectors, only: %i[index]
       end
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member

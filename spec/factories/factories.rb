@@ -189,4 +189,10 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
   end
+
+  factory :document_sector do
+    code { '12345' }
+    description { 'Abc' }
+    economic_activity factory: :economic_activity
+  end
 end

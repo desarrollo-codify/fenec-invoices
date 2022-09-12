@@ -143,6 +143,16 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_140804) do
     t.index ["company_id"], name: "index_delegated_tokens_on_company_id"
   end
 
+  create_table "document_sectors", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.integer "economic_activity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["economic_activity_id", "code"], name: "index_document_sectors_on_economic_activity_id_and_code", unique: true
+    t.index ["economic_activity_id"], name: "index_document_sectors_on_economic_activity_id"
+  end
+
   create_table "document_types", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -375,6 +385,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_140804) do
   add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"
+  add_foreign_key "document_sectors", "economic_activities"
   add_foreign_key "economic_activities", "companies"
   add_foreign_key "invoice_details", "invoices"
   add_foreign_key "invoice_details", "measurements"
