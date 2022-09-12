@@ -119,7 +119,6 @@ class ContingencyJob < ApplicationJob
 
       code = data[:codigo_recepcion]
       contingency.update(reception_code: code)
-      debugger
     else
       render json: 'La solicitud a SIAT obtuvo un error.'
     end
