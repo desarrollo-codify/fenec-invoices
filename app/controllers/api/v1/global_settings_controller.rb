@@ -54,4 +54,9 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @measurement_types = Measurement.all
     render json: @measurement_types
   end
+
+  def service_messages
+    @service_messages = ServiceMessage.all
+    render json: @service_messages
+  end
 end

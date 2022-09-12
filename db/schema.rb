@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_12_140804) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_12_143639) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -348,6 +348,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_140804) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_room_types_on_code", unique: true
+  end
+
+  create_table "service_messages", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_service_messages_on_code", unique: true
   end
 
   create_table "significative_events", force: :cascade do |t|

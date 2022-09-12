@@ -693,6 +693,37 @@ module Api
         end
       end
 
+      def service_messages
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_lista_mensajes_servicios, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_lista_mensajes_servicios_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          types = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          ServiceMessage.bulk_load(types)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
       private
 
       def set_branch_office
