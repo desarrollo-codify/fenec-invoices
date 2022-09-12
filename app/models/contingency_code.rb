@@ -1,7 +1,7 @@
 class ContingencyCode < ApplicationRecord
   validates :code, presence: true , uniqueness: true
   validates :document_sector_code, presence: true, numericality: { 
-                                    message: 'El Codigo de documto Sector debe ser un valor numérico.' }
+                                    message: 'El Codigo de documento Sector debe ser un valor numérico.' }
   validates :limit, presence: true, numericality: { 
                                     message: 'El limite debe ser un valor numérico.' }
   validates :current_use, presence: true, numericality: { 

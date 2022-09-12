@@ -61,7 +61,7 @@ RSpec.describe ContingencyCode, type: :model do
 
         it 'is invalid' do
           expect(contingency_code).to_not be_valid
-          expect(contingency_code.errors[:document_sector_code]).to eq(['El Codigo de documto Sector debe ser un valor numérico.'])
+          expect(contingency_code.errors[:document_sector_code]).to eq(['El Codigo de documento Sector debe ser un valor numérico.'])
         end
       end
     end

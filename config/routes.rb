@@ -12,6 +12,11 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      get 'contingency_codes/index'
+      get 'contingency_codes/show'
+      get 'contingency_codes/create'
+      get 'contingency_codes/update'
+      get 'contingency_codes/destroy'
       resources :companies do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
