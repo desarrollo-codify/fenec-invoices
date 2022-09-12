@@ -102,7 +102,7 @@ class ContingencyJob < ApplicationJob
         codigoModalidad: 2,
         cufd: current_cufd,
         cuis: current_cuis,
-        cafc: '101993501D57D',
+        cafc: nil, # '101993501D57D',
         tipoFacturaDocumento: 1,
         archivo: base64_file,
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
@@ -119,7 +119,6 @@ class ContingencyJob < ApplicationJob
 
       code = data[:codigo_recepcion]
       contingency.update(reception_code: code)
-
     else
       render json: 'La solicitud a SIAT obtuvo un error.'
     end
