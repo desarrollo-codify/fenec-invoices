@@ -24,4 +24,9 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @issuance_types = IssuanceType.all
     render json: @issuance_types
   end
+
+  def room_types
+    @room_types = RoomType.all
+    render json: @room_types
+  end
 end
