@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_12_133400) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_12_135320) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -112,6 +112,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_133400) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["branch_office_id"], name: "index_cuis_codes_on_branch_office_id"
+  end
+
+  create_table "currency_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_currency_types_on_code", unique: true
   end
 
   create_table "daily_codes", force: :cascade do |t|

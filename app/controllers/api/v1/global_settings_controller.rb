@@ -29,4 +29,14 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @room_types = RoomType.all
     render json: @room_types
   end
+
+  def payment_methods
+    @payment_methods = PaymentMethod.all
+    render json: @payment_methods
+  end
+
+  def currency_types
+    @currency_types = CurrencyType.all
+    render json: @currency_types
+  end
 end
