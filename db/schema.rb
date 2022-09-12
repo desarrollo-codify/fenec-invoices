@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -97,16 +97,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
 
-  create_table "contingency_codes", force: :cascade do |t|
-    t.string "code", null: false
-    t.integer "document_sector_code", null: false
-    t.integer "limit", null: false
-    t.integer "current_use", null: false
-    t.boolean "available", null: false
-    t.integer "economic_activity_id", null: false
+  create_table "countries", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["economic_activity_id"], name: "index_contingency_codes_on_economic_activity_id"
+    t.index ["code"], name: "index_countries_on_code", unique: true
   end
 
   create_table "cuis_codes", force: :cascade do |t|
@@ -117,6 +113,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["branch_office_id"], name: "index_cuis_codes_on_branch_office_id"
+  end
+
+  create_table "currency_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_currency_types_on_code", unique: true
   end
 
   create_table "daily_codes", force: :cascade do |t|
@@ -138,6 +142,24 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_delegated_tokens_on_company_id"
+  end
+
+  create_table "document_sector_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_document_sector_types_on_code", unique: true
+  end
+
+  create_table "document_sectors", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.integer "economic_activity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["economic_activity_id", "code"], name: "index_document_sectors_on_economic_activity_id_and_code", unique: true
+    t.index ["economic_activity_id"], name: "index_document_sectors_on_economic_activity_id"
   end
 
   create_table "document_types", force: :cascade do |t|
@@ -185,6 +207,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
     t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "invoice_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_invoice_types_on_code", unique: true
   end
 
   create_table "invoices", force: :cascade do |t|
@@ -237,6 +267,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
     t.index ["cancellation_reason_id"], name: "index_invoices_on_cancellation_reason_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
     t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true
+  end
+
+  create_table "issuance_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_issuance_types_on_code", unique: true
   end
 
   create_table "jwt_denylist", force: :cascade do |t|
@@ -312,6 +350,22 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
     t.index ["company_id"], name: "index_products_on_company_id"
   end
 
+  create_table "room_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_room_types_on_code", unique: true
+  end
+
+  create_table "service_messages", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_service_messages_on_code", unique: true
+  end
+
   create_table "significative_events", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -348,6 +402,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_10_190754) do
   add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"
+  add_foreign_key "document_sectors", "economic_activities"
   add_foreign_key "economic_activities", "companies"
   add_foreign_key "invoice_details", "invoices"
   add_foreign_key "invoice_details", "measurements"

@@ -6,6 +6,7 @@ class EconomicActivity < ApplicationRecord
 
   belongs_to :company
   has_many :legends, dependent: :destroy
+  has_many :document_sectors, dependent: :destroy
 
   def initialize(attributes = {})
     super(attributes)
@@ -13,6 +14,10 @@ class EconomicActivity < ApplicationRecord
 
   def bulk_load_legends(legends_list)
     legends.upsert_all(legends_list, unique_by: %i[economic_activity_id description])
+  end
+
+  def bulk_load_document_sectors(document_sectors_list)
+    document_sectors.upsert_all(document_sectors_list, unique_by: %i[economic_activity_id code])
   end
 
   def random_legend
