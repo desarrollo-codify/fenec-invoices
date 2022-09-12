@@ -200,7 +200,7 @@ FactoryBot.define do
     transient do
       default_values { false }
     end
-    
+
     code { '123abc' }
     document_sector_code { 1 }
     limit { 10 }

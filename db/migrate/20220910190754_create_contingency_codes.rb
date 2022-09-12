@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateContingencyCodes < ActiveRecord::Migration[7.0]
   def change
     create_table :contingency_codes do |t|

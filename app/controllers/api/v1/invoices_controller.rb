@@ -45,12 +45,19 @@ module Api
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
-        @invoice.cafc = nil # '101993501D57D' # TODO: implement cafc
+        activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
+        @economic_activity = @company.economic_activities.find_by(code: activity_code)
+        contingency = @branch_office.contingencies.pending.last
+        if contingency && params[:is_manual].present?
+          @invoice.cafc = contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
+          debugger
+        else
+          @invoice.cafc = nil
+        end
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal
         @invoice.cash_paid = @invoice.total # TODO: implement different payments
         @invoice.invoice_status_id = 1
-        activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
 
@@ -66,7 +73,7 @@ module Api
 
         if @invoice.save
           process_pending_data(@invoice)
-          SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
+          SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code]) unless params[:is_manual].present?
 
           render json: @invoice, include: :invoice_details, status: :created
         else

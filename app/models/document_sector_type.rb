@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DocumentSectorType < ApplicationRecord
   validates :code, presence: true, uniqueness: true
   validates :description, presence: true, format: { with: VALID_NAME_REGEX }

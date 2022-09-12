@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateInvoiceTypes < ActiveRecord::Migration[7.0]
   def change
     create_table :invoice_types do |t|

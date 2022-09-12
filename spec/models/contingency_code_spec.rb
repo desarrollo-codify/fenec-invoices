@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ContingencyCode, type: :model do
@@ -61,7 +63,9 @@ RSpec.describe ContingencyCode, type: :model do
 
         it 'is invalid' do
           expect(contingency_code).to_not be_valid
-          expect(contingency_code.errors[:document_sector_code]).to eq(['El Codigo de documento Sector debe ser un valor numérico.'])
+          expect(contingency_code.errors[:document_sector_code]).to eq(
+            ['El Codigo de documento Sector debe ser un valor numérico.']
+          )
         end
       end
     end
@@ -106,9 +110,8 @@ RSpec.describe ContingencyCode, type: :model do
         end
       end
     end
-    
-    context 'validates limit of current_use' do
 
+    context 'validates limit of current_use' do
       describe 'with current_use is less' do
         let(:contingency_code) { build(:contingency_code, default_values: true, current_use: 8) }
 
