@@ -41,7 +41,12 @@ class Api::V1::GlobalSettingsController < ApplicationController
   end
 
   def pos_types
-    @currency_types = PosType.all
-    render json: @currency_types
+    @pos_types = PosType.all
+    render json: @pos_types
+  end
+
+  def invoice_types
+    @invoice_types = InvoiceType.all
+    render json: @invoice_types
   end
 end

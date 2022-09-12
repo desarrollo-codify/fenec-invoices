@@ -47,6 +47,7 @@ Rails.application.routes.draw do
         post 'siat/issuance_types'
         post 'siat/room_types'
         post 'siat/currency_types'
+        post 'siat/invoice_types'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
@@ -68,6 +69,7 @@ Rails.application.routes.draw do
       get 'global_settings/room_types'
       get 'global_settings/currency_types'
       get 'global_settings/pos_types'
+      get 'global_settings/invoice_types'
     end
   end
 end
