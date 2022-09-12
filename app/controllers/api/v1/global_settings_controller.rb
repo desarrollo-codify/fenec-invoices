@@ -59,4 +59,9 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @service_messages = ServiceMessage.all
     render json: @service_messages
   end
+
+  def document_sector_types
+    @document_sector_types = DocumentSectorType.all
+    render json: @document_sector_types
+  end
 end

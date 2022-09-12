@@ -52,6 +52,7 @@ Rails.application.routes.draw do
         post 'siat/cancellation_reasons'
         post 'siat/document_sectors'
         post 'siat/service_messages'
+        post 'siat/document_sector_types'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
@@ -77,6 +78,7 @@ Rails.application.routes.draw do
       get 'global_settings/measurement_types'
       get 'global_settings/payment_methods'
       get 'global_settings/service_messages'
+      get 'global_settings/document_sector_types'
     end
   end
 end
