@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_12_195618) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -97,6 +97,18 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
 
+  create_table "contingency_codes", force: :cascade do |t|
+    t.string "code", null: false
+    t.integer "document_sector_code", null: false
+    t.integer "limit", null: false
+    t.integer "current_use", null: false
+    t.boolean "available", null: false
+    t.integer "economic_activity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["economic_activity_id"], name: "index_contingency_codes_on_economic_activity_id"
+  end
+
   create_table "countries", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -112,6 +124,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
     t.integer "branch_office_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "point_of_sale"
     t.index ["branch_office_id"], name: "index_cuis_codes_on_branch_office_id"
   end
 
@@ -131,6 +144,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "end_date", null: false
+    t.integer "point_of_sale"
     t.index ["branch_office_id", "effective_date"], name: "index_daily_codes_on_branch_office_id_and_effective_date", unique: true
     t.index ["branch_office_id"], name: "index_daily_codes_on_branch_office_id"
   end
@@ -398,6 +412,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
   add_foreign_key "clients", "companies"
   add_foreign_key "contingencies", "branch_offices"
   add_foreign_key "contingencies", "significative_events"
+  add_foreign_key "contingency_codes", "economic_activities"
   add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"

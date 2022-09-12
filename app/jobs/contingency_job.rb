@@ -12,17 +12,17 @@ class ContingencyJob < ApplicationJob
     return if pending_invoices.empty?
 
     event_cufd = pending_invoices.first.cufd_code
-    send_contingency(contingency, event_cufd, current_cuis, current_cufd)
+    send_contingency(pending_invoices, contingency, event_cufd, current_cuis, current_cufd)
     send_package(pending_invoices, contingency, current_cuis, current_cufd)
     pending_invoices.each do |invoice|
       invoice.update(sent_at: DateTime.now)
       filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
       File.delete(filename)
     end
-    reception_validation(contingency)
+    reception_validation(pending_invoices, contingency)
   end
 
-  def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)
+  def send_contingency(invoices, contingency, contingency_cufd, current_cuis, current_cufd)
     client = Savon.client(
       wsdl: ENV.fetch('siat_operations'.to_s, nil),
       headers: {
@@ -36,7 +36,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: invoices.last.point_of_sale,
         codigoSistema: ENV.fetch('system_code', nil),
         nit: branch_office.company.nit.to_i,
         cuis: current_cuis,
@@ -93,7 +93,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: invoices.last.point_of_sale,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
@@ -124,7 +124,7 @@ class ContingencyJob < ApplicationJob
     end
   end
 
-  def reception_validation(contingency)
+  def reception_validation(invoices, contingency)
     branch_office = contingency.branch_office
     cuis_code = contingency.branch_office.cuis_codes.last
     cufd_code = contingency.branch_office.daily_codes.last
@@ -141,7 +141,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: invoices.last.point_of_sale,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
