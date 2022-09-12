@@ -67,6 +67,7 @@ Rails.application.routes.draw do
       get 'global_settings/issuance_types'
       get 'global_settings/room_types'
       get 'global_settings/currency_types'
+      get 'global_settings/pos_types'
     end
   end
 end

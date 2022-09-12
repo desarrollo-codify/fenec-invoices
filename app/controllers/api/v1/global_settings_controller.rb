@@ -39,4 +39,9 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @currency_types = CurrencyType.all
     render json: @currency_types
   end
+
+  def pos_types
+    @currency_types = PosType.all
+    render json: @currency_types
+  end
 end
