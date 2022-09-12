@@ -20,7 +20,12 @@ module Api
 
       # GET /companies/1
       def show
-        result = @company.as_json(except: [:created_at, :updated_at], include: {economic_activities: {except: [:created_at, :updated_at, :company_id]}})
+        result = @company.as_json(except: %i[created_at updated_at],
+                                  include: [{ economic_activities: { except: %i[created_at
+                                                                                updated_at company_id] } },
+                                            branch_offices: { except: %i[created_at updated_at] },
+                                            mail_setting: { except: %i[created_at
+                                                                       updated_at company_id] }])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
         render json: result
