@@ -44,15 +44,19 @@ Rails.application.routes.draw do
         post 'siat/measurements'
         post 'siat/significative_events'
         post 'siat/pos_types'
+        post 'siat/countries'
+        post 'siat/issuance_types'
+        post 'siat/room_types'
+        post 'siat/currency_types'
+        post 'siat/invoice_types'
         post 'siat/cancellation_reasons'
+        post 'siat/document_sectors'
+
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
+        resources :document_sectors, only: %i[index]
       end
-      resources :document_types, only: %i[index]
-      resources :payment_methods, only: %i[index]
-      resources :significative_events, only: %i[index]
-      resources :cancellation_reasons, only: %i[index]
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member
       end
@@ -60,6 +64,18 @@ Rails.application.routes.draw do
       # siat controller
       post 'siat/bulk_products_update'
       post 'siat/verify_communication'
+
+      get 'global_settings/cancellation_reasons'
+      get 'global_settings/significative_events'
+      get 'global_settings/countries'
+      get 'global_settings/document_types'
+      get 'global_settings/issuance_types'
+      get 'global_settings/room_types'
+      get 'global_settings/currency_types'
+      get 'global_settings/pos_types'
+      get 'global_settings/invoice_types'
+      get 'global_settings/measurement_types'
+      get 'global_settings/payment_methods'
     end
   end
 end

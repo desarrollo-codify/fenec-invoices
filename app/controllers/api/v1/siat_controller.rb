@@ -496,6 +496,203 @@ module Api
         end
       end
 
+      def document_sectors
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number,
+            codigoPuntoVenta: 0
+          }
+        }
+        response = client.call(:sincronizar_lista_actividades_documento_sector, message: body)
+
+        if response.success?
+          data = response.to_array(:sincronizar_lista_actividades_documento_sector_response,
+                                   :respuesta_lista_actividades_documento_sector,
+                                   :lista_actividades_documento_sector)
+          response_data = data.map do |a|
+            a.values_at :codigo_actividad, :codigo_documento_sector, :tipo_documento_sector
+          end
+          document_sectors = response_data.map { |attrs| { activity_code: attrs[0], code: attrs[1], description: attrs[2] } }
+
+          company = @branch_office.company
+          activity_codes = document_sectors.pluck(:activity_code).uniq
+          activity_codes.each do |activity_code|
+            economic_activity = company.economic_activities.find_by(code: activity_code.to_i)
+            activity_document_sectors = document_sectors.select { |l| l[:activity_code] == activity_code }
+            activity_document_sectors_data = activity_document_sectors.map do |a|
+              a.values_at :code, :description
+            end
+            document_sector_select = activity_document_sectors_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+            economic_activity.bulk_load_document_sectors(document_sector_select)
+          end
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def countries
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_pais_origen, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_pais_origen_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          countries = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          Country.bulk_load(countries)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def issuance_types
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_emision, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_emision_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          types = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          IssuanceType.bulk_load(types)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def room_types
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_habitacion, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_habitacion_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          types = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          RoomType.bulk_load(types)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def currency_types
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipo_moneda, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipo_moneda_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          types = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          CurrencyType.bulk_load(types)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def invoice_types
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+
+        response = client.call(:sincronizar_parametrica_tipos_factura, message: body)
+        if response.success?
+          data = response.to_array(:sincronizar_parametrica_tipos_factura_response, :respuesta_lista_parametricas,
+                                   :lista_codigos)
+
+          response_data = data.map do |a|
+            a.values_at :codigo_clasificador, :descripcion
+          end
+          types = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+
+          InvoiceType.bulk_load(types)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
       private
 
       def set_branch_office

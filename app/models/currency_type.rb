@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-class DocumentType < ApplicationRecord
+class CurrencyType < ApplicationRecord
   validates :code, presence: true, uniqueness: true
   validates :description, presence: true, format: { with: VALID_NAME_REGEX }
 
