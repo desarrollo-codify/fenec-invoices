@@ -42,9 +42,8 @@ Rails.application.routes.draw do
         post 'siat/payment_methods'
         post 'siat/legends'
         post 'siat/measurements'
-        post 'siat/significative_events'
         post 'siat/pos_types'
-        post 'siat/cancellation_reasons'
+        post 'siat/countries'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
@@ -60,6 +59,10 @@ Rails.application.routes.draw do
       # siat controller
       post 'siat/bulk_products_update'
       post 'siat/verify_communication'
+
+      get 'global_settings/cancellation_reasons'
+      get 'global_settings/significative_events'
+      get 'global_settings/countries'
     end
   end
 end
