@@ -57,7 +57,6 @@ Rails.application.routes.draw do
         resources :legends, only: %i[index]
         resources :document_sectors, only: %i[index]
       end
-      resources :payment_methods, only: %i[index]
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member
       end
@@ -75,6 +74,8 @@ Rails.application.routes.draw do
       get 'global_settings/currency_types'
       get 'global_settings/pos_types'
       get 'global_settings/invoice_types'
+      get 'global_settings/measurement_types'
+      get 'global_settings/payment_methods'
     end
   end
 end

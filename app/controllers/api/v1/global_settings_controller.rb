@@ -49,4 +49,9 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @invoice_types = InvoiceType.all
     render json: @invoice_types
   end
+
+  def measurement_types
+    @measurement_types = Measurement.all
+    render json: @measurement_types
+  end
 end
