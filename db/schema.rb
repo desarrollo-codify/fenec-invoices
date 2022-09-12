@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_12_054316) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_12_060603) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -233,6 +233,14 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_054316) do
     t.index ["cancellation_reason_id"], name: "index_invoices_on_cancellation_reason_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
     t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true
+  end
+
+  create_table "issuance_types", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_issuance_types_on_code", unique: true
   end
 
   create_table "jwt_denylist", force: :cascade do |t|

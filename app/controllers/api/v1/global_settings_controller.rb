@@ -19,4 +19,9 @@ class Api::V1::GlobalSettingsController < ApplicationController
     @document_types = DocumentType.all
     render json: @document_types
   end
+
+  def issuance_types
+    @issuance_types = IssuanceType.all
+    render json: @issuance_types
+  end
 end

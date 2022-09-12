@@ -44,6 +44,7 @@ Rails.application.routes.draw do
         post 'siat/measurements'
         post 'siat/pos_types'
         post 'siat/countries'
+        post 'siat/issuance_types'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
@@ -61,6 +62,7 @@ Rails.application.routes.draw do
       get 'global_settings/significative_events'
       get 'global_settings/countries'
       get 'global_settings/document_types'
+      get 'global_settings/issuance_types'
     end
   end
 end
