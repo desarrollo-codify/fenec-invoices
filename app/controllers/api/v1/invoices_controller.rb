@@ -10,14 +10,13 @@ module Api
 
       # GET /api/v1/invoices
       def index
-        @invoices = @branch_office.invoices # or company?
-
-        render json: @invoices
+        @invoices = @branch_office.company.invoices.includes(:branch_office, :invoice_status).descending
+        render json: @invoices.as_json(include: [{ branch_office: { only: %i[id number name] }},
+          { invoice_status: { only: %i[id description] }}])
       end
 
       def pending
         @pending_invoices = @branch_office.invoices.for_sending
-
         render json: @pending_invoices
       end
 
