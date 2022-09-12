@@ -2,18 +2,21 @@
 
 class SendInvoiceJob < ApplicationJob
   queue_as :default
+  require 'generate_cufd'
 
   def perform(invoice, client_code)
     @invoice = invoice
     @company = invoice.branch_office.company
     @client = @company.clients.find_by(code: client_code)
+    @branch_office = invoice.branch_office
     generate_xml(@invoice)
 
     InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
     if siat_available
-      # TODO: if Contingency? ContingencyJob
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
+
+      close_contingencies(@branch_office, @invoice) if @invoice.branch_office.contingencies.pending.any?
     else
       create_contingency(@invoice) unless @invoice.branch_office.contingencies.pending.any?
     end
@@ -165,7 +168,7 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def create_contingency(invoice)
-    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 7)
+    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 1)
   end
 
   def siat_available
@@ -187,5 +190,12 @@ class SendInvoiceJob < ApplicationJob
       data = { return: 'Communication error' }
     end
     data == '926'
+  end
+
+  def close_contingencies(branch_office, invoice)
+    GenerateCufd.generate(branch_office)
+    @contingency = invoice.branch_office.contingencies.pending.last
+    @contingency.close!
+    ContingencyJob.perform_now(@contingency)
   end
 end
