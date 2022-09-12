@@ -57,10 +57,12 @@ Rails.application.routes.draw do
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
         resources :document_sectors, only: %i[index]
+        resources :contingency_codes, only: %i[index create]
       end
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member
       end
+      resources :contingency_codes, only: %i[show update destroy]
 
       # siat controller
       post 'siat/bulk_products_update'

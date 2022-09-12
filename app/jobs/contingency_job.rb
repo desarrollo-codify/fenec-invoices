@@ -89,6 +89,10 @@ class ContingencyJob < ApplicationJob
     )
 
     branch_office = contingency.branch_office
+    company = branch_office.company
+    economic_activities = company.economic_activities
+
+    cafc = contingency.significative_event_id >= 5 ? economic_activities.first.contingency_codes.last.code : nil
 
     body = {
       SolicitudServicioRecepcionPaquete: {
@@ -102,7 +106,7 @@ class ContingencyJob < ApplicationJob
         codigoModalidad: 2,
         cufd: current_cufd,
         cuis: current_cuis,
-        cafc: nil, # '101993501D57D',
+        cafc: cafc,
         tipoFacturaDocumento: 1,
         archivo: base64_file,
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),

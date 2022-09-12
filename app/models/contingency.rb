@@ -7,6 +7,7 @@ class Contingency < ApplicationRecord
   belongs_to :significative_event
 
   scope :pending, -> { where(end_date: nil) }
+  scope :need_cafc, -> { where('significative_event_id >= 5') }
 
   def close!
     self.end_date = DateTime.now

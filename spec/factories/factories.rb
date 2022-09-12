@@ -195,4 +195,21 @@ FactoryBot.define do
     description { 'Abc' }
     economic_activity factory: :economic_activity
   end
+
+  factory :contingency_code do
+    transient do
+      default_values { false }
+    end
+
+    code { '123abc' }
+    document_sector_code { 1 }
+    limit { 10 }
+    economic_activity factory: :economic_activity
+    after(:build) do |contingency_code, evaluator|
+      unless evaluator.default_values
+        contingency_code.current_use = 0
+        contingency_code.available = true
+      end
+    end
+  end
 end

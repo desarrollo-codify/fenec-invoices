@@ -97,6 +97,18 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
 
+  create_table "contingency_codes", force: :cascade do |t|
+    t.string "code", null: false
+    t.integer "document_sector_code", null: false
+    t.integer "limit", null: false
+    t.integer "current_use", null: false
+    t.boolean "available", null: false
+    t.integer "economic_activity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["economic_activity_id"], name: "index_contingency_codes_on_economic_activity_id"
+  end
+
   create_table "countries", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -398,6 +410,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_12_144921) do
   add_foreign_key "clients", "companies"
   add_foreign_key "contingencies", "branch_offices"
   add_foreign_key "contingencies", "significative_events"
+  add_foreign_key "contingency_codes", "economic_activities"
   add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"

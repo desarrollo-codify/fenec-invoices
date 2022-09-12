@@ -7,6 +7,7 @@ class EconomicActivity < ApplicationRecord
   belongs_to :company
   has_many :legends, dependent: :destroy
   has_many :document_sectors, dependent: :destroy
+  has_many :contingency_codes, dependent: :destroy
 
   def initialize(attributes = {})
     super(attributes)
