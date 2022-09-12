@@ -45,9 +45,11 @@ Rails.application.routes.draw do
         post 'siat/significative_events'
         post 'siat/pos_types'
         post 'siat/cancellation_reasons'
+        post 'siat/document_sectors'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
+        resources :document_sectors, only: %i[index]
       end
       resources :document_types, only: %i[index]
       resources :payment_methods, only: %i[index]

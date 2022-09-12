@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_09_214914) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_12_032728) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -128,6 +128,16 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_09_214914) do
     t.index ["company_id"], name: "index_delegated_tokens_on_company_id"
   end
 
+  create_table "document_sectors", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.integer "economic_activity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["economic_activity_id", "code"], name: "index_document_sectors_on_economic_activity_id_and_code", unique: true
+    t.index ["economic_activity_id"], name: "index_document_sectors_on_economic_activity_id"
+  end
+
   create_table "document_types", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -219,7 +229,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_09_214914) do
     t.integer "invoice_status_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "send_at"
     t.string "sent_at"
     t.integer "cancellation_reason_id"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
@@ -336,6 +345,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_09_214914) do
   add_foreign_key "cuis_codes", "branch_offices"
   add_foreign_key "daily_codes", "branch_offices"
   add_foreign_key "delegated_tokens", "companies"
+  add_foreign_key "document_sectors", "economic_activities"
   add_foreign_key "economic_activities", "companies"
   add_foreign_key "invoice_details", "invoices"
   add_foreign_key "invoice_details", "measurements"
