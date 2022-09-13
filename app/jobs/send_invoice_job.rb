@@ -11,7 +11,7 @@ class SendInvoiceJob < ApplicationJob
     @branch_office = invoice.branch_office
     generate_xml(@invoice)
     begin
-      InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+      InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
     rescue StandardError => e
       p e.message
     end
