@@ -23,7 +23,7 @@ module Api
       private
 
       def client_params
-        params.require(:client).permit(:code, :name, :nit, :phone, :email)
+        params.require(:client).permit(:code, :name, :nit, :phone, :email, :complement, :document_type_id)
       end
 
       def set_company
