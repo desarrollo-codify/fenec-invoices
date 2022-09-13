@@ -8,7 +8,7 @@ class CuisCode < ApplicationRecord
 
   belongs_to :branch_office
 
-  scope :current, -> { where('expiration_date >= ?', DateTime.now).last}
+  scope :current, -> { where('expiration_date >= ?', DateTime.now).last }
 
   after_initialize :default_values
 
