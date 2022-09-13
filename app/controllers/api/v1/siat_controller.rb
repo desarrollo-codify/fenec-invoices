@@ -206,7 +206,7 @@ module Api
         end
       end
 
-      def siat_product_codes
+      def product_codes
         client = siat_client('products_wsdl')
 
         body = {
@@ -222,14 +222,28 @@ module Api
         response = client.call(:sincronizar_lista_productos_servicios, message: body)
         if response.success?
           data = response.to_array(:sincronizar_lista_productos_servicios_response, :respuesta_lista_productos, :lista_codigos)
+          response_data = data.map do |a|
+            a.values_at :codigo_actividad, :codigo_producto, :descripcion_producto
+          end
+          products = response_data.map { |attrs| { activity_code: attrs[0], code: attrs[1], description: attrs[2] } }
+
+          company = @branch_office.company
+          activity_codes = products.pluck(:activity_code).uniq
+          activity_codes.each do |activity_code|
+            economic_activity = company.economic_activities.find_by(code: activity_code.to_i)
+            activity_products = products.select { |l| l[:activity_code] == activity_code }
+            activity_products_data = activity_products.map do |a|
+              a.values_at :code, :description
+            end
+            products_select = activity_products_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+            economic_activity.bulk_load_product_codes(products_select)
+          end
 
           render json: data
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
       end
-
-      def bulk_products_update; end
 
       def economic_activities
         client = siat_client('products_wsdl')

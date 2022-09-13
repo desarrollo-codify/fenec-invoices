@@ -67,6 +67,15 @@ module Api
         @document_sector_types = DocumentSectorType.all.order(:code)
         render json: @document_sector_types
       end
+
+      def product_codes
+        @product_codes = ProductCode.all.includes(:economic_activity).order(:code)
+        render json: @product_codes.map { |product|
+          product.as_json.merge(
+            economic_activity_code: product.economic_activity.code
+          )
+        }
+      end
     end
   end
 end

@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      get 'product_codes/index'
       resources :companies do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
@@ -57,6 +58,7 @@ Rails.application.routes.draw do
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
         resources :document_sectors, only: %i[index]
+        resources :product_codes, only: %i[index]
         resources :contingency_codes, only: %i[index create]
       end
       resources :invoices, only: %i[show update destroy] do
@@ -81,6 +83,7 @@ Rails.application.routes.draw do
       get 'global_settings/payment_methods'
       get 'global_settings/service_messages'
       get 'global_settings/document_sector_types'
+      get 'global_settings/product_codes'
     end
   end
 end
