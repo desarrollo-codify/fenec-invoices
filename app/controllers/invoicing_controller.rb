@@ -97,6 +97,6 @@ class InvoicingController < ActionController::Base
                   size: 120,
                   border_modules: 0,
                   module_px_size: 0).save(filename)
-    "/tmp/qr/#{cuf}.png"
+    "public/tmp/qr/#{cuf}.png"
   end
 end
