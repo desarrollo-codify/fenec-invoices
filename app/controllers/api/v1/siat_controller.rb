@@ -155,7 +155,7 @@ module Api
 
       def show_cuis
         if @cuis_code
-          render json: @cuis_code.code
+          render json: @cuis_code
         else
           error_message = 'La sucursal no tiene CUIS. Por favor genere uno nuevo.'
           render json: error_message, status: :not_found
@@ -199,7 +199,7 @@ module Api
       def show_cufd
         @daily_code = @branch_office.daily_codes.current
         if @daily_code
-          render json: @daily_code.code
+          render json: @daily_code
         else
           error_message = 'La sucursal no cuenta con un codigo diario CUFD.'
           render json: error_message, status: :not_found
