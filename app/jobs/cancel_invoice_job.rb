@@ -3,11 +3,24 @@
 class CancelInvoiceJob < ApplicationJob
   queue_as :default
 
-  def perform(invoice)
-    send_to_siat(invoice)
+  def perform(invoice, reason)
+    send_to_siat(invoice, reason)
+    @invoice = invoice
+    client_code = @invoice.client_code
+    @company = invoice.branch_office.company
+    @client = @company.clients.find_by(code: client_code)
+    @reason = CancellationReason.find_by(code: reason)
+    begin
+      if @invoice.cancellation_date.present?
+        CancellationInvoiceMailer.with(client: @client, invoice: invoice, sender: @company.mail_setting,
+                                       reason: @reason).send_invoice.deliver_now
+      end
+    rescue StandardError => e
+      p e.message
+    end
   end
 
-  def send_to_siat(invoice)
+  def send_to_siat(invoice, reason)
     branch_office = invoice.branch_office
     daily_code = branch_office.daily_codes.current
     cuis_code = branch_office.cuis_codes.current
@@ -35,7 +48,7 @@ class CancelInvoiceJob < ApplicationJob
         cufd: daily_code.code,
         cuis: cuis_code.code,
         tipoFacturaDocumento: 1,
-        codigoMotivo: 1, # TODO: it should be @invoice.cancellation_reason_id,
+        codigoMotivo: reason,
         cuf: invoice.cuf
       }
     }
@@ -43,7 +56,6 @@ class CancelInvoiceJob < ApplicationJob
     data = response.to_array(:anulacion_factura_response, :respuesta_servicio_facturacion).first
     puts data
 
-    @invoice.update(cancellation_date: nil, cancellation_reason_id: nil) unless response.success?
-    # TODO: process all possible scenarios
+    invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: reason, invoice_status_id: 2) if response.success?
   end
 end

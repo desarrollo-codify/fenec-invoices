@@ -13,7 +13,7 @@ BranchOffice.create(name: 'CASA MATRIZ', number: 0, city: 'Santa Cruz', company:
 Product.create(primary_code: '123', description: 'Algo bonito', company: company, sin_code: 83141)
 InvoiceStatus.create(description: 'VIGENTE')
 InvoiceStatus.create(description: 'ANULADA')
-Client.create(code: '055', name: 'Carlos', nit: '401238026', email: 'carlos.gutierrez@codify.com', company: company)
+Client.create(code: '055', name: 'Carlos', nit: '401238026', email: 'carlos.gutierrez@codify.com.bo', company: company)
 MailSetting.create(address: 'codify.com.bo', port: 465, domain: 'codify.com.bo', user_name: 'carlos.gutierrez@codify.com.bo', password: 'Revocatongo33.', company: company)
 Product.create(primary_code: '01', description: 'Configuración de servidor', price: 250, company_id: 1)
 Product.create(primary_code: '02', description: 'Hosting standard por 1 año', price: 850, company_id: 1)
