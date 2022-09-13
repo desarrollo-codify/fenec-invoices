@@ -196,6 +196,12 @@ FactoryBot.define do
     economic_activity factory: :economic_activity
   end
 
+  factory :product_code do
+    code { '12345' }
+    description { 'Abc' }
+    economic_activity factory: :economic_activity
+  end
+
   factory :contingency_code do
     transient do
       default_values { false }

@@ -7,4 +7,8 @@ class Client < ApplicationRecord
   validates :email, format: { with: VALID_EMAIL_REGEX }
 
   belongs_to :company
+
+  before_create do
+    self.code = Client.where.not(code:nil).last ? Client.where.not(code:nil).last.code : '1'.rjust(5, '0')
+  end
 end
