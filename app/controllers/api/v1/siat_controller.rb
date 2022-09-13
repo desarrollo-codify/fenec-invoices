@@ -206,29 +206,6 @@ module Api
         end
       end
 
-      def siat_product_codes
-        client = siat_client('products_wsdl')
-
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_lista_productos_servicios, message: body)
-        if response.success?
-          data = response.to_array(:sincronizar_lista_productos_servicios_response, :respuesta_lista_productos, :lista_codigos)
-
-          render json: data
-        else
-          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
-        end
-      end
-
       def bulk_products_update; end
 
       def economic_activities
@@ -748,6 +725,46 @@ module Api
           types = response_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
 
           DocumentSectorType.bulk_load(types)
+
+          render json: data
+        else
+          render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
+        end
+      end
+
+      def product_approvals
+        client = siat_client('products_wsdl')
+
+        body = {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: ENV.fetch('system_code', nil),
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number,
+            codigoPuntoVenta: 0
+          }
+        }
+        response = client.call(:sincronizar_lista_productos_servicios, message: body)
+
+        if response.success?
+          data = response.to_array(:sincronizar_lista_productos_servicios_response, :respuesta_lista_productos, :lista_codigos)
+          response_data = data.map do |a|
+            a.values_at :codigo_actividad, :codigo_producto, :descripcion_producto
+          end
+          product_approvals = response_data.map { |attrs| { activity_code: attrs[0], code: attrs[1], description: attrs[2] } }
+
+          company = @branch_office.company
+          activity_codes = product_approvals.pluck(:activity_code).uniq
+          activity_codes.each do |activity_code|
+            economic_activity = company.economic_activities.find_by(code: activity_code.to_i)
+            activity_product_approvals = product_approvals.select { |l| l[:activity_code] == activity_code }
+            activity_product_approvals_data = activity_product_approvals.map do |a|
+              a.values_at :code, :description
+            end
+            product_approvals_select = activity_product_approvals_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+            economic_activity.bulk_load_product_approvals(product_approvals_select)
+          end
 
           render json: data
         else

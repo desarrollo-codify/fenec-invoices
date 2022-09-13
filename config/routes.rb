@@ -53,11 +53,13 @@ Rails.application.routes.draw do
         post 'siat/document_sectors'
         post 'siat/service_messages'
         post 'siat/document_sector_types'
+        post 'siat/product_approvals'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
         resources :document_sectors, only: %i[index]
         resources :contingency_codes, only: %i[index create]
+        resources :product_approvals, only: %i[index]
       end
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member
