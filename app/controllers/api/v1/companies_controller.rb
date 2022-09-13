@@ -14,7 +14,7 @@ module Api
         render json: @companies.map { |company|
                        company.as_json.merge(
                          logo: url_for(company.logo)
-                       )
+                       ) if company.logo.attached?
                      }
       end
 
