@@ -16,7 +16,7 @@ class GenerateCufd
     body = {
       SolicitudCufd: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: invoice.last.point_of_sale,
+        codigoPuntoVenta: invoice.point_of_sale,
         codigoSistema: ENV.fetch('system_code', nil),
         nit: branch_office.company.nit.to_i,
         codigoModalidad: 2,
