@@ -12,13 +12,13 @@ class SendInvoiceJob < ApplicationJob
     generate_xml(@invoice)
 
     InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
-    if siat_available
+    if siat_available(@invoice) == true
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
 
       close_contingencies(@branch_office, @invoice) if @invoice.branch_office.contingencies.pending.any?
     else
-      create_contingency(@invoice) unless @invoice.branch_office.contingencies.pending.any?
+      create_contingency(@invoice, 1) unless @invoice.branch_office.contingencies.pending.any?
     end
   end
 
@@ -62,7 +62,7 @@ class SendInvoiceJob < ApplicationJob
 
     response = client.call(:recepcion_factura, message: body)
     data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-    puts data
+    p data
     # TODO: process all possible scenarios
   end
 
@@ -167,29 +167,37 @@ class SendInvoiceJob < ApplicationJob
     File.write(filename, builder.to_xml)
   end
 
-  def create_contingency(invoice)
-    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 1)
-  end
-
-  def siat_available
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
-      headers: {
-        'apikey' => ENV.fetch('api_key', nil),
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
-
-    response = client.call(:verificar_comunicacion)
-    if response.success?
-      data = response.to_array(:verificar_comunicacion_response).first
-      data = data[:return]
-    else
-      data = { return: 'Communication error' }
+  
+  def siat_available(invoice)
+    begin
+      client = Savon.client(
+        wsdl: ENV.fetch('siat_invoices'.to_s, nil),
+        headers: {
+          'apikey' => ENV.fetch('api_key', nil),
+          'SOAPAction' => ''
+        },
+        namespace: ENV.fetch('siat_namespace', nil),
+        convert_request_keys_to: :none
+      )
+      
+      response = client.call(:verificar_comunicacion)
+      if response.success?
+        data = response.to_array(:verificar_comunicacion_response).first
+        data = data[:return]
+      else
+        data = { return: 'Communication error' }
+      end
+      data == '926'
+      
+    rescue => exception
+      if exception.message.include? 'TCP connection'
+        create_contingency(invoice, 2) unless invoice.branch_office.contingencies.pending.any?
+      end
     end
-    data == '926'
+  end
+  
+  def create_contingency(invoice, significative_event)
+    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: significative_event)
   end
 
   def close_contingencies(branch_office, invoice)
