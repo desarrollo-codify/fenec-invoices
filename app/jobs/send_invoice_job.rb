@@ -12,8 +12,8 @@ class SendInvoiceJob < ApplicationJob
     generate_xml(@invoice)
     begin
       InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
-    rescue => exception
-      p exception.message
+    rescue StandardError => e
+      p e.message
     end
     if siat_available(@invoice) == true
       @invoice.update(sent_at: DateTime.now)
@@ -63,7 +63,6 @@ class SendInvoiceJob < ApplicationJob
       }
     }
     response = client.call(:recepcion_factura, message: body)
-    debugger
     data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
     p data
     # TODO: process all possible scenarios
@@ -170,37 +169,32 @@ class SendInvoiceJob < ApplicationJob
     File.write(filename, builder.to_xml)
   end
 
-  
   def siat_available(invoice)
-    begin
-      client = Savon.client(
-        wsdl: ENV.fetch('siat_invoices'.to_s, nil),
-        headers: {
-          'apikey' => ENV.fetch('api_key', nil),
-          'SOAPAction' => ''
-        },
-        namespace: ENV.fetch('siat_namespace', nil),
-        convert_request_keys_to: :none
-      )
-      
-      response = client.call(:verificar_comunicacion)
-      if response.success?
-        data = response.to_array(:verificar_comunicacion_response).first
-        data = data[:return]
-      else
-        data = { return: 'Communication error' }
-      end
-      data == '926'
-      
-    rescue => exception
-      if exception.message.include? 'TCP connection'
-        create_contingency(invoice, 1) unless invoice.branch_office.contingencies.pending.any?
-      end
+    client = Savon.client(
+      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
+      headers: {
+        'apikey' => ENV.fetch('api_key', nil),
+        'SOAPAction' => ''
+      },
+      namespace: ENV.fetch('siat_namespace', nil),
+      convert_request_keys_to: :none
+    )
+
+    response = client.call(:verificar_comunicacion)
+    if response.success?
+      data = response.to_array(:verificar_comunicacion_response).first
+      data = data[:return]
+    else
+      data = { return: 'Communication error' }
     end
+    data == '926'
+  rescue StandardError => e
+    create_contingency(invoice, 1) if e.message.include?('TCP connection') && invoice.branch_office.contingencies.pending.none?
   end
-  
+
   def create_contingency(invoice, significative_event)
-    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: significative_event)
+    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code,
+                                                significative_event_id: significative_event)
   end
 
   def close_contingencies(branch_office, invoice)
