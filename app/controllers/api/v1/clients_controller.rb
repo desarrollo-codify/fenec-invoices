@@ -13,7 +13,7 @@ module Api
 
       def create
         @client = @company.clients.build(client_params)
-        last_code = Client.where.not(code:nil).last.code
+        last_code = Client.where.not(code: nil).last.code
         if @client.save
           @client.update(code: (last_code.to_i + 1).to_s.rjust(5, '0'))
           render json: @client, status: :created
