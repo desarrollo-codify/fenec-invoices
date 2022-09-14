@@ -27,19 +27,6 @@ RSpec.describe Invoice, type: :model do
         expect(invoice).to_not be_valid
       end
     end
-
-    context 'validates numericality of business nit' do
-      it { validate_numericality_of(:company_nit).only_integer }
-
-      context 'with non-numeric value' do
-        let(:invoice) { build(:invoice, default_values: true, company_nit: 'A') }
-
-        it 'is invalid' do
-          expect(invoice).to_not be_valid
-          expect(invoice.errors[:company_nit]).to eq ['El NIT debe ser un valor numérico.']
-        end
-      end
-    end
   end
 
   describe 'company_name attribute' do
@@ -182,19 +169,6 @@ RSpec.describe Invoice, type: :model do
 
       it 'is invalid' do
         expect(invoice).to_not be_valid
-      end
-    end
-
-    context 'validates numericality of business nit' do
-      it { validate_numericality_of(:business_nit).only_integer }
-
-      context 'with non-numeric value' do
-        let(:invoice) { build(:invoice, default_values: true, business_nit: 'A') }
-
-        it 'is invalid' do
-          expect(invoice).to_not be_valid
-          expect(invoice.errors[:business_nit]).to eq ['El NIT debe ser un valor numérico.']
-        end
       end
     end
   end

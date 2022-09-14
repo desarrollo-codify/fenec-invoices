@@ -8,82 +8,66 @@
   </head>
   <body> 
     <div class="container mx-0 px-0">
-      <div class="w-100 text-center">
+      <div class="w-100 text-center" style="border-bottom: 1px solid #000;">
         <%= image_tag @company.logo, style: 'max-height:100px;width:auto;' %>
-        <h5 class="m-0 pt-2 pb-0"><strong><%= @company.name %></strong></h5>
-        <h4 class="m-0 py-0"><strong><%= @branch_office.name.upcase %></strong></h4>
-        <h5 class="m-0 py-0"><%= @branch_office.address.upcase %></h5>
-        <h5 class="m-0 py-0"><%= @branch_office.phone.upcase %></h5>
-        <h5 class="m-0 py-0"><%= @branch_office.city.upcase %> - BOLIVIA</h5>
+        <h5 class="m-0 pt-2 pb-0"><strong>FACTURA</strong></h5>
+        <h5 class="m-0 pt-2 pb-0"><strong>CON DERECHO A CRÉDITO FISCAL</strong></h5>
+        <h5 class="m-0 pt-2 pb-0"><%= @company.name %></h4>
+        <h5 class="m-0 py-0"><%= @branch_office.name %></h4>
+        <h5 class="m-0 py-0">No. Punto de Venta <%= @invoice.point_of_sale %></h4>
+        <h5 class="m-0 py-0"><%= @branch_office.address %></h5>
+        <h5 class="m-0 py-0"><%= @branch_office.phone %></h5>
+        <h5 class="m-0 py-0"><%= @branch_office.city %></h5>
       </div>
-      <div class="pt-4">
-        <table class="table table-sm table-borderless">
+      <div class="table-responsive" style="border-bottom: 1px solid #000;">
+        <table class="table table-sm table-borderless mb-0">
           <tbody>
             <tr style="line-height:13px;height:13px;">
-              <td class="w-25">SUCURSAL:</td>
-              <td><%= @branch_office.name %></td>
+              <td class="text-right w-50">NIT:</td>
+              <td><%= @invoice.company_nit %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
-              <td class="w-25">LUGAR:</td>
-              <td><%= @branch_office.city %></td>
+              <td class="text-right">FACTURA No:</td>
+              <td><%= @invoice.number %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
-              <td>DIRECCION:</td>
-              <td><%= @branch_office.address %></td>
+              <td colspan="2" class="text-center">CÓD. AUTORIZACIÓN:</td>
             </tr>
-            <tr style="line-height:13px;height:13px;">
-              <td>TELEFONO:</td>
-              <td><%= @branch_office.phone %></td>
+            <tr>
+              <td colspan="2" class="text-center text-break"><%= @invoice.cuf %></td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="w-100 text-center" style="border-bottom: 1px solid #000;">
-        <h4 class="m-0 pt-0">FACTURA</h4>
-        <h5 class="m-0 py-0">(Con derecho a crédito fiscal)</h5>
-      </div>
-      <table class="table table-sm table-borderless my-0 py-0" style="border-bottom: 1px solid #000;">
-        <tbody>
-          <tr style="line-height:13px;height:13px;">
-            <td style="width:32%">NIT:</td>
-            <td><%= @invoice.company_nit %></td>
-          </tr>
-          <tr style="line-height:13px;height:13px;">
-            <td>Nro. FACTURA:</td>
-            <td><%= @invoice.number %></td>
-          </tr>
-          <tr style="line-height:18px;height:18px;">
-            <td>CUF:</td>
-            <td class="text-break"><%= @invoice.cuf %></td>
-          </tr>
-        </tbody>
-      </table>
       <table class="table table-sm table-borderless my-0 py-0" style="border-style: none none double;">
         <tbody>
           <tr style="line-height:13px;height:13px;">
-            <td style="width:30%"><strong>Fecha:</strong></td>
-            <td><strong><%= @invoice.date.strftime("%d/%m/%Y %H:%M") %></strong></td>
-          </tr>
-          <tr style="line-height:13px;height:13px;">
-            <td><strong>NIT:</strong></td>
-            <td><strong><%= @invoice.business_nit %></strong></td>
-          </tr>
-          <tr style="line-height:13px;height:13px;">
-            <td><strong>Nombre:</strong></td>
+            <td><strong>NOMBRE/RAZÓN SOCIAL:</strong></td>
             <td class="text-break"><strong><%= @invoice.business_name %></strong></td>
+          </tr>
+          <tr style="line-height:13px;height:13px;">
+            <td><strong>NIT/CI/CEX:</strong></td>
+            <td><strong><%= @invoice.business_nit %></strong></td>
           </tr>
           <tr style="line-height:13px;height:13px;">
             <td><strong>Cod. Cliente:</strong></td>
             <td><strong><%= @invoice.client_code %></strong></td>
           </tr>
+          <tr style="line-height:13px;height:13px;">
+            <td style="width:30%"><strong>Fecha:</strong></td>
+            <td><strong><%= @invoice.date.strftime("%d/%m/%Y %H:%M") %></strong></td>
+          </tr>
         </tbody>
       </table>
       <table class="table table-sm table-borderless my-0 py-0" style="border-bottom: 1px solid #000;">
+        <thead>
+          <th colspan="4" class="text-center">DETALLE</th>
+        </thead>
         <thead style="line-height:13px;height:13px;">
-          <th>Referencia</th>
+          <th>Cod. Desc.</th>
           <th>Cantidad</th>
-          <th>Precio</th>
-          <th>IMPORTE</th>
+          <th class="text-right">Precio</th>
+          <th class="text-right">Total</th>
         </thead>
         <tbody>
           <% @invoice.invoice_details.each do |detail| %>
@@ -117,30 +101,24 @@
               <td>Total a pagar Bs.:</td>
               <td class="text-right"><%= '%.2f' % @invoice.total %></td>
             </tr>
+            <tr style="line-height:13px;height:13px;">
+              <td>Importe base crédito fiscal Bs.:</td>
+              <td class="text-right"><%= '%.2f' % @invoice.total %></td>
+            </tr>
           </tbody>
         </table>
       </div>
       <div class="w-100" style="border-top: 1px solid #000;">
         <div class="m-0 py-0">SON: <%= @literal_amount.upcase %> Bs.</div>
       </div>
-      <div class="ml-0 pl-0">
-        <table class="table table-sm table-borderless my-0 py-0">
-          <tbody>
-            <tr style="line-height:13px;height:13px;">
-              <td>Importe crédito fiscal Bs.:</td>
-              <td class="text-right"><%= '%.2f' % @invoice.total %></td>
-            </tr>
-          </tbody>
-        </table>
-        </div>
       <div class="w-100 m-0 py-3">Usr.: <%= @invoice.user %></div>
-      <div>
+      <div class="text-center">
         "ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY"
       </div>
+      <div class="pt-2"><%= @invoice.legend %></div>
       <div class="pt-2 px-2">
         Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea
       </div>
-      <div class="pt-2"><%= @invoice.legend %></div>
       <div class="pt-2 text-center"><strong>NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES</strong></div>
       <div class="text-center pt-2">
         <%= image_tag(embed_remote_image(@qr_code_file, 'image/png')) %>

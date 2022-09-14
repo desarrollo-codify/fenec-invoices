@@ -23,13 +23,19 @@ FactoryBot.define do
     company factory: :company
   end
 
+  factory :document_type do
+    code { '12345' }
+    description { 'Abc' }
+  end
+
   factory :client do
-    code { '055' }
+    code { '00001' }
     name { 'Juan' }
     nit { '123' }
     email { 'example@example.com' }
     phone { '12345' }
     company factory: :company
+    document_type factory: :document_type
   end
 
   factory :daily_code do
@@ -139,11 +145,6 @@ FactoryBot.define do
     company factory: :company
   end
 
-  factory :document_type do
-    code { '12345' }
-    description { 'Abc' }
-  end
-
   factory :payment_method do
     code { '12345' }
     description { 'Abc' }
@@ -191,6 +192,12 @@ FactoryBot.define do
   end
 
   factory :document_sector do
+    code { '12345' }
+    description { 'Abc' }
+    economic_activity factory: :economic_activity
+  end
+
+  factory :product_code do
     code { '12345' }
     description { 'Abc' }
     economic_activity factory: :economic_activity

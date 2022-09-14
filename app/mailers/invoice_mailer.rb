@@ -20,10 +20,10 @@ class InvoiceMailer < ApplicationMailer
                          port: params[:sender].port,
                          address: params[:sender].address }
 
-    filename = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.xml"
+    filename = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.xml"
     attachments['factura.xml'] = File.read(filename)
 
-    pdf_path = "#{Rails.root}/tmp/mails/#{@invoice.cuf}.pdf"
+    pdf_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
     File.open(pdf_path, 'wb') do |file|
       file << generate_pdf
       file.close
@@ -49,10 +49,7 @@ class InvoiceMailer < ApplicationMailer
         page_size: nil,
         title: '',
         margin: {
-          top: '5mm',
-          bottom: '5mm',
-          left: '2mm',
-          right: '2mm'
+          top: '0', bottom: '0', left: '0', right: '0'
         }
       ),
       options

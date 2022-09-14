@@ -36,7 +36,7 @@ class SendInvoiceJob < ApplicationJob
       convert_request_keys_to: :none
     )
 
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+    filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
@@ -69,7 +69,7 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def generate_gzip_file(invoice)
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+    filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
@@ -165,7 +165,7 @@ class SendInvoiceJob < ApplicationJob
       end
     end
 
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+    filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     File.write(filename, builder.to_xml)
   end
 

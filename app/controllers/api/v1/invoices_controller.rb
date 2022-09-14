@@ -40,6 +40,12 @@ module Api
         daily_code = @branch_office.daily_codes.current
         @invoice.cufd_code = daily_code.code
 
+        client = @company.clients.find_by(code: invoice_params[:client_code])
+        @invoice.business_name = client.name
+        @invoice.business_nit = client.nit
+        @invoice.complement = client.complement
+        @invoice.document_type = client.document_type_id
+
         @invoice.date = DateTime.now
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
@@ -71,7 +77,7 @@ module Api
           process_pending_data(@invoice)
           SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code]) unless params[:is_manual].present?
 
-          render json: @invoice, include: :invoice_details, status: :created
+          render json: @invoice.as_json(only: %i[id number total cuf]), status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
