@@ -57,10 +57,13 @@ Rails.application.routes.draw do
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
         resources :document_sectors, only: %i[index]
+        resources :product_codes, only: %i[index]
+        resources :contingency_codes, only: %i[index create]
       end
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member
       end
+      resources :contingency_codes, only: %i[show update destroy]
 
       # siat controller
       post 'siat/bulk_products_update'
@@ -79,6 +82,7 @@ Rails.application.routes.draw do
       get 'global_settings/payment_methods'
       get 'global_settings/service_messages'
       get 'global_settings/document_sector_types'
+      get 'global_settings/product_codes'
     end
   end
 end

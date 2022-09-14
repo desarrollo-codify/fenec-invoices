@@ -3,13 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe '/api/v1/company/:company_id/clients', type: :request do
+  let(:document_type) { create(:document_type) }
+
   let(:valid_attributes) do
     {
       name: 'Abc',
       nit: '123',
-      code: '055',
+      code: '00001',
       phone: '12345',
-      email: 'example@example.com'
+      email: 'example@example.com',
+      document_type_id: document_type.id
     }
   end
 

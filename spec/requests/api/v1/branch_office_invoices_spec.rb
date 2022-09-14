@@ -15,7 +15,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       business_name: 'Juan Perez',
       document_type: 1,
       business_nit: '1234567',
-      client_code: '055',
+      client_code: '00001',
       payment_method: 1,
       subtotal: 100,
       gift_card_total: 0,
@@ -53,7 +53,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       business_name: nil,
       document_type: nil,
       business_nit: nil,
-      client_code: nil,
+      client_code: '00001',
       payment_method: nil,
       gift_card_total: nil,
       discount: nil,
@@ -126,6 +126,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:product, company: branch_office.company) }
       let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
       before { create(:legend, economic_activity: economic_activity) }
+      before { create(:client, company: branch_office.company) }
 
       it 'does not create a new Invoice' do
         expect do

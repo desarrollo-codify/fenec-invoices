@@ -23,13 +23,19 @@ FactoryBot.define do
     company factory: :company
   end
 
+  factory :document_type do
+    code { '12345' }
+    description { 'Abc' }
+  end
+
   factory :client do
-    code { '055' }
+    code { '00001' }
     name { 'Juan' }
     nit { '123' }
     email { 'example@example.com' }
     phone { '12345' }
     company factory: :company
+    document_type factory: :document_type
   end
 
   factory :daily_code do
@@ -139,11 +145,6 @@ FactoryBot.define do
     company factory: :company
   end
 
-  factory :document_type do
-    code { '12345' }
-    description { 'Abc' }
-  end
-
   factory :payment_method do
     code { '12345' }
     description { 'Abc' }
@@ -194,5 +195,28 @@ FactoryBot.define do
     code { '12345' }
     description { 'Abc' }
     economic_activity factory: :economic_activity
+  end
+
+  factory :product_code do
+    code { '12345' }
+    description { 'Abc' }
+    economic_activity factory: :economic_activity
+  end
+
+  factory :contingency_code do
+    transient do
+      default_values { false }
+    end
+
+    code { '123abc' }
+    document_sector_code { 1 }
+    limit { 10 }
+    economic_activity factory: :economic_activity
+    after(:build) do |contingency_code, evaluator|
+      unless evaluator.default_values
+        contingency_code.current_use = 0
+        contingency_code.available = true
+      end
+    end
   end
 end

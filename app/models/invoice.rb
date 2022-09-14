@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class Invoice < ApplicationRecord
-  validates :company_nit, presence: true,
-                          numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
+  validates :company_nit, presence: true
   validates :company_name, presence: true, format: { with: VALID_NAME_REGEX }
   validates :municipality, presence: true, format: { with: VALID_NAME_REGEX }
   validates :number,
@@ -14,8 +13,7 @@ class Invoice < ApplicationRecord
   validates :date, presence: true
   validates :business_name, presence: true, format: { with: VALID_NAME_REGEX }
   validates :document_type, presence: true
-  validates :business_nit, presence: true,
-                           numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
+  validates :business_nit, presence: true
   validates :client_code, presence: true
   validates :payment_method, presence: true
   validates :total, presence: true,
@@ -41,6 +39,7 @@ class Invoice < ApplicationRecord
 
   scope :for_sending, -> { where(sent_at: nil) }
   scope :by_cufd, ->(cufd) { for_sending.where(cufd_code: cufd) }
+  scope :descending, -> { order(date: :desc) }
 
   after_initialize :default_values
 

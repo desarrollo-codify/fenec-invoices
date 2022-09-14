@@ -54,19 +54,6 @@ RSpec.describe Client, type: :model do
         expect(client).to_not be_valid
       end
     end
-
-    context 'validates numericality of nit' do
-      it { validate_numericality_of(:nit).only_integer }
-
-      describe 'with a non-numeric value' do
-        let(:client) { build(:client, nit: 'ABC') }
-
-        it 'is invalid' do
-          expect(client).to_not be_valid
-          expect(client.errors[:nit]).to eq(['El NIT debe ser un valor numérico.'])
-        end
-      end
-    end
   end
 
   describe 'email attribute' do

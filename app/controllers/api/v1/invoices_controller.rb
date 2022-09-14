@@ -10,14 +10,13 @@ module Api
 
       # GET /api/v1/invoices
       def index
-        @invoices = @branch_office.invoices # or company?
-
-        render json: @invoices
+        @invoices = @branch_office.company.invoices.includes(:branch_office, :invoice_status).descending
+        render json: @invoices.as_json(include: [{ branch_office: { only: %i[id number name] } },
+                                                 { invoice_status: { only: %i[id description] } }])
       end
 
       def pending
         @pending_invoices = @branch_office.invoices.for_sending
-
         render json: @pending_invoices
       end
 
@@ -41,16 +40,26 @@ module Api
         daily_code = @branch_office.daily_codes.current
         @invoice.cufd_code = daily_code.code
 
+        client = @company.clients.find_by(code: invoice_params[:client_code])
+        @invoice.business_name = client.name
+        @invoice.business_nit = client.nit
+        @invoice.complement = client.complement
+        @invoice.document_type = client.document_type_id
+
         @invoice.date = DateTime.now
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
-        @invoice.cafc = nil # '101993501D57D' # TODO: implement cafc
+        activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
+        @economic_activity = @company.economic_activities.find_by(code: activity_code)
+        contingency = @branch_office.contingencies.pending.last
+        @invoice.cafc = if contingency && params[:is_manual].present?
+                          contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
+                        end
         @invoice.document_sector_code = 1
-        @invoice.total = @invoice.subtotal
+        @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.gift_card - @invoice.advance
         @invoice.cash_paid = @invoice.total # TODO: implement different payments
         @invoice.invoice_status_id = 1
-        activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
 
@@ -66,9 +75,9 @@ module Api
 
         if @invoice.save
           process_pending_data(@invoice)
-          SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
+          SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code]) unless params[:is_manual].present?
 
-          render json: @invoice, include: :invoice_details, status: :created
+          render json: @invoice.as_json(only: %i[id number total cuf]), status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
@@ -94,11 +103,9 @@ module Api
           return render json: "La factura ya fue anulada el #{@invoice.cancellation_date}",
                         status: :unprocessable_entity
         end
+        @reason = params[:reason]
+        CancelInvoiceJob.perform_later(@invoice, @reason)
 
-        CancelInvoiceJob.perform_later(@invoice)
-
-        # TODO: send cancellation_reason_id in body
-        @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: 1)
         render json: @invoice
       end
 

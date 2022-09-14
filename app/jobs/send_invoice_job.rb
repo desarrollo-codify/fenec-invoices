@@ -10,15 +10,18 @@ class SendInvoiceJob < ApplicationJob
     @client = @company.clients.find_by(code: client_code)
     @branch_office = invoice.branch_office
     generate_xml(@invoice)
-
-    InvoiceMailer.with(client: @client, invoice: invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
-    if siat_available
+    begin
+      InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+    rescue StandardError => e
+      p e.message
+    end
+    if siat_available(@invoice) == true
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
 
       close_contingencies(@branch_office, @invoice) if @invoice.branch_office.contingencies.pending.any?
     else
-      create_contingency(@invoice) unless @invoice.branch_office.contingencies.pending.any?
+      create_contingency(@invoice, 2) unless @invoice.branch_office.contingencies.pending.any?
     end
   end
 
@@ -33,7 +36,7 @@ class SendInvoiceJob < ApplicationJob
       convert_request_keys_to: :none
     )
 
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+    filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
@@ -59,15 +62,14 @@ class SendInvoiceJob < ApplicationJob
         hashArchivo: file_hash(base64_file)
       }
     }
-
     response = client.call(:recepcion_factura, message: body)
     data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-    puts data
+    p data
     # TODO: process all possible scenarios
   end
 
   def generate_gzip_file(invoice)
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+    filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     zipped_filename = "#{filename}.gz"
 
     Zlib::GzipWriter.open(zipped_filename) do |gz|
@@ -163,15 +165,11 @@ class SendInvoiceJob < ApplicationJob
       end
     end
 
-    filename = "#{Rails.root}/tmp/mails/#{invoice.cuf}.xml"
+    filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     File.write(filename, builder.to_xml)
   end
 
-  def create_contingency(invoice)
-    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code, significative_event_id: 1)
-  end
-
-  def siat_available
+  def siat_available(invoice)
     client = Savon.client(
       wsdl: ENV.fetch('siat_invoices'.to_s, nil),
       headers: {
@@ -190,6 +188,13 @@ class SendInvoiceJob < ApplicationJob
       data = { return: 'Communication error' }
     end
     data == '926'
+  rescue StandardError => e
+    create_contingency(invoice, 1) if e.message.include?('TCP connection') && invoice.branch_office.contingencies.pending.none?
+  end
+
+  def create_contingency(invoice, significative_event)
+    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code,
+                                                significative_event_id: significative_event)
   end
 
   def close_contingencies(branch_office, invoice)

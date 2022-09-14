@@ -7,25 +7,23 @@
             <table width="700" cellspacing="0" cellpadding="10" bgcolor="#ffffff"> 
               <tbody>
                 <tr> 
-                  <td bgcolor="#026773" align="center" style="height: 60px">
+                  <td bgcolor="#4D6E5E" align="center" style="height: 60px">
                     <font size="6" color="white">CODIFY SRL</font>
                   </td> 
                 </tr> 
                 <tr> 
                   <td valign="top" align="center">
-                    <h2>Factura</h2>
+                    <h2>Factura Anulada</h2>
                   </td> 
                 </tr> 
                 <tr> 
                   <td> 
-                    <div>  <div>
-                      <ul>
-                        <li>Razón Social:<b><%= @invoice.business_name %></b></li>
-                        <li>Número Documento:<b><%= @invoice.business_nit %></b></li>
-                        <li>Nro Factura :<b><%= @invoice.number %></b></li>
-                        <li>Monto :<b><%= @invoice.total %></b></li>
-                        <li>Moneda :<b>BOLIVIANO</b></li>
-                        <li>Fecha :<b><strong><%= @invoice.date.strftime('%Y-%m-%d %H:%M:%S') %></strong></b></li>
+                    <div>  
+                      <div><ul>
+                        <li>Nro Factura: <b><%= @invoice.number %></b></li>
+                        <li>Codigo de control: <b><%= @invoice.cuf %></b></li>
+                        <li>Fecha de anulación: <b><strong><%= @invoice.cancellation_date.strftime('%Y-%m-%d %H:%M:%S') %></strong></b></li>
+                        <li>Motivo de anulación: <b><strong><%= @reason.description %></strong></b></li>
                       </ul></div>                  
                     </div> 
                   </td> 
@@ -35,7 +33,7 @@
             <table width="700" cellspacing="0" cellpadding="10" bgcolor="#">
               <tbody>
                 <tr> 
-                  <td style="background: #026773; color: white" align="center" bgcolor="#eaeaea">
+                  <td style="background: #4D6E5E; color: white" align="center" bgcolor="#eaeaea">
                     <center>
                       <p style="font-size: 12px; margin: 0"></p> 
                     </center> 

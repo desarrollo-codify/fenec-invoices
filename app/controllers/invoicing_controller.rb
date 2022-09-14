@@ -4,7 +4,7 @@ class InvoicingController < ActionController::Base
   require 'rqrcode'
 
   def show
-    @invoice = scope.find(3)
+    @invoice = scope.last
     @branch_office = @invoice.branch_office
     @company = @branch_office.company
     @economic_activity = @company.economic_activities.find_by(code: @invoice.invoice_details.first.economic_activity_code)
@@ -97,6 +97,6 @@ class InvoicingController < ActionController::Base
                   size: 120,
                   border_modules: 0,
                   module_px_size: 0).save(filename)
-    "/tmp/qr/#{cuf}.png"
+    "public/tmp/qr/#{cuf}.png"
   end
 end

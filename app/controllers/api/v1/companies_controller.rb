@@ -12,6 +12,8 @@ module Api
         @companies = Company.all
 
         render json: @companies.map { |company|
+                       next unless company.logo.attached?
+
                        company.as_json.merge(
                          logo: url_for(company.logo)
                        )
