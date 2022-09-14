@@ -2,7 +2,7 @@
 
 class Invoice < ApplicationRecord
   validates :company_nit, presence: true
-  validates :company_name, presence: true, format: { with: VALID_NAME_REGEX }
+  validates :company_name, presence: true
   validates :municipality, presence: true, format: { with: VALID_NAME_REGEX }
   validates :number,
             uniqueness: { scope: :cufd_code,
@@ -11,7 +11,7 @@ class Invoice < ApplicationRecord
   validates :cufd_code, presence: true
   validates :address, presence: true
   validates :date, presence: true
-  validates :business_name, presence: true, format: { with: VALID_NAME_REGEX }
+  validates :business_name, presence: true
   validates :document_type, presence: true
   validates :business_nit, presence: true
   validates :client_code, presence: true

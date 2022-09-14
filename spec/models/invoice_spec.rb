@@ -41,22 +41,6 @@ RSpec.describe Invoice, type: :model do
         expect(invoice).to_not be_valid
       end
     end
-
-    context 'with special characters' do
-      let(:invoice) { build(:invoice, company_name: '$%^') }
-
-      it 'is not valid' do
-        expect(invoice).to_not be_valid
-      end
-    end
-
-    context 'with allowed characters' do
-      let(:invoice) { build(:invoice, company_name: 'áü -_.') }
-
-      it 'is valid' do
-        expect(invoice).to be_valid
-      end
-    end
   end
 
   describe 'municipality attribute' do
@@ -161,22 +145,6 @@ RSpec.describe Invoice, type: :model do
         expect(invoice).to_not be_valid
         invoice.business_name = ''
         expect(invoice).to_not be_valid
-      end
-    end
-
-    context 'with special characters' do
-      let(:invoice) { build(:invoice, default_values: true, business_name: '@#$') }
-
-      it 'is not valid' do
-        expect(invoice).to_not be_valid
-      end
-    end
-
-    context 'with allowed characters' do
-      let(:invoice) { build(:invoice, business_name: 'áü -_.') }
-
-      it 'is valid' do
-        expect(invoice).to be_valid
       end
     end
   end
