@@ -10,6 +10,13 @@ class Client < ApplicationRecord
   belongs_to :document_type
 
   before_create do
-    self.code = Client.where.not(code:nil).last ? (Client.where.not(code:nil).last.code.to_i + 1).to_s.rjust(5, '0') : '1'.rjust(5, '0')
+    self.code = if Client.where.not(code: nil).last
+                  (Client.where.not(code: nil).last.code.to_i + 1).to_s.rjust(5,
+                                                                              '0')
+                else
+                  '1'.rjust(
+                    5, '0'
+                  )
+                end
   end
 end
