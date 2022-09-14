@@ -6,8 +6,8 @@ class ContingencyJob < ApplicationJob
   def perform(contingency)
     invoices = contingency.branch_office.invoices
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
-    current_cuis = contingency.branch_office.cuis_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
-    current_cufd = contingency.branch_office.daily_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
+    current_cuis = contingency.point_of_sale.branch_office.cuis_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
+    current_cufd = contingency.point_of_sale.branch_office.daily_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
 
     debugger
 
@@ -34,11 +34,11 @@ class ContingencyJob < ApplicationJob
       namespace: ENV.fetch('siat_namespace', nil),
       convert_request_keys_to: :none
     )
-    branch_office = contingency.branch_office
+    branch_office = contingency.point_of_sale.branch_office
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: invoices.last.point_of_sale,
+        codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: ENV.fetch('system_code', nil),
         nit: branch_office.company.nit.to_i,
         cuis: current_cuis,
@@ -90,7 +90,7 @@ class ContingencyJob < ApplicationJob
       convert_request_keys_to: :none
     )
 
-    branch_office = contingency.branch_office
+    branch_office = contingency.point_of_sale.branch_office
     company = branch_office.company
     economic_activities = company.economic_activities
 
@@ -99,7 +99,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: invoices.last.point_of_sale,
+        codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
@@ -146,7 +146,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: invoices.last.point_of_sale,
+        codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: ENV.fetch('system_code', nil),
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,

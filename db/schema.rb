@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_13_141946) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_14_153938) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -34,7 +34,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_13_141946) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.integer "blob_id", null: false
+    t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -88,14 +88,15 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_13_141946) do
   create_table "contingencies", force: :cascade do |t|
     t.datetime "start_date", null: false
     t.datetime "end_date"
-    t.integer "branch_office_id", null: false
+    t.string "reception_code"
+    t.string "cufd_code"
     t.integer "significative_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "reception_code"
     t.string "event_reception_code"
     t.string "status"
-    t.index ["branch_office_id"], name: "index_contingencies_on_branch_office_id"
+    t.integer "point_of_sale_id", null: false
+    t.index ["point_of_sale_id"], name: "index_contingencies_on_point_of_sale_id"
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
 
@@ -276,9 +277,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_13_141946) do
     t.integer "invoice_status_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "send_at"
-    t.integer "cancellation_reason_id"
     t.string "sent_at"
+    t.integer "cancellation_reason_id"
+    t.datetime "send_to_client_at"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
     t.index ["cancellation_reason_id"], name: "index_invoices_on_cancellation_reason_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
@@ -354,6 +355,16 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_13_141946) do
     t.index ["code"], name: "index_pos_types_on_code", unique: true
   end
 
+  create_table "product_approvals", force: :cascade do |t|
+    t.integer "code", null: false
+    t.string "description", null: false
+    t.integer "economic_activity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["economic_activity_id", "code"], name: "index_product_approvals_on_economic_activity_id_and_code", unique: true
+    t.index ["economic_activity_id"], name: "index_product_approvals_on_economic_activity_id"
+  end
+
   create_table "product_codes", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -423,7 +434,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_13_141946) do
   add_foreign_key "branch_offices", "companies"
   add_foreign_key "clients", "companies"
   add_foreign_key "clients", "document_types"
-  add_foreign_key "contingencies", "branch_offices"
+  add_foreign_key "contingencies", "point_of_sales"
   add_foreign_key "contingencies", "significative_events"
   add_foreign_key "contingency_codes", "economic_activities"
   add_foreign_key "cuis_codes", "branch_offices"
@@ -439,6 +450,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_13_141946) do
   add_foreign_key "legends", "economic_activities"
   add_foreign_key "mail_settings", "companies"
   add_foreign_key "point_of_sales", "branch_offices"
+  add_foreign_key "product_approvals", "economic_activities"
   add_foreign_key "product_codes", "economic_activities"
   add_foreign_key "products", "companies"
 end

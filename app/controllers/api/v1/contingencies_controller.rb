@@ -19,7 +19,7 @@ module Api
 
       # POST /api/v1/branch_office/:branch_office_id/contingencies
       def create
-        @contingency = @branch_office.contingencies.build(contingency_params)
+        @contingency = @point_of_sale.contingencies.build(contingency_params)
 
         if @contingency.save
           render json: @contingency, status: :created
@@ -62,7 +62,7 @@ module Api
       end
 
       def set_branch_office
-        @branch_office = BranchOffice.find(params[:branch_office_id])
+        @point_of_sale = PointOfSale.find(params[:point_of_sale_id])
       end
 
       # Only allow a list of trusted parameters through.

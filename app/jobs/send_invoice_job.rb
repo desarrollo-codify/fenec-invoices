@@ -19,9 +19,9 @@ class SendInvoiceJob < ApplicationJob
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
 
-      close_contingencies(@branch_office, @invoice) if @invoice.branch_office.contingencies.pending.any?
+      close_contingencies(@branch_office, @invoice) if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
     else
-      create_contingency(@invoice, 2) unless @invoice.branch_office.contingencies.pending.any?
+      create_contingency(@invoice, 2) unless @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
     end
   end
 
@@ -194,12 +194,12 @@ class SendInvoiceJob < ApplicationJob
 
   def create_contingency(invoice, significative_event)
     @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code,
-                                                significative_event_id: significative_event)
+                                                significative_event_id: significative_event, point_of_sale_id: invoice.point_of_sale)
   end
 
   def close_contingencies(branch_office, invoice)
     GenerateCufd.generate(branch_office, invoice)
-    @contingency = invoice.branch_office.contingencies.pending.last
+    @contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.last
     @contingency.close!
     ContingencyJob.perform_now(@contingency)
   end

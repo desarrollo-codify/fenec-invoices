@@ -10,7 +10,6 @@ class BranchOffice < ApplicationRecord
   has_many :daily_codes, dependent: :destroy
   has_many :invoices
   has_many :cuis_codes, dependent: :destroy
-  has_many :contingencies, dependent: :destroy
   has_many :point_of_sales, dependent: :destroy
 
   def add_cuis_code!(code, expiration_date, point_of_sale)
