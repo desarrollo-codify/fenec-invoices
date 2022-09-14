@@ -4,10 +4,12 @@ class ContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
   def perform(contingency)
-    current_cuis = contingency.branch_office.cuis_codes.last.code
-    current_cufd = contingency.branch_office.daily_codes.last.code
     invoices = contingency.branch_office.invoices
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
+    current_cuis = contingency.branch_office.cuis_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
+    current_cufd = contingency.branch_office.daily_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
+
+    debugger
 
     return if pending_invoices.empty?
 
@@ -19,7 +21,7 @@ class ContingencyJob < ApplicationJob
       filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
       File.delete(filename)
     end
-    reception_validation(pending_invoices, contingency)
+    reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
   end
 
   def send_contingency(invoices, contingency, contingency_cufd, current_cuis, current_cufd)
@@ -128,10 +130,9 @@ class ContingencyJob < ApplicationJob
     end
   end
 
-  def reception_validation(invoices, contingency)
+  def reception_validation(invoices, contingency, current_cuis, current_cufd)
     branch_office = contingency.branch_office
-    cuis_code = contingency.branch_office.cuis_codes.last
-    cufd_code = contingency.branch_office.daily_codes.last
+
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
@@ -152,8 +153,8 @@ class ContingencyJob < ApplicationJob
         codigoDocumentoSector: 1,
         codigoEmision: 2,
         codigoModalidad: 2,
-        cufd: cufd_code.code,
-        cuis: cuis_code.code,
+        cufd: current_cuis,
+        cuis: current_cufd,
         tipoFacturaDocumento: 1,
         codigoRecepcion: contingency.reception_code
       }

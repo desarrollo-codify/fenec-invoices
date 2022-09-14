@@ -2,7 +2,7 @@
 
 class GenerateCufd
   def self.generate(branch_office, invoice)
-    cuis_code = branch_office.cuis_codes.current.code
+    cuis_code = branch_office.cuis_codes.find_by(point_of_sale: invoice.point_of_sale).current.code
 
     client = Savon.client(
       wsdl: ENV.fetch('cuis_wsdl'.to_s, nil),

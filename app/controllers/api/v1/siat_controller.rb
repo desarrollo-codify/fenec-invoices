@@ -8,6 +8,7 @@ module Api
 
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
+      before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generar_cufd verify_communication]
 
       def invoice_params
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
@@ -31,7 +32,7 @@ module Api
           @invoice.phone = @branch_office.phone
           # TODO: add some scope for getting the current daily code number
           # it might not be the last one
-          daily_code = @branch_office.daily_codes.last
+          daily_code = @branch_office.daily_codes.find_by(point_of_sale: invoice_params[:point_of_sale]).current
           @invoice.cufd_code = daily_code.code
           @invoice.date = DateTime.now
           @invoice.control_code = daily_code.control_code
@@ -67,7 +68,7 @@ module Api
       end
 
       def process_pending_data(invoice)
-        invoice.number = invoice_number
+        invoice.number = invoice_number(invoice)
         invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, invoice.point_of_sale)
         # TODO: implement paper size: 1 roll, 2 half office or half letter
         invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
@@ -92,10 +93,10 @@ module Api
         (hex_code + control_code).upcase
       end
 
-      def invoice_number
+      def invoice_number(invoice)
         # TODO: add some scope for getting the current cuis code
         # it might not be the last one
-        cuis_code = @branch_office.cuis_codes.last
+        cuis_code = @branch_office.cuis_codes.find_by(point_of_sale: invoice.point_of_sale).current
         current_number = cuis_code.current_number
         cuis_code.increment!
         current_number
@@ -163,7 +164,7 @@ module Api
       end
 
       def generate_cufd
-        if @cuis_code&.code.blank?
+        if @cuis_code&.code.find_by(point_of_sale: params[:point_of_sale]).blank?
           render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
           return
         end
@@ -176,7 +177,7 @@ module Api
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
-            cuis: @cuis_code.code,
+            cuis: @cuis_code.find_by(point_of_sale: params[:point_of_sale]).code,
             codigoSucursal: @branch_office.number
           }
         }
@@ -197,7 +198,7 @@ module Api
       end
 
       def show_cufd
-        @daily_code = @branch_office.daily_codes.current
+        @daily_code = @branch_office.daily_codes.find_by(point_of_sale: invoice_params[:point_of_sale]).current
         if @daily_code
           render json: @daily_code
         else
@@ -789,6 +790,10 @@ module Api
 
       def set_cuis_code
         @cuis_code = @branch_office.cuis_codes.where('point_of_sale = ?', params[:point_of_sale]).current
+      end
+
+      def set_cuis_code_default
+        @cuis_code = @branch_office.cuis_codes.find_by(point_of_sale: 0).current
       end
     end
     # rubocop:enable Metrics/ClassLength

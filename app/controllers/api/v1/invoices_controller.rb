@@ -37,7 +37,7 @@ module Api
         @invoice.municipality = @branch_office.city
         @invoice.phone = @branch_office.phone
 
-        daily_code = @branch_office.daily_codes.current
+        daily_code = @branch_office.daily_codes.find_by(point_of_sale: invoice_params[:point_of_sale]).current
         @invoice.cufd_code = daily_code.code
 
         client = @company.clients.find_by(code: invoice_params[:client_code])
@@ -132,7 +132,7 @@ module Api
       end
 
       def process_pending_data(invoice)
-        invoice.number = invoice_number
+        invoice.number = invoice_number(invoice)
         invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code)
         # TODO: implement paper size: 1 roll, 2 half office or half letter
         invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
@@ -157,8 +157,8 @@ module Api
         (hex_code + control_code).upcase
       end
 
-      def invoice_number
-        cuis_code = @branch_office.cuis_codes.current
+      def invoice_number(invoice)
+        cuis_code = @branch_office.cuis_codes.find_by(point_of_sale: invoice.point_of_sale).current
         current_number = cuis_code.current_number
         cuis_code.increment!
         current_number
