@@ -77,7 +77,7 @@ module Api
           process_pending_data(@invoice)
           SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code]) unless params[:is_manual].present?
 
-          render json: @invoice, include: :invoice_details, status: :created
+          render json: @invoice.as_json(only: %i[id number total cuf]), status: :created
         else
           render json: @invoice.errors, status: :unprocessable_entity
         end
