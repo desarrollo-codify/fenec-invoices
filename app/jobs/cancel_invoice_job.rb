@@ -12,7 +12,7 @@ class CancelInvoiceJob < ApplicationJob
     @reason = CancellationReason.find_by(code: reason)
     begin
       if @invoice.cancellation_date.present?
-        CancellationInvoiceMailer.with(client: @client, invoice: invoice, sender: @company.mail_setting,
+        CancellationInvoiceMailer.with(client: @client, invoice: invoice, sender: @company.company_setting,
                                        reason: @reason).send_invoice.deliver_now
       end
     rescue StandardError => e
@@ -28,7 +28,7 @@ class CancelInvoiceJob < ApplicationJob
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices', nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
@@ -39,7 +39,7 @@ class CancelInvoiceJob < ApplicationJob
       SolicitudServicioAnulacionFactura: {
         codigoAmbiente: 2,
         codigoPuntoVenta: invoice.point_of_sale,
-        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
         codigoDocumentoSector: 1,

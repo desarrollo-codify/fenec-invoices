@@ -2,7 +2,6 @@
 
 module Api
   module V1
-    # rubocop:disable Metrics/ClassLength
     class SiatController < ApplicationController
       require 'savon'
 
@@ -10,127 +9,15 @@ module Api
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
       before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]
 
-      def invoice_params
-        params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
-                                        :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
-                                        :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
-                                        :cancellation_reason_id, :point_of_sale,
-                                        invoice_details_attributes: %i[product_code description quantity measurement_id
-                                                                       unit_price discount subtotal serial_number imei_code
-                                                                       economic_activity_code])
-      end
-
-      def pruebas
-        Invoice.destroy_all
-        (1..500).each do |i|
-          @invoice = @branch_office.invoices.build(invoice_params)
-          @company = @branch_office.company
-
-          @invoice.company_name = @branch_office.company.name
-          @invoice.company_nit = @branch_office.company.nit
-          @invoice.municipality = @branch_office.city
-          @invoice.phone = @branch_office.phone
-          # TODO: add some scope for getting the current daily code number
-          # it might not be the last one
-          daily_code = @branch_office.daily_codes.find_by(point_of_sale: invoice_params[:point_of_sale]).current
-          @invoice.cufd_code = daily_code.code
-          @invoice.date = DateTime.now
-          @invoice.control_code = daily_code.control_code
-          @invoice.branch_office_number = @branch_office.number
-          @invoice.address = @branch_office.address
-          @invoice.cafc = nil, # '101993501D57D' # TODO: implement cafc
-                          @invoice.document_sector_code = 1
-          @invoice.total = @invoice.subtotal
-          @invoice.cash_paid = @invoice.total # TODO: implement different payments
-          @invoice.invoice_status_id = 1
-          activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
-          @economic_activity = @company.economic_activities.find_by(code: activity_code)
-          @invoice.legend = @economic_activity.random_legend.description
-
-          @invoice.invoice_details.each do |detail|
-            detail.total = detail.subtotal
-            detail.product = @company.products.find_by(primary_code: detail.product_code)
-            detail.sin_code = detail.product.sin_code
-          end
-          render json: @invoice.errors, status: :unprocessable_entity unless @invoice.valid?
-
-          if @invoice.save
-            process_pending_data(@invoice)
-            SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code])
-          end
-
-          puts ' '
-          puts "#{i}..."
-        end
-      end
-
-      def process_pending_data(invoice)
-        invoice.number = invoice_number(invoice)
-        invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, invoice.point_of_sale)
-        # TODO: implement paper size: 1 roll, 2 half office or half letter
-        invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
-        invoice.save
-      end
-
-      def cuf(invoice_date, current_number, control_code, point_of_sale)
-        nit = @branch_office.company.nit.rjust(13, '0')
-        date = invoice_date.strftime('%Y%m%d%H%M%S%L')
-        branch_office = @branch_office.number.to_s.rjust(4, '0')
-        modality = '2' # TODO: save modality in company or branch office
-        generation_type = '1' # TODO: add generation types for: online, offline and massive
-        invoice_type = '1' # TODO: add invoice types table
-        sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
-        number = current_number.to_s.rjust(10, '0')
-        point_of_sale = point_of_sale.to_s.rjust(4, '0') # TODO: implement point of sales for each branch office
-
-        long_code = nit + date + branch_office + modality + generation_type + invoice_type + sector_document_type + number +
-                    point_of_sale
-        mod_11_value = module_eleven(long_code, 9)
-        hex_code = hex_base(mod_11_value.to_i)
-        (hex_code + control_code).upcase
-      end
-
-      def invoice_number(invoice)
-        # TODO: add some scope for getting the current cuis code
-        # it might not be the last one
-        cuis_code = @branch_office.cuis_codes.find_by(point_of_sale: invoice.point_of_sale).current
-        current_number = cuis_code.current_number
-        cuis_code.increment!
-        current_number
-      end
-
-      # TODO: refactor module_eleven and hex_base, move them to a calculator class
-      def module_eleven(code, limit)
-        sum = 0
-        multiplier = 2
-        code.reverse.each_char.with_index do |character, _i|
-          sum += multiplier * character.to_i
-          multiplier += 1
-          multiplier = 2 if multiplier > limit
-        end
-        digit = sum % 11
-        last_char = digit == 10 ? '1' : digit.to_s
-        code + last_char
-      end
-
-      def hex_base(value)
-        value.to_s(16)
-      end
-
-      def qr_content(nit, cuf, number, page_size)
-        base_url = ENV.fetch('siat_url', nil)
-        params = { nit: nit, cuf: cuf, numero: number, t: page_size }
-        "#{base_url}?#{params.to_param}"
-      end
-
       def generate_cuis
+        @company = @branch_office.company
         client = siat_client('cuis_wsdl')
         body = {
           SolicitudCuis: {
             codigoAmbiente: 2,
             codigoPuntoVenta: params[:point_of_sale],
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
+            codigoSistema: @company.company_setting.system_code,
+            nit: @company.nit.to_i,
             codigoModalidad: 2,
             codigoSucursal: @branch_office.number
           }
@@ -166,13 +53,14 @@ module Api
           return
         end
 
+        @company = @branch_office.company
         client = siat_client('cuis_wsdl')
         body = {
           SolicitudCufd: {
             codigoAmbiente: 2,
             codigoPuntoVenta: params[:point_of_sale],
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
+            codigoSistema: @company.company_setting.system_code,
+            nit: @company.nit.to_i,
             codigoModalidad: 2,
             cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
@@ -206,18 +94,9 @@ module Api
 
       def product_codes
         client = siat_client('products_wsdl')
+        company = @branch_office.company
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_lista_productos_servicios, message: body)
+        response = client.call(:sincronizar_lista_productos_servicios, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_lista_productos_servicios_response, :respuesta_lista_productos, :lista_codigos)
           response_data = data.map do |a|
@@ -246,17 +125,7 @@ module Api
       def economic_activities
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: 0
-          }
-        }
-
-        response = client.call(:sincronizar_actividades, message: body)
+        response = client.call(:sincronizar_actividades, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_actividades_response, :respuesta_lista_actividades, :lista_actividades)
 
@@ -277,17 +146,7 @@ module Api
       def document_types
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipo_documento_identidad, message: body)
+        response = client.call(:sincronizar_parametrica_tipo_documento_identidad, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipo_documento_identidad_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -308,17 +167,7 @@ module Api
       def payment_methods
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipo_metodo_pago, message: body)
+        response = client.call(:sincronizar_parametrica_tipo_metodo_pago, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipo_metodo_pago_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -339,17 +188,7 @@ module Api
       def legends
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_lista_leyendas_factura, message: body)
+        response = client.call(:sincronizar_lista_leyendas_factura, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_lista_leyendas_factura_response, :respuesta_lista_parametricas_leyendas,
                                    :lista_leyendas)
@@ -375,17 +214,7 @@ module Api
       def measurements
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_unidad_medida, message: body)
+        response = client.call(:sincronizar_parametrica_unidad_medida, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_unidad_medida_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -406,17 +235,7 @@ module Api
       def significative_events
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_eventos_significativos, message: body)
+        response = client.call(:sincronizar_parametrica_eventos_significativos, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_eventos_significativos_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -449,17 +268,7 @@ module Api
       def pos_types
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipo_punto_venta, message: body)
+        response = client.call(:sincronizar_parametrica_tipo_punto_venta, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipo_punto_venta_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -480,17 +289,7 @@ module Api
       def cancellation_reasons
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_motivo_anulacion, message: body)
+        response = client.call(:sincronizar_parametrica_motivo_anulacion, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_motivo_anulacion_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -511,17 +310,7 @@ module Api
       def document_sectors
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number,
-            codigoPuntoVenta: 0
-          }
-        }
-        response = client.call(:sincronizar_lista_actividades_documento_sector, message: body)
+        response = client.call(:sincronizar_lista_actividades_documento_sector, message: siat_body)
 
         if response.success?
           data = response.to_array(:sincronizar_lista_actividades_documento_sector_response,
@@ -553,17 +342,7 @@ module Api
       def countries
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_pais_origen, message: body)
+        response = client.call(:sincronizar_parametrica_pais_origen, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_pais_origen_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -584,17 +363,7 @@ module Api
       def issuance_types
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipo_emision, message: body)
+        response = client.call(:sincronizar_parametrica_tipo_emision, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipo_emision_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -615,17 +384,7 @@ module Api
       def room_types
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipo_habitacion, message: body)
+        response = client.call(:sincronizar_parametrica_tipo_habitacion, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipo_habitacion_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -646,17 +405,7 @@ module Api
       def currency_types
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipo_moneda, message: body)
+        response = client.call(:sincronizar_parametrica_tipo_moneda, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipo_moneda_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -677,17 +426,7 @@ module Api
       def invoice_types
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipos_factura, message: body)
+        response = client.call(:sincronizar_parametrica_tipos_factura, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipos_factura_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -708,17 +447,7 @@ module Api
       def service_messages
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_lista_mensajes_servicios, message: body)
+        response = client.call(:sincronizar_lista_mensajes_servicios, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_lista_mensajes_servicios_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -739,17 +468,7 @@ module Api
       def document_sector_types
         client = siat_client('products_wsdl')
 
-        body = {
-          SolicitudSincronizacion: {
-            codigoAmbiente: 2,
-            codigoSistema: ENV.fetch('system_code', nil),
-            nit: @branch_office.company.nit.to_i,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
-
-        response = client.call(:sincronizar_parametrica_tipo_documento_sector, message: body)
+        response = client.call(:sincronizar_parametrica_tipo_documento_sector, message: siat_body)
         if response.success?
           data = response.to_array(:sincronizar_parametrica_tipo_documento_sector_response, :respuesta_lista_parametricas,
                                    :lista_codigos)
@@ -777,7 +496,7 @@ module Api
         Savon.client(
           wsdl: ENV.fetch(wsdl_name.to_s, nil),
           headers: {
-            'apikey' => ENV.fetch('api_key', nil),
+            'apikey' => @company.company_setting.api_key,
             'SOAPAction' => ''
           },
           namespace: ENV.fetch('siat_namespace', nil),
@@ -792,7 +511,18 @@ module Api
       def set_cuis_code_default
         @cuis_code = @branch_office.cuis_codes.where(point_of_sale: 0).current
       end
+
+      def siat_body
+        {
+          SolicitudSincronizacion: {
+            codigoAmbiente: 2,
+            codigoSistema: @branch_office.company.company_setting.system_code,
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number
+          }
+        }
+      end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end

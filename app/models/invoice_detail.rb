@@ -2,7 +2,6 @@
 
 class InvoiceDetail < ApplicationRecord
   validates :economic_activity_code, presence: true
-  validates :sin_code, presence: true
   validates :product_code, presence: true
   validates :description, presence: true, format: { with: VALID_NAME_REGEX }
   validates :quantity, presence: true,

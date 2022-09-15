@@ -7,7 +7,7 @@ class GenerateCufd
     client = Savon.client(
       wsdl: ENV.fetch('cuis_wsdl'.to_s, nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
@@ -17,7 +17,7 @@ class GenerateCufd
       SolicitudCufd: {
         codigoAmbiente: 2,
         codigoPuntoVenta: invoice.point_of_sale,
-        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSistema: branch_office.company.company_setting.system_code,
         nit: branch_office.company.nit.to_i,
         codigoModalidad: 2,
         cuis: cuis_code,

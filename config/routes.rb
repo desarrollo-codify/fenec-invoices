@@ -10,6 +10,11 @@ Rails.application.routes.draw do
 
   resources :invoicing, only: :show
 
+  post 'siat_tests/sync_codes'
+  post 'siat_tests/cufd_codes'
+  post 'siat_tests/generate_invoices'
+  post 'siat_tests/cancel_invoices'
+
   namespace :api do
     namespace :v1 do
       resources :companies do

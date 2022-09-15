@@ -12,7 +12,7 @@ class PointOfSaleJob < ApplicationJob
     client = Savon.client(
       wsdl: ENV.fetch('siat_operations', nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
@@ -23,7 +23,7 @@ class PointOfSaleJob < ApplicationJob
       SolicitudRegistroPuntoVenta: {
         codigoAmbiente: 2,
         codigoModalidad: 2,
-        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         codigoTipoPuntoVenta: 2,
         cuis: branch_office.cuis_codes.current.code,
