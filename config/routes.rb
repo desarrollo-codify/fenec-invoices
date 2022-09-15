@@ -32,7 +32,7 @@ Rails.application.routes.draw do
         resources :invoices, only: %i[index create] do
           get :pending, on: :collection
         end
-        resources :point_of_sales, shallow: true do          
+        resources :point_of_sales, shallow: true do
           resources :contingencies, shallow: true do
             post :close, on: :member
           end

@@ -53,7 +53,7 @@ class CancelInvoiceJob < ApplicationJob
       }
     }
     response = client.call(:anulacion_factura, message: body)
-    
+
     data = response.to_array(:anulacion_factura_response, :respuesta_servicio_facturacion).first
     puts data
 
