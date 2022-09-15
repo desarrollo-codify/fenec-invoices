@@ -4,10 +4,10 @@ module Api
   module V1
     class ContingenciesController < ApplicationController
       before_action :set_contingency, only: %i[show close update destroy]
-      before_action :set_branch_office, only: %i[index create]
+      before_action :set_point_of_sale, only: %i[index create]
       # GET /api/v1/contingencies
       def index
-        @contingencies = branch_office.contingencies
+        @contingencies = @point_of_sale.contingencies
 
         render json: @contingencies
       end
@@ -20,6 +20,8 @@ module Api
       # POST /api/v1/branch_office/:branch_office_id/contingencies
       def create
         @contingency = @point_of_sale.contingencies.build(contingency_params)
+        @contingency.start_date = DateTime.now
+        @contingency.cufd_code = DailyCode.where(point_of_sale: params[:point_of_sale_id]).last.code
 
         if @contingency.save
           render json: @contingency, status: :created
@@ -61,7 +63,7 @@ module Api
         @contingency = Contingency.find(params[:id])
       end
 
-      def set_branch_office
+      def set_point_of_sale
         @point_of_sale = PointOfSale.find(params[:point_of_sale_id])
       end
 

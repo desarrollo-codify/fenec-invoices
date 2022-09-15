@@ -52,7 +52,7 @@ module Api
         @invoice.address = @branch_office.address
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
-        contingency = Contingency.where(point_of_sale_id: invoice_params[:point_of_sale]).pending # TODO: Refactor
+        contingency = Contingency.where(point_of_sale_id: invoice_params[:point_of_sale]).pending.last # TODO: Refactor
         @invoice.cafc = if contingency.present? && params[:is_manual].present?
                           contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
                         end

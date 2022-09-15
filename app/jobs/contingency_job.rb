@@ -7,6 +7,7 @@ class ContingencyJob < ApplicationJob
     point_of_sale = contingency.point_of_sale.code
     invoices = contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
+    
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes
                               .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
     current_cufd = contingency.point_of_sale.branch_office.daily_codes
@@ -26,6 +27,8 @@ class ContingencyJob < ApplicationJob
   end
 
   def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)
+    branch_office = contingency.point_of_sale.branch_office
+
     client = Savon.client(
       wsdl: ENV.fetch('siat_operations'.to_s, nil),
       headers: {
@@ -35,7 +38,6 @@ class ContingencyJob < ApplicationJob
       namespace: ENV.fetch('siat_namespace', nil),
       convert_request_keys_to: :none
     )
-    branch_office = contingency.point_of_sale.branch_office
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
@@ -119,6 +121,7 @@ class ContingencyJob < ApplicationJob
     }
 
     response = client.call(:recepcion_paquete_factura, message: body)
+    
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
 
@@ -159,7 +162,7 @@ class ContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
-
+    
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       description = data[:codigo_descripcion]
