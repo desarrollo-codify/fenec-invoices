@@ -67,7 +67,7 @@ module Api
         @invoice.legend = @economic_activity.random_legend.description
 
         @invoice.invoice_details.each do |detail|
-          detail.total = detail.subtotal
+          detail.total = detail.subtotal - detail.discount
           detail.product = @company.products.find_by(primary_code: detail.product_code)
           detail.sin_code = detail.product.sin_code
         end
