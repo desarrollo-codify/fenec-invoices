@@ -39,16 +39,23 @@ class InvoiceMailer < ApplicationMailer
 
   def generate_pdf
     # TODO: make dynamic
+    
     options = {
       page_height: '33cm'
     }
+
+    height = 33
+    details_count = @invoice.invoice_details.count
+    if details_count > 4
+      height += details_count - 4
+    end
 
     WickedPdf.new.pdf_from_string(
       render_to_string(
         pdf: 'file_name',
         template: 'layouts/invoice',
         page_width: '8.5cm',
-        page_height: '33cm',
+        page_height: "#{height}cm",
         page_size: nil,
         title: '',
         margin: {
