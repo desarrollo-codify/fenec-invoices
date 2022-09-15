@@ -23,9 +23,14 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
-        render json: @invoice.as_json(include: [{ branch_office: { only: %i[id number name] } },
-                                                 { invoice_status: { only: %i[id description] } },
-                                                 { invoice_details: { except: %i[created_at updated_at] }}])
+        result = @invoice.as_json(include: [{ branch_office: { only: %i[id number name] } },
+                                                { invoice_status: { only: %i[id description] } },
+                                                { invoice_details: { include: {
+                                                                      measurement: { except: %i[created_at updated_at] }}, 
+                                                                     except: %i[created_at updated_at] } 
+                                                }])
+        result = result.merge(identity_document: DocumentType.find_by(code: @invoice.document_type))
+        render json: result
       end
 
       # POST /api/v1/invoices
