@@ -4,7 +4,7 @@ module Api
   module V1
     class DailyCodesController < ApplicationController
       before_action :set_daily_code, only: %i[show update destroy]
-      before_action :set_branch_office, only: %i[index create]
+      before_action :set_branch_office, only: %i[index create current]
 
       # GET /api/v1/branch_offices/:branch_office_id/daily_codes
       def index
@@ -16,6 +16,17 @@ module Api
       # GET /api/v1/daily_codes/1
       def show
         render json: @daily_code
+      end
+
+      # GET /api/v1/branch_offices/:branch_office_id/current_code
+      def current
+        @daily_code = @branch_office.daily_codes.where(point_of_sale: params[:point_of_sale]).current
+        if @daily_code.present?
+          render json: @daily_code
+        else
+          error_message = 'La sucursal no cuenta con un codigo diario CUFD.'
+          render json: error_message, status: :not_found
+        end
       end
 
       # POST /api/v1/branch_offices/:branch_office_id/daily_codes
