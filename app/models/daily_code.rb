@@ -17,9 +17,8 @@ class DailyCode < ApplicationRecord
     last_daily_code = DailyCode.where(branch_office_id: branch_office_id, point_of_sale: point_of_sale).last
     return unless last_daily_code
 
-    if end_date < last_daily_code.end_date
-      errors.add(:effective_date,
-                 'No se puede registrar una fecha anterior al último registro.')
-    end
+    return unless end_date < last_daily_code.end_date
+
+    errors.add(:end_date, 'No se puede registrar una fecha anterior al último registro.')
   end
 end

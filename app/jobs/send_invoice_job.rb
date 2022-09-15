@@ -10,22 +10,22 @@ class SendInvoiceJob < ApplicationJob
     @client = @company.clients.find_by(code: client_code)
     @branch_office = invoice.branch_office
     generate_xml(@invoice)
-    # begin
-    #   InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
-    # rescue StandardError => e
-    #   p e.message
-    # end
+
+    begin
+      InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+    rescue StandardError => e
+      p e.message
+    end
+
     if siat_available(@invoice) == true
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
       if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
-        close_contingencies(@branch_office,
-                            @invoice)
+        close_contingencies(@branch_office, @invoice)
       end
     else
       unless @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
-        create_contingency(@invoice,
-                           2)
+        create_contingency(@invoice, 2)
       end
     end
   end
@@ -199,10 +199,11 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def create_contingency(invoice, significative_event)
-    @invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.create(start_date: invoice.date,
-                                                                                                    cufd_code: invoice.cufd_code,
-                                                                                                    significative_event_id: significative_event,
-                                                                                                    point_of_sale_id: invoice.point_of_sale)
+    @invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale)
+            .contingencies.create(start_date: invoice.date,
+                                  cufd_code: invoice.cufd_code,
+                                  significative_event_id: significative_event,
+                                  point_of_sale_id: invoice.point_of_sale)
   end
 
   def close_contingencies(branch_office, invoice)

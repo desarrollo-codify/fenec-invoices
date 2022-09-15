@@ -43,6 +43,7 @@ FactoryBot.define do
     effective_date { Date.today }
     control_code { '123abc' }
     end_date { DateTime.now + 1.hour }
+    point_of_sale { 0 }
     branch_office factory: :branch_office
   end
 
@@ -59,6 +60,7 @@ FactoryBot.define do
     code { 'ABC' }
     expiration_date { DateTime.now + 1.hour }
     branch_office factory: :branch_office
+    point_of_sale { 0 }
 
     after(:build) do |cuis_code, evaluator|
       cuis_code.current_number = 1 unless evaluator.default_values
@@ -174,16 +176,16 @@ FactoryBot.define do
     description { 'Abc' }
   end
 
-  factory :contingency do
-    start_date { '2022-08-30' }
-    branch_office factory: :branch_office
-    significative_event factory: :significative_event
-  end
-
   factory :point_of_sale do
     name { 'ABC' }
     code { 1 }
     branch_office factory: :branch_office
+  end
+
+  factory :contingency do
+    start_date { '2022-08-30' }
+    point_of_sale factory: :point_of_sale
+    significative_event factory: :significative_event
   end
 
   factory :cancellation_reason do

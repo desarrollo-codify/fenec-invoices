@@ -7,13 +7,15 @@ class ContingencyJob < ApplicationJob
     point_of_sale = contingency.point_of_sale.code
     invoices = contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
-    current_cuis = contingency.point_of_sale.branch_office.cuis_codes.where(point_of_sale: pending_invoices.last.point_of_sale).current.code
-    current_cufd = contingency.point_of_sale.branch_office.daily_codes.where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+    current_cuis = contingency.point_of_sale.branch_office.cuis_codes
+                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+    current_cufd = contingency.point_of_sale.branch_office.daily_codes
+                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
 
     return if pending_invoices.empty?
 
     event_cufd = pending_invoices.first.cufd_code
-    send_contingency(pending_invoices, contingency, event_cufd, current_cuis, current_cufd)
+    send_contingency(contingency, event_cufd, current_cuis, current_cufd)
     send_package(pending_invoices, contingency, current_cuis, current_cufd)
     pending_invoices.each do |invoice|
       invoice.update(sent_at: DateTime.now)
@@ -23,7 +25,7 @@ class ContingencyJob < ApplicationJob
     reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
   end
 
-  def send_contingency(_invoices, contingency, contingency_cufd, current_cuis, current_cufd)
+  def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)
     client = Savon.client(
       wsdl: ENV.fetch('siat_operations'.to_s, nil),
       headers: {

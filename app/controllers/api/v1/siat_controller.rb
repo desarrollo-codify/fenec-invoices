@@ -52,10 +52,7 @@ module Api
             detail.product = @company.products.find_by(primary_code: detail.product_code)
             detail.sin_code = detail.product.sin_code
           end
-          unless @invoice.valid?
-            render json: @invoice.errors, status: :unprocessable_entity
-            return
-          end
+          render json: @invoice.errors, status: :unprocessable_entity unless @invoice.valid?
 
           if @invoice.save
             process_pending_data(@invoice)
@@ -75,7 +72,7 @@ module Api
         invoice.save
       end
 
-      def cuf(invoice_date, invoice_number, control_code, point_of_sale)
+      def cuf(invoice_date, current_number, control_code, point_of_sale)
         nit = @branch_office.company.nit.rjust(13, '0')
         date = invoice_date.strftime('%Y%m%d%H%M%S%L')
         branch_office = @branch_office.number.to_s.rjust(4, '0')
@@ -83,7 +80,7 @@ module Api
         generation_type = '1' # TODO: add generation types for: online, offline and massive
         invoice_type = '1' # TODO: add invoice types table
         sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
-        number = invoice_number.to_s.rjust(10, '0')
+        number = current_number.to_s.rjust(10, '0')
         point_of_sale = point_of_sale.to_s.rjust(4, '0') # TODO: implement point of sales for each branch office
 
         long_code = nit + date + branch_office + modality + generation_type + invoice_type + sector_document_type + number +
@@ -198,7 +195,7 @@ module Api
       end
 
       def show_cufd
-        @daily_code = @branch_office.daily_codes.find_by(point_of_sale: invoice_params[:point_of_sale]).current
+        @daily_code = @branch_office.daily_codes.where(point_of_sale: params[:point_of_sale]).current
         if @daily_code
           render json: @daily_code
         else
@@ -793,7 +790,7 @@ module Api
       end
 
       def set_cuis_code_default
-        @cuis_code = @branch_office.cuis_codes.find_by(point_of_sale: 0).current
+        @cuis_code = @branch_office.cuis_codes.where(point_of_sale: 0).current
       end
     end
     # rubocop:enable Metrics/ClassLength

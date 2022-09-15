@@ -145,19 +145,6 @@ RSpec.describe BranchOffice, type: :model do
     end
   end
 
-  describe 'validates dependent destroy for contingencies' do
-    it { expect(subject).to have_many(:contingencies).dependent(:destroy) }
-
-    describe 'when deleting a branch office' do
-      let(:branch_office) { create(:branch_office) }
-      before { create(:contingency, branch_office: branch_office) }
-
-      it 'destroys the daily code' do
-        expect { branch_office.destroy }.to change { Contingency.count }.by(-1)
-      end
-    end
-  end
-
   describe 'validates dependent destroy for point_of_sales' do
     it { expect(subject).to have_many(:point_of_sales).dependent(:destroy) }
 
