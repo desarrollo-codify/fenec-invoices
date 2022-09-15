@@ -3,7 +3,6 @@
 class SiatTestsController < ApplicationController
   before_action :set_company, only: %i[sync_codes cufd_codes]
 
-
   def sync_codes
     client = siat_client('products_wsdl')
 
@@ -15,7 +14,7 @@ class SiatTestsController < ApplicationController
         nit: @company.nit.to_i,
         cuis: @cuis_code.code,
         codigoSucursal: 0,
-        codigoPuntoVenta: pos,
+        codigoPuntoVenta: pos
       }
     }
 
@@ -26,7 +25,7 @@ class SiatTestsController < ApplicationController
         puts "Punto #{pos} - #{i}..."
       end
     end
-    return :ok
+    :ok
   end
 
   def cufd_codes
@@ -46,11 +45,11 @@ class SiatTestsController < ApplicationController
       }
 
       response = client.call(:cufd, message: body)
-      if response.success?
-        data = response.to_array(:cufd_response, :respuesta_cufd).first
-        puts data
-        puts "Punto #{pos} - #{i}..."
-      end
+      next unless response.success?
+
+      data = response.to_array(:cufd_response, :respuesta_cufd).first
+      puts data
+      puts "Punto #{pos} - #{i}..."
     end
   end
 
@@ -122,7 +121,7 @@ class SiatTestsController < ApplicationController
                       status: :unprocessable_entity
       end
       reason = params[:reason]
-      
+
       branch_office = invoice.branch_office
       daily_code = branch_office.daily_codes.current
       cuis_code = branch_office.cuis_codes.current
@@ -157,7 +156,7 @@ class SiatTestsController < ApplicationController
       response = client.call(:anulacion_factura, message: body)
       data = response.to_array(:anulacion_factura_response, :respuesta_servicio_facturacion).first
       invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: reason, invoice_status_id: 2) if response.success?
-      
+
       puts data
       puts '********'
       puts "Factura #{i}..."
@@ -166,7 +165,7 @@ class SiatTestsController < ApplicationController
     head :ok
   end
 
-  private 
+  private
 
   def set_company
     @company = Company.find(params[:company_id])
@@ -192,7 +191,7 @@ class SiatTestsController < ApplicationController
     @branch_office = invoice.branch_office
     generate_xml(@invoice)
     @invoice.update(sent_at: DateTime.now)
-  
+
     send_to_siat(@invoice)
   end
 

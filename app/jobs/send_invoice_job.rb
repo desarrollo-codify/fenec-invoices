@@ -63,7 +63,7 @@ class SendInvoiceJob < ApplicationJob
       }
     }
     response = client.call(:recepcion_factura, message: body)
-    data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    p response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
   end
 
   def generate_gzip_file(invoice)

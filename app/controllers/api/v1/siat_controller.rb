@@ -2,7 +2,6 @@
 
 module Api
   module V1
-    # rubocop:disable Metrics/ClassLength
     class SiatController < ApplicationController
       require 'savon'
 
@@ -509,7 +508,7 @@ module Api
       end
 
       def siat_body
-        body = {
+        {
           SolicitudSincronizacion: {
             codigoAmbiente: 2,
             codigoSistema: @branch_office.company.company_setting.system_code,
@@ -520,6 +519,5 @@ module Api
         }
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end
