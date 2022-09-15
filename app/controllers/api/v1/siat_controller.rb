@@ -84,7 +84,7 @@ module Api
 
       def show_cufd
         @daily_code = @branch_office.daily_codes.where(point_of_sale: params[:point_of_sale]).current
-        if @daily_code
+        if @daily_code.present?
           render json: @daily_code
         else
           error_message = 'La sucursal no cuenta con un codigo diario CUFD.'
