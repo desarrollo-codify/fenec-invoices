@@ -26,22 +26,6 @@ RSpec.describe Client, type: :model do
         expect(client).to_not be_valid
       end
     end
-
-    context 'with special characters' do
-      let(:client) { build(:client, name: '#$%') }
-
-      it 'is not valid' do
-        expect(client).to_not be_valid
-      end
-    end
-
-    context 'with accents' do
-      let(:client) { build(:client, name: 'áü') }
-
-      it 'is valid' do
-        expect(client).to be_valid
-      end
-    end
   end
 
   describe 'nit attribute' do
