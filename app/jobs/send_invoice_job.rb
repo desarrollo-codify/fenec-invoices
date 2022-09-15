@@ -11,7 +11,7 @@ class SendInvoiceJob < ApplicationJob
     @branch_office = invoice.branch_office
     generate_xml(@invoice)
     begin
-      InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+      InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.company_setting).send_invoice.deliver_now
     rescue StandardError => e
       p e.message
     end
@@ -29,7 +29,7 @@ class SendInvoiceJob < ApplicationJob
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices', nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => invoice.branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
@@ -48,7 +48,7 @@ class SendInvoiceJob < ApplicationJob
       SolicitudServicioRecepcionFactura: {
         codigoAmbiente: 2,
         codigoPuntoVenta: invoice.point_of_sale,
-        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSistema: invoice.branch_office.company.company_setting.system_code,
         codigoSucursal: invoice.branch_office.number,
         nit: invoice.branch_office.company.nit.to_i,
         codigoDocumentoSector: 1,
@@ -64,8 +64,6 @@ class SendInvoiceJob < ApplicationJob
     }
     response = client.call(:recepcion_factura, message: body)
     data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-    p data
-    # TODO: process all possible scenarios
   end
 
   def generate_gzip_file(invoice)
@@ -173,7 +171,7 @@ class SendInvoiceJob < ApplicationJob
     client = Savon.client(
       wsdl: ENV.fetch('siat_invoices'.to_s, nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => invoice.branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),

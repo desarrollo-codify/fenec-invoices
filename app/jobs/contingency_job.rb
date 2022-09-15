@@ -26,7 +26,7 @@ class ContingencyJob < ApplicationJob
     client = Savon.client(
       wsdl: ENV.fetch('siat_operations'.to_s, nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
@@ -37,7 +37,7 @@ class ContingencyJob < ApplicationJob
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
         codigoPuntoVenta: 0,
-        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSistema: branch_office.company.company_setting.system_code,
         nit: branch_office.company.nit.to_i,
         cuis: current_cuis,
         cufd: current_cufd,
@@ -78,19 +78,19 @@ class ContingencyJob < ApplicationJob
     base64_file = Base64.strict_encode64(File.binread(zipped_filename))
     hash = Digest::SHA2.hexdigest(base64_file)
 
+    branch_office = contingency.branch_office
+    company = branch_office.company
+    economic_activities = company.economic_activities
+
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
       convert_request_keys_to: :none
     )
-
-    branch_office = contingency.branch_office
-    company = branch_office.company
-    economic_activities = company.economic_activities
 
     cafc = contingency.significative_event_id >= 5 ? economic_activities.first.contingency_codes.last.code : nil
 
@@ -98,7 +98,7 @@ class ContingencyJob < ApplicationJob
       SolicitudServicioRecepcionPaquete: {
         codigoAmbiente: 2,
         codigoPuntoVenta: 0,
-        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSistema: company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
         codigoDocumentoSector: 1,
@@ -135,7 +135,7 @@ class ContingencyJob < ApplicationJob
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
-        'apikey' => ENV.fetch('api_key', nil),
+        'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
@@ -146,7 +146,7 @@ class ContingencyJob < ApplicationJob
       SolicitudServicioValidacionRecepcionPaquete: {
         codigoAmbiente: 2,
         codigoPuntoVenta: 0,
-        codigoSistema: ENV.fetch('system_code', nil),
+        codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
         codigoDocumentoSector: 1,

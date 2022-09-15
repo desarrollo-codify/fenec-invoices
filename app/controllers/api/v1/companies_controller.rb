@@ -26,8 +26,8 @@ module Api
                                   include: [{ economic_activities: { except: %i[created_at
                                                                                 updated_at company_id] } },
                                             branch_offices: { except: %i[created_at updated_at] },
-                                            mail_setting: { except: %i[created_at
-                                                                       updated_at company_id] }])
+                                            company_setting: { except: %i[created_at
+                                                                          updated_at company_id] }])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
         render json: result

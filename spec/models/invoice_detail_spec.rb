@@ -33,18 +33,6 @@ RSpec.describe InvoiceDetail, type: :model do
     end
   end
 
-  describe 'sin_code attribute' do
-    it { validate_presence_of(:sin_code) }
-
-    context 'with nil value' do
-      let(:invoice_detail) { build(:invoice_detail, sin_code: nil) }
-
-      it 'is invalid' do
-        expect(invoice_detail).to_not be_valid
-      end
-    end
-  end
-
   describe 'product_code attribute' do
     it { validate_presence_of(:product_code) }
 

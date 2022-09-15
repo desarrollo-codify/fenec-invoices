@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MailSetting < ApplicationRecord
+class CompanySetting < ApplicationRecord
   validates :address, presence: true
   validates :port, presence: true, numericality: { only_integer: true, message: 'El Puerto debe ser un valor numérico.' }
   validates :domain, presence: true

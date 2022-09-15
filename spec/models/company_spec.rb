@@ -170,14 +170,14 @@ RSpec.describe Company, type: :model do
   end
 
   describe 'validates dependent destroy for mail settings' do
-    it { expect(subject).to have_one(:mail_setting).dependent(:destroy) }
+    it { expect(subject).to have_one(:company_setting).dependent(:destroy) }
 
     context 'when deleting a company' do
       let(:company) { create(:company) }
-      before { create(:mail_setting, company: company) }
+      before { create(:company_setting, company: company) }
 
       it 'destroys the branch office' do
-        expect { company.destroy }.to change { MailSetting.count }.by(-1)
+        expect { company.destroy }.to change { CompanySetting.count }.by(-1)
       end
     end
   end
