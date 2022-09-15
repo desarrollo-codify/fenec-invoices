@@ -21,17 +21,20 @@ class InvoiceMailer < ApplicationMailer
                          address: params[:sender].address }
 
     filename = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.xml"
+
     attachments['factura.xml'] = File.read(filename)
 
     pdf_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
-    File.open(pdf_path, 'wb') do |file|
-      file << generate_pdf
-      file.close
+    unless File.exist?(pdf_path)
+      File.open(pdf_path, 'wb') do |file|
+        file << generate_pdf
+        file.close
+      end
     end
 
     attachments['factura.pdf'] = File.read(pdf_path)
-    # TODO: use dynamic email subject
     mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
+    @invoice.update(emailed_at: DateTime.now)
   end
 
   def generate_pdf

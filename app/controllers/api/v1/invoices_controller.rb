@@ -3,9 +3,9 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
-      before_action :set_invoice, only: %i[show update destroy cancel]
+      before_action :set_invoice, only: %i[show update destroy cancel resend]
       before_action :set_branch_office, only: %i[index create generate pending]
-
+      require 'invoice_xml'
       Time.zone = 'La Paz'
 
       # GET /api/v1/invoices
@@ -107,6 +107,20 @@ module Api
         CancelInvoiceJob.perform_later(@invoice, @reason)
 
         render json: @invoice
+      end
+
+      def resend
+        @company = @invoice.branch_office.company
+        @client = @company.clients.find_by(code: @invoice.client_code)
+        @branch_office = @invoice.branch_office
+        xml = InvoiceXml.generate(@invoice)
+        filename = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.xml"
+        File.write(filename, xml)
+        begin
+          InvoiceMailer.with(client: @client, invoice: @invoice, sender: @company.company_setting).send_invoice.deliver_now
+        rescue StandardError => e
+          p e.message
+        end
       end
 
       private
