@@ -8,7 +8,7 @@ module Api
 
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
-      before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generar_cufd verify_communication]
+      before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]
 
       def invoice_params
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
@@ -164,7 +164,7 @@ module Api
       end
 
       def generate_cufd
-        if @cuis_code&.code.find_by(point_of_sale: params[:point_of_sale]).blank?
+        if @cuis_code&.code.blank?
           render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
           return
         end
@@ -177,7 +177,7 @@ module Api
             codigoSistema: ENV.fetch('system_code', nil),
             nit: @branch_office.company.nit.to_i,
             codigoModalidad: 2,
-            cuis: @cuis_code.find_by(point_of_sale: params[:point_of_sale]).code,
+            cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
           }
         }

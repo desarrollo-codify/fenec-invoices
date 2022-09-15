@@ -4,12 +4,11 @@ class ContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
   def perform(contingency)
-    invoices = contingency.branch_office.invoices
+    point_of_sale = contingency.point_of_sale.code
+    invoices = contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
-    current_cuis = contingency.point_of_sale.branch_office.cuis_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
-    current_cufd = contingency.point_of_sale.branch_office.daily_codes.find_by(point_of_sale: pending_invoices.last.point_of_sale).current.code
-
-    debugger
+    current_cuis = contingency.point_of_sale.branch_office.cuis_codes.where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+    current_cufd = contingency.point_of_sale.branch_office.daily_codes.where(point_of_sale: pending_invoices.last.point_of_sale).current.code
 
     return if pending_invoices.empty?
 
@@ -24,7 +23,7 @@ class ContingencyJob < ApplicationJob
     reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
   end
 
-  def send_contingency(invoices, contingency, contingency_cufd, current_cuis, current_cufd)
+  def send_contingency(_invoices, contingency, contingency_cufd, current_cuis, current_cufd)
     client = Savon.client(
       wsdl: ENV.fetch('siat_operations'.to_s, nil),
       headers: {
@@ -51,7 +50,6 @@ class ContingencyJob < ApplicationJob
         cufdEvento: contingency_cufd
       }
     }
-
     response = client.call(:registro_evento_significativo, message: body)
 
     return unless response.success?
@@ -119,7 +117,6 @@ class ContingencyJob < ApplicationJob
     }
 
     response = client.call(:recepcion_paquete_factura, message: body)
-
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
 
@@ -130,8 +127,8 @@ class ContingencyJob < ApplicationJob
     end
   end
 
-  def reception_validation(invoices, contingency, current_cuis, current_cufd)
-    branch_office = contingency.branch_office
+  def reception_validation(_invoices, contingency, current_cuis, current_cufd)
+    branch_office = contingency.point_of_sale.branch_office
 
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
@@ -153,8 +150,8 @@ class ContingencyJob < ApplicationJob
         codigoDocumentoSector: 1,
         codigoEmision: 2,
         codigoModalidad: 2,
-        cufd: current_cuis,
-        cuis: current_cufd,
+        cufd: current_cufd,
+        cuis: current_cuis,
         tipoFacturaDocumento: 1,
         codigoRecepcion: contingency.reception_code
       }

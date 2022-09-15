@@ -20,6 +20,6 @@ class CuisCode < ApplicationRecord
   private
 
   def default_values
-    self.current_number ||= 0
+    self.current_number ||= 1
   end
 end

@@ -10,18 +10,23 @@ class SendInvoiceJob < ApplicationJob
     @client = @company.clients.find_by(code: client_code)
     @branch_office = invoice.branch_office
     generate_xml(@invoice)
-    begin
-      InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
-    rescue StandardError => e
-      p e.message
-    end
+    # begin
+    #   InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml, sender: @company.mail_setting).send_invoice.deliver_now
+    # rescue StandardError => e
+    #   p e.message
+    # end
     if siat_available(@invoice) == true
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
-
-      close_contingencies(@branch_office, @invoice) if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
+      if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
+        close_contingencies(@branch_office,
+                            @invoice)
+      end
     else
-      create_contingency(@invoice, 2) unless @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
+      unless @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
+        create_contingency(@invoice,
+                           2)
+      end
     end
   end
 
@@ -55,7 +60,7 @@ class SendInvoiceJob < ApplicationJob
         codigoEmision: 1,
         codigoModalidad: 2,
         cufd: invoice.cufd_code,
-        cuis: invoice.branch_office.cuis_codes.find_by(point_of_sale: invoice.point_of_sale).current.code,
+        cuis: invoice.branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current.code,
         tipoFacturaDocumento: 1,
         archivo: base64_file,
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
@@ -63,6 +68,7 @@ class SendInvoiceJob < ApplicationJob
       }
     }
     response = client.call(:recepcion_factura, message: body)
+
     data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
     p data
     # TODO: process all possible scenarios
@@ -193,8 +199,8 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def create_contingency(invoice, significative_event)
-    @invoice.branch_office.contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code,
-                                                significative_event_id: significative_event, point_of_sale_id: invoice.point_of_sale)
+    @invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code,
+                                                                                                    significative_event_id: significative_event, point_of_sale_id: invoice.point_of_sale)
   end
 
   def close_contingencies(branch_office, invoice)
