@@ -7,6 +7,7 @@ module Api
 
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
+      before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]
 
       def generate_cuis
         @company = @branch_office.company
@@ -14,7 +15,7 @@ module Api
         body = {
           SolicitudCuis: {
             codigoAmbiente: 2,
-            codigoPuntoVenta: 0,
+            codigoPuntoVenta: params[:point_of_sale],
             codigoSistema: @company.company_setting.system_code,
             nit: @company.nit.to_i,
             codigoModalidad: 2,
@@ -29,7 +30,7 @@ module Api
           code = data[:codigo]
           expiration_date = data[:fecha_vigencia]
 
-          @branch_office.add_cuis_code!(code, expiration_date)
+          @branch_office.add_cuis_code!(code, expiration_date, params[:point_of_sale])
 
           render json: data
         else
@@ -57,7 +58,7 @@ module Api
         body = {
           SolicitudCufd: {
             codigoAmbiente: 2,
-            codigoPuntoVenta: 0,
+            codigoPuntoVenta: params[:point_of_sale],
             codigoSistema: @company.company_setting.system_code,
             nit: @company.nit.to_i,
             codigoModalidad: 2,
@@ -73,7 +74,7 @@ module Api
           code = data[:codigo]
           control_code = data[:codigo_control]
           end_date = data[:fecha_vigencia]
-          @branch_office.add_daily_code!(code, control_code, Date.today, end_date)
+          @branch_office.add_daily_code!(code, control_code, Date.today, end_date, params[:point_of_sale])
 
           render json: data
         else
@@ -82,7 +83,7 @@ module Api
       end
 
       def show_cufd
-        @daily_code = @branch_office.daily_codes.current
+        @daily_code = @branch_office.daily_codes.where(point_of_sale: params[:point_of_sale]).current
         if @daily_code.present?
           render json: @daily_code
         else
@@ -504,7 +505,11 @@ module Api
       end
 
       def set_cuis_code
-        @cuis_code = @branch_office.cuis_codes.current
+        @cuis_code = @branch_office.cuis_codes.where('point_of_sale = ?', params[:point_of_sale]).current
+      end
+
+      def set_cuis_code_default
+        @cuis_code = @branch_office.cuis_codes.where(point_of_sale: 0).current
       end
 
       def siat_body

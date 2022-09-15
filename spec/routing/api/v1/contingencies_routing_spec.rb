@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Api::V1::ContingenciesController, type: :routing do
   describe 'routing' do
     it 'routes to #index' do
-      expect(get: '/api/v1/branch_offices/1/contingencies').to route_to('api/v1/contingencies#index', branch_office_id: '1')
+      expect(get: '/api/v1/point_of_sales/1/contingencies').to route_to('api/v1/contingencies#index', point_of_sale_id: '1')
     end
 
     it 'routes to #show' do
@@ -13,7 +13,7 @@ RSpec.describe Api::V1::ContingenciesController, type: :routing do
     end
 
     it 'routes to #create' do
-      expect(post: '/api/v1/branch_offices/1/contingencies').to route_to('api/v1/contingencies#create', branch_office_id: '1')
+      expect(post: '/api/v1/point_of_sales/1/contingencies').to route_to('api/v1/contingencies#create', point_of_sale_id: '1')
     end
 
     it 'routes to #update via PUT' do

@@ -6,4 +6,5 @@ class PointOfSale < ApplicationRecord
   validates :name, presence: true, format: { with: VALID_NAME_REGEX, unless: -> { name.blank? } }
 
   belongs_to :branch_office
+  has_many :contingencies, dependent: :destroy
 end

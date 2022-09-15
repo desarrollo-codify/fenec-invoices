@@ -4,10 +4,14 @@ class ContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
   def perform(contingency)
-    current_cuis = contingency.branch_office.cuis_codes.last.code
-    current_cufd = contingency.branch_office.daily_codes.last.code
-    invoices = contingency.branch_office.invoices
+    point_of_sale = contingency.point_of_sale.code
+    invoices = contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
+
+    current_cuis = contingency.point_of_sale.branch_office.cuis_codes
+                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+    current_cufd = contingency.point_of_sale.branch_office.daily_codes
+                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
 
     return if pending_invoices.empty?
 
@@ -19,10 +23,12 @@ class ContingencyJob < ApplicationJob
       filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
       File.delete(filename)
     end
-    reception_validation(contingency)
+    reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
   end
 
   def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)
+    branch_office = contingency.point_of_sale.branch_office
+
     client = Savon.client(
       wsdl: ENV.fetch('siat_operations'.to_s, nil),
       headers: {
@@ -32,11 +38,10 @@ class ContingencyJob < ApplicationJob
       namespace: ENV.fetch('siat_namespace', nil),
       convert_request_keys_to: :none
     )
-    branch_office = contingency.branch_office
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: branch_office.company.company_setting.system_code,
         nit: branch_office.company.nit.to_i,
         cuis: current_cuis,
@@ -49,7 +54,6 @@ class ContingencyJob < ApplicationJob
         cufdEvento: contingency_cufd
       }
     }
-
     response = client.call(:registro_evento_significativo, message: body)
 
     return unless response.success?
@@ -78,7 +82,7 @@ class ContingencyJob < ApplicationJob
     base64_file = Base64.strict_encode64(File.binread(zipped_filename))
     hash = Digest::SHA2.hexdigest(base64_file)
 
-    branch_office = contingency.branch_office
+    branch_office = contingency.point_of_sale.branch_office
     company = branch_office.company
     economic_activities = company.economic_activities
 
@@ -97,7 +101,7 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
@@ -128,10 +132,9 @@ class ContingencyJob < ApplicationJob
     end
   end
 
-  def reception_validation(contingency)
-    branch_office = contingency.branch_office
-    cuis_code = contingency.branch_office.cuis_codes.last
-    cufd_code = contingency.branch_office.daily_codes.last
+  def reception_validation(_invoices, contingency, current_cuis, current_cufd)
+    branch_office = contingency.point_of_sale.branch_office
+
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
@@ -145,15 +148,15 @@ class ContingencyJob < ApplicationJob
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: 0,
+        codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
         codigoDocumentoSector: 1,
         codigoEmision: 2,
         codigoModalidad: 2,
-        cufd: cufd_code.code,
-        cuis: cuis_code.code,
+        cufd: current_cufd,
+        cuis: current_cuis,
         tipoFacturaDocumento: 1,
         codigoRecepcion: contingency.reception_code
       }

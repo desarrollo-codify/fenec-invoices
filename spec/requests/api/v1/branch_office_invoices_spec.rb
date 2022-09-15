@@ -24,6 +24,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       exchange_rate: 1,
       currency_total: 100,
       user: 'jperez',
+      point_of_sale: 0,
       invoice_details_attributes: [
         {
           economic_activity_code: 12_345,
@@ -63,6 +64,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       user: nil,
       subtotal: -1,
       total: -1,
+      point_of_sale: 0,
       invoice_details_attributes: [
         {
           economic_activity_code: 12_345,

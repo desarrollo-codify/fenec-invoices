@@ -74,7 +74,7 @@ RSpec.describe CuisCode, type: :model do
       let(:cuis_code) { build(:cuis_code, default_values: true, branch_office: branch_office) }
 
       it 'has default values' do
-        expect(cuis_code.current_number).to eq(0)
+        expect(cuis_code.current_number).to eq(1)
       end
     end
   end

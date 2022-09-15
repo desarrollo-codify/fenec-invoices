@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Contingency, type: :model do
-  it { is_expected.to belong_to(:branch_office) }
+  it { is_expected.to belong_to(:point_of_sale) }
   it { is_expected.to belong_to(:significative_event) }
 
-  let(:branch_office) { create(:branch_office) }
+  let(:point_of_sale) { create(:point_of_sale) }
   let(:significative_event) { create(:significative_event) }
 
-  subject { build(:contingency, branch_office: branch_office, significative_event: significative_event) }
+  subject { build(:contingency, point_of_sale: point_of_sale, significative_event: significative_event) }
 
   describe 'with valid values' do
     it 'is valid' do
@@ -30,9 +30,9 @@ RSpec.describe Contingency, type: :model do
       end
     end
   end
-  describe 'branch_office_id attribute' do
+  describe 'point_of_sale_id attribute' do
     context 'with nil value' do
-      let(:contingency) { build(:contingency, branch_office_id: nil) }
+      let(:contingency) { build(:contingency, point_of_sale_id: nil) }
 
       it 'is invalid' do
         expect(contingency).to_not be_valid

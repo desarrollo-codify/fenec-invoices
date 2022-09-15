@@ -37,7 +37,7 @@ module Api
         @invoice.municipality = @branch_office.city
         @invoice.phone = @branch_office.phone
 
-        daily_code = @branch_office.daily_codes.current
+        daily_code = @branch_office.daily_codes.where(point_of_sale: invoice_params[:point_of_sale]).current
         @invoice.cufd_code = daily_code.code
 
         client = @company.clients.find_by(code: invoice_params[:client_code])
@@ -52,8 +52,8 @@ module Api
         @invoice.address = @branch_office.address
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
-        contingency = @branch_office.contingencies.pending.last
-        @invoice.cafc = if contingency && params[:is_manual].present?
+        contingency = Contingency.where(point_of_sale_id: invoice_params[:point_of_sale]).pending.last # TODO: Refactor
+        @invoice.cafc = if contingency.present? && params[:is_manual].present?
                           contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
                         end
         @invoice.document_sector_code = 1
@@ -74,7 +74,7 @@ module Api
         end
 
         if @invoice.save
-          process_pending_data(@invoice)
+          process_pending_data(@invoice, daily_code)
           SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code]) unless params[:is_manual].present?
 
           render json: @invoice.as_json(only: %i[id number total cuf]), status: :created
@@ -131,15 +131,15 @@ module Api
                                                                        economic_activity_code])
       end
 
-      def process_pending_data(invoice)
-        invoice.number = invoice_number
-        invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code)
+      def process_pending_data(invoice, daily_code)
+        invoice.number = invoice_number(invoice.point_of_sale)
+        invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, daily_code.point_of_sale)
         # TODO: implement paper size: 1 roll, 2 half office or half letter
         invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
         invoice.save
       end
 
-      def cuf(invoice_date, invoice_number, control_code)
+      def cuf(invoice_date, current_number, control_code, point_of_sale)
         nit = @branch_office.company.nit.rjust(13, '0')
         date = invoice_date.strftime('%Y%m%d%H%M%S%L')
         branch_office = @branch_office.number.to_s.rjust(4, '0')
@@ -147,8 +147,8 @@ module Api
         generation_type = '1' # TODO: add generation types for: online, offline and massive
         invoice_type = '1' # TODO: add invoice types table
         sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
-        number = invoice_number.to_s.rjust(10, '0')
-        point_of_sale = '0000' # TODO: implement point of sales for each branch office
+        number = current_number.to_s.rjust(10, '0')
+        point_of_sale = point_of_sale.to_s.rjust(4, '0')
 
         long_code = nit + date + branch_office + modality + generation_type + invoice_type + sector_document_type + number +
                     point_of_sale
@@ -157,8 +157,8 @@ module Api
         (hex_code + control_code).upcase
       end
 
-      def invoice_number
-        cuis_code = @branch_office.cuis_codes.current
+      def invoice_number(point_of_sale)
+        cuis_code = @branch_office.cuis_codes.where(point_of_sale: point_of_sale).current
         current_number = cuis_code.current_number
         cuis_code.increment!
         current_number

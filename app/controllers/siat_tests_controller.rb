@@ -97,10 +97,7 @@ class SiatTestsController < ApplicationController
         detail.product = @company.products.find_by(primary_code: detail.product_code)
         detail.sin_code = detail.product.sin_code
       end
-      unless @invoice.valid?
-        render json: @invoice.errors, status: :unprocessable_entity
-        return
-      end
+      render json: @invoice.errors, status: :unprocessable_entity unless @invoice.valid?
 
       if @invoice.save
         process_pending_data(@invoice)
