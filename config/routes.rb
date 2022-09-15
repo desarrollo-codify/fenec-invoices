@@ -27,6 +27,8 @@ Rails.application.routes.draw do
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
       end
+      get '/branch_offices/:branch_office_id/daily_codes/current', to: 'daily_codes#current'
+      get '/branch_offices/:branch_office_id/cuis_codes/current', to: 'cuis_codes#current'
       resources :branch_offices, only: %i[show update destroy] do
         resources :daily_codes, shallow: true
         resources :invoices, only: %i[index create] do
