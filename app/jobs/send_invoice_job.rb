@@ -199,8 +199,10 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def create_contingency(invoice, significative_event)
-    @invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.create(start_date: invoice.date, cufd_code: invoice.cufd_code,
-                                                                                                    significative_event_id: significative_event, point_of_sale_id: invoice.point_of_sale)
+    @invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.create(start_date: invoice.date,
+                                                                                                    cufd_code: invoice.cufd_code,
+                                                                                                    significative_event_id: significative_event,
+                                                                                                    point_of_sale_id: invoice.point_of_sale)
   end
 
   def close_contingencies(branch_office, invoice)
