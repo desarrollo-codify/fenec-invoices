@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_14_164119) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_15_202352) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -294,6 +294,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_14_164119) do
     t.string "sent_at"
     t.integer "cancellation_reason_id"
     t.datetime "send_to_client_at"
+    t.datetime "emailed_at"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
     t.index ["cancellation_reason_id"], name: "index_invoices_on_cancellation_reason_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
