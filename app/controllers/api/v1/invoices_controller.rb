@@ -10,9 +10,10 @@ module Api
 
       # GET /api/v1/invoices
       def index
-        @invoices = @branch_office.company.invoices.includes(:branch_office, :invoice_status).descending
+        @invoices = @branch_office.company.invoices.includes(:branch_office, :invoice_status, :invoice_details).descending
         render json: @invoices.as_json(include: [{ branch_office: { only: %i[id number name] } },
-                                                 { invoice_status: { only: %i[id description] } }])
+                                                 { invoice_status: { only: %i[id description] } },
+                                                 { invoice_details: { except: %i[created_at updated_at] }}])
       end
 
       def pending
@@ -22,7 +23,9 @@ module Api
 
       # GET /api/v1/invoices/1
       def show
-        render json: @invoice, include: :invoice_details
+        render json: @invoice.as_json(include: [{ branch_office: { only: %i[id number name] } },
+                                                 { invoice_status: { only: %i[id description] } },
+                                                 { invoice_details: { except: %i[created_at updated_at] }}])
       end
 
       # POST /api/v1/invoices
