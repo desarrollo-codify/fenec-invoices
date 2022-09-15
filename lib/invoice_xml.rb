@@ -70,7 +70,7 @@ class InvoiceXml
             xml.unidadMedida detail.measurement_id
             xml.precioUnitario detail.unit_price
             xml.montoDescuento detail.discount
-            xml.subTotal detail.subtotal
+            xml.subTotal detail.total
 
             # card number
             xml.numeroSerie('xsi:nil' => true) unless detail.serial_number
