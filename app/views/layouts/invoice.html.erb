@@ -67,6 +67,7 @@
           <th>Cod. Desc.</th>
           <th>Cantidad</th>
           <th class="text-right">Precio</th>
+          <th class="text-right">Dcto.</th>
           <th class="text-right">Total</th>
         </thead>
         <tbody>
@@ -79,7 +80,8 @@
               <td>PZA</td> 
               <%# <%= detail.measurement.description %>
               <td class="text-right"><%= '%.2f' % detail.unit_price %></td>
-              <td class="text-right"><%= '%.2f' % detail.subtotal %></td>
+              <td class="text-right"><%= '%.2f' % detail.discount %></td>
+              <td class="text-right"><%= '%.2f' % detail.total %></td>
             </tr>
           <% end %>
           <%# Discount ??? %>
