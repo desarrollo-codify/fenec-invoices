@@ -490,6 +490,7 @@ module Api
 
       def set_branch_office
         @branch_office = BranchOffice.find(params[:branch_office_id])
+        @company = @branch_office.company
       end
 
       def siat_client(wsdl_name)
