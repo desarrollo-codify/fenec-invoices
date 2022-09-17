@@ -27,7 +27,7 @@ class Invoice < ApplicationRecord
 
   validates :subtotal, presence: true,
                        numericality: { message: 'El subtotal debe ser un valor numérico.' }
-  validate :discount_cannot_be_greater_than_subtotal
+  validate :discount_cannot_be_greater_or_equal_than_subtotal
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total
   validate :business_nit_is_ci_or_nit
@@ -70,8 +70,8 @@ class Invoice < ApplicationRecord
     self.business_nit ||= '0'
   end
 
-  def discount_cannot_be_greater_than_subtotal
-    errors.add(:discount, 'Descuento no puede ser mayor al subtotal.') if discount && subtotal && discount > subtotal
+  def discount_cannot_be_greater_or_equal_than_subtotal
+    errors.add(:discount, 'Descuento no puede ser mayor al subtotal.') if discount && subtotal && discount >= subtotal
   end
 
   def total_must_be_correctly_calculated
