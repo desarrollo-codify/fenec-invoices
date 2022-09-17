@@ -30,6 +30,7 @@ class Invoice < ApplicationRecord
   validate :discount_cannot_be_greater_than_subtotal
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total
+  validate :business_nit_is_ci_or_nit
 
   belongs_to :branch_office
   belongs_to :invoice_status
@@ -85,5 +86,9 @@ class Invoice < ApplicationRecord
     return if total && qr_paid && cash_paid && card_paid && total == qr_paid + cash_paid + card_paid
 
     errors.add(:total, 'El total pagado no concuerda con el total a pagar.')
+  end
+
+  def business_nit_is_ci_or_nit
+    errors.add(:business_nit, 'El número de documento debe ser numérico.') if (document_type == 5 || document_type == 1) && if business_nit.scan(/\D/).empty?
   end
 end

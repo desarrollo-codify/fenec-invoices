@@ -171,6 +171,15 @@ RSpec.describe Invoice, type: :model do
         expect(invoice).to_not be_valid
       end
     end
+
+    context 'validates numericality in business_nit if document_type is 1 or 5' do
+      let(:invoice) { build(:invoice, document_type: 1, business_nit: '12345aa') }
+
+      it 'is invalid' do
+        expect(invoice).to_not be_valid
+        expect(invoice.errors[:business_nit]).to eq(['El número de documento debe ser numérico.'])
+      end
+    end
   end
 
   describe 'client_code attribute' do

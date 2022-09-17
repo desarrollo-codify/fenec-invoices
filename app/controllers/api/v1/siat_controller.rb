@@ -4,6 +4,7 @@ module Api
   module V1
     class SiatController < ApplicationController
       require 'savon'
+      require 'verify_nit'
 
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
@@ -484,6 +485,12 @@ module Api
         else
           render json: 'La solicitud a SIAT obtuvo un error.', status: :internal_server_error
         end
+      end
+
+      def verify_nit
+        response = VerifyNit.verify(params[:nit], @branch_office)
+
+        render json: response
       end
 
       private

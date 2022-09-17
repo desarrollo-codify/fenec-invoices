@@ -6,6 +6,8 @@ module Api
       before_action :set_invoice, only: %i[show update destroy cancel resend]
       before_action :set_branch_office, only: %i[index create generate pending]
       require 'invoice_xml'
+      require 'siat_available'
+      require 'verify_nit'
       Time.zone = 'La Paz'
 
       # GET /api/v1/invoices
@@ -13,7 +15,7 @@ module Api
         @invoices = @branch_office.company.invoices.includes(:branch_office, :invoice_status, :invoice_details).descending
         render json: @invoices.as_json(include: [{ branch_office: { only: %i[id number name] } },
                                                  { invoice_status: { only: %i[id description] } },
-                                                 { invoice_details: { except: %i[created_at updated_at] }}])
+                                                 { invoice_details: { except: %i[created_at updated_at] } }])
       end
 
       def pending
@@ -24,11 +26,11 @@ module Api
       # GET /api/v1/invoices/1
       def show
         result = @invoice.as_json(include: [{ branch_office: { only: %i[id number name] } },
-                                                { invoice_status: { only: %i[id description] } },
-                                                { invoice_details: { include: {
-                                                                      measurement: { except: %i[created_at updated_at] }}, 
-                                                                     except: %i[created_at updated_at] } 
-                                                }])
+                                            { invoice_status: { only: %i[id description] } },
+                                            { invoice_details: { include: {
+                                                                   measurement: { except: %i[created_at updated_at] }
+                                                                 },
+                                                                 except: %i[created_at updated_at] } }])
         result = result.merge(identity_document: DocumentType.find_by(code: @invoice.document_type))
         render json: result
       end
@@ -76,6 +78,16 @@ module Api
           detail.product = @company.products.find_by(primary_code: detail.product_code)
           detail.sin_code = detail.product.sin_code
         end
+        debugger
+        if SiatAvailable.available(@invoice, false) == true
+          if VerifyNit.verify(@invoice.business_nit, @branch_office) == false
+            render json: 'El nit es invalido', status: :unprocessable_entity
+            return
+          end
+        else
+          @invoice.exception_code = 1
+        end
+
         unless @invoice.valid?
           render json: @invoice.errors, status: :unprocessable_entity
           return
