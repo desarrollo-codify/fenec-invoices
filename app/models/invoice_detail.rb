@@ -15,7 +15,7 @@ class InvoiceDetail < ApplicationRecord
   validates :total, presence: true,
                     numericality: { greater_than_or_equal_to: 0, message: 'Total debe ser mayor o igual a 0.' }
 
-  validate :discount_cannot_be_greater_than_subtotal
+  validate :discount_cannot_be_greater_or_equal_than_subtotal
   validate :subtotal_must_be_correctly_calculated
   validate :total_must_be_correctly_calculated
 
@@ -32,8 +32,8 @@ class InvoiceDetail < ApplicationRecord
     self.quantity ||= 1
   end
 
-  def discount_cannot_be_greater_than_subtotal
-    errors.add(:discount, 'Descuento no puede ser mayor al subtotal') if discount && subtotal && discount > subtotal
+  def discount_cannot_be_greater_or_equal_than_subtotal
+    errors.add(:discount, 'Descuento no puede ser mayor al subtotal') if discount && subtotal && discount >= subtotal
   end
 
   def subtotal_must_be_correctly_calculated
