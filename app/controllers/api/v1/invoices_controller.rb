@@ -81,9 +81,9 @@ module Api
         end
 
         if SiatAvailable.available(@invoice, false) == true
-          if @invoice.document_type == 5
-            return render json: 'El nit es invalido', status: :unprocessable_entity if VerifyNit.verify(@invoice.business_nit, @branch_office) == false
-            end
+          if @invoice.document_type == 5 && (VerifyNit.verify(@invoice.business_nit,
+                                                              @branch_office) == false)
+            return render json: 'El nit es invalido', status: :unprocessable_entity
           end
         else
           @invoice.exception_code = 1
