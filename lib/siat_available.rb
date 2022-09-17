@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SiatAvailable
-  def self.available(invoice, _contingency)
+  def self.available(invoice, contingency)
     client = Savon.client(
       wsdl: ENV.fetch('siat_invoices'.to_s, nil),
       headers: {
@@ -21,7 +21,7 @@ class SiatAvailable
     end
     data == '926'
   rescue StandardError => e
-    create_contingency(invoice, 1) if e.message.include?('TCP connection') && invoice.branch_office.contingencies.pending.none?
+    create_contingency(invoice, 1) if e.message.include?('TCP connection') && invoice.branch_office.contingencies.pending.none? && contingency == true
   end
 
   private
