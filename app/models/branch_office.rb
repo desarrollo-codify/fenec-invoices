@@ -13,10 +13,10 @@ class BranchOffice < ApplicationRecord
   has_many :point_of_sales, dependent: :destroy
 
   def add_cuis_code!(code, expiration_date, point_of_sale)
-    unless cuis_codes.find_by(code: code).present?
-      cuis_codes.create(code: code, expiration_date: expiration_date,
-                        point_of_sale: point_of_sale)
-    end
+    return if cuis_codes.find_by(code: code).present?
+
+    cuis_codes.create(code: code, expiration_date: expiration_date,
+                      point_of_sale: point_of_sale)
   end
 
   def add_daily_code!(code, control_code, effective_date, end_date, point_of_sale)

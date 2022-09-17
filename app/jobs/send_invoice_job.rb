@@ -3,6 +3,7 @@
 class SendInvoiceJob < ApplicationJob
   queue_as :default
   require 'generate_cufd'
+  require 'siat_available'
 
   def perform(invoice, client_code)
     @invoice = invoice
@@ -17,7 +18,7 @@ class SendInvoiceJob < ApplicationJob
       p e.message
     end
 
-    if siat_available(@invoice) == true
+    if SiatAvailable.available(@invoice, true) == true
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
       if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
@@ -170,29 +171,6 @@ class SendInvoiceJob < ApplicationJob
 
     filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     File.write(filename, builder.to_xml)
-  end
-
-  def siat_available(invoice)
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
-      headers: {
-        'apikey' => invoice.branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
-
-    response = client.call(:verificar_comunicacion)
-    if response.success?
-      data = response.to_array(:verificar_comunicacion_response).first
-      data = data[:return]
-    else
-      data = { return: 'Communication error' }
-    end
-    data == '926'
-  rescue StandardError => e
-    create_contingency(invoice, 1) if e.message.include?('TCP connection') && invoice.branch_office.contingencies.pending.none?
   end
 
   def create_contingency(invoice, significative_event)
