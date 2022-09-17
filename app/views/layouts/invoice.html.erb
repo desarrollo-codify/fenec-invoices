@@ -47,7 +47,11 @@
           </tr>
           <tr style="line-height:13px;height:13px;">
             <td><strong>NIT/CI/CEX:</strong></td>
-            <td><strong><%= @invoice.business_nit %></strong></td>
+            <% if @invoice.document_type == 1 %>
+              <td><strong><%= @invoice.business_nit %>-<%= @invoice.complement %></strong></td>
+            <% else %>
+              <td><strong><%= @invoice.business_nit %></strong></td>
+            <% end %>
           </tr>
           <tr style="line-height:13px;height:13px;">
             <td><strong>Cod. Cliente:</strong></td>
@@ -115,10 +119,10 @@
       </div>
       <div class="w-100 m-0 py-3">Usr.: <%= @invoice.user %></div>
       <div class="text-center">
-        "ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY"
+        ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY
       </div>
-      <div class="pt-2"><%= @invoice.legend %></div>
-      <div class="pt-2 px-2"><%= @invoice.graphic_representation_text %></div>
+      <div class="pt-1 text-center"><p class="fs-4"><%= @invoice.legend %></p></div>
+      <div class="pt-2 px-2 text-center">"<%= @invoice.graphic_representation_text %>"</div>
       <div class="pt-2 text-center"><strong>NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES</strong></div>
       <div class="text-center pt-2">
         <%= image_tag(embed_remote_image(@qr_code_file, 'image/png')) %>
