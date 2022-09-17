@@ -79,11 +79,11 @@ module Api
           detail.product = @company.products.find_by(primary_code: detail.product_code)
           detail.sin_code = detail.product.sin_code
         end
-        debugger
+
         if SiatAvailable.available(@invoice, false) == true
-          if VerifyNit.verify(@invoice.business_nit, @branch_office) == false
-            render json: 'El nit es invalido', status: :unprocessable_entity
-            return
+          if @invoice.document_type == 5
+            return render json: 'El nit es invalido', status: :unprocessable_entity if VerifyNit.verify(@invoice.business_nit, @branch_office) == false
+            end
           end
         else
           @invoice.exception_code = 1

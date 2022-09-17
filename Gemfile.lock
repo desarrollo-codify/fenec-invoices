@@ -257,6 +257,8 @@ GEM
     shoulda-matchers (5.1.0)
       activesupport (>= 5.2.0)
     socksify (1.7.1)
+    sqlite3 (1.5.0)
+      mini_portile2 (~> 2.8.0)
     strscan (3.0.4)
     thor (1.2.1)
     timeout (0.3.0)
@@ -305,6 +307,7 @@ DEPENDENCIES
   rubocop
   savon (~> 2.12.0)
   shoulda-matchers
+  sqlite3 (~> 1.4)
   tzinfo-data
   wicked_pdf
   wkhtmltopdf-binary
