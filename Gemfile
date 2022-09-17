@@ -10,7 +10,6 @@ gem 'rails', '~> 7.0.3', '>= 7.0.3.1'
 
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.4'
-gem 'pg'
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem 'puma', '~> 5.0'
@@ -59,10 +58,12 @@ group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
   gem 'letter_opener', '~> 1.4', '>= 1.4.1'
+  gem 'pg'
 end
 
 group :test do
   gem 'factory_bot_rails'
   gem 'faker'
   gem 'shoulda-matchers'
+  gem 'sqlite3', '~> 1.4'
 end
