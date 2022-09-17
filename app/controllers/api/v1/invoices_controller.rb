@@ -70,6 +70,7 @@ module Api
         @invoice.invoice_status_id = 1
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
+        @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
 
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal - detail.discount

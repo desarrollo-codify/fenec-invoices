@@ -118,9 +118,7 @@
         "ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY"
       </div>
       <div class="pt-2"><%= @invoice.legend %></div>
-      <div class="pt-2 px-2">
-        Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea
-      </div>
+      <div class="pt-2 px-2"><%= @invoice.graphic_representation_text %></div>
       <div class="pt-2 text-center"><strong>NO SE ACEPTAN CAMBIOS NI DEVOLUCIONES</strong></div>
       <div class="text-center pt-2">
         <%= image_tag(embed_remote_image(@qr_code_file, 'image/png')) %>
