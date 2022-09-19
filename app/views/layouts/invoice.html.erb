@@ -102,6 +102,10 @@
               <td>Descuento:</td>
               <td class="text-right"><%= '%.2f' % @invoice.discount %></td>
             </tr>
+            <tr style="line-height:13px;height:13px;">
+              <td>Monto Gift Card:</td>
+              <td class="text-right"><%= '%.2f' % @invoice.gift_card %></td>
+            </tr>
             <%# Gift card? QR? another payments? %>
             <tr style="line-height:13px;height:13px;">
               <td>Total a pagar Bs.:</td>
