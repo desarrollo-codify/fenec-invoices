@@ -4,7 +4,7 @@ class SendCancelInvoicesJob < ApplicationJob
   queue_as :default
 
   def perform(*_args)
-    invoices = Invoice.for_cancel
+    invoices = Invoice.for_sending_cancel
     invoices.each do |invoice|
       send_to_siat(invoice, invoice.cancellation_reason_id)
       @invoice = invoice
