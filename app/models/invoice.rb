@@ -41,6 +41,7 @@ class Invoice < ApplicationRecord
   scope :for_sending, -> { where(sent_at: nil) }
   scope :by_cufd, ->(cufd) { for_sending.where(cufd_code: cufd) }
   scope :descending, -> { order(date: :desc) }
+  scope :for_sending_cancel, -> { where.not(cancellation_reason_id: nil).where(cancel_sent_at: nil) }
 
   after_initialize :default_values
 
