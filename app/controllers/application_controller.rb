@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::API
+  include DeviseTokenAuth::Concerns::SetUserByToken
+
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
   Time.zone = 'La Paz'
 
   def module_eleven(code, limit)
@@ -24,5 +28,11 @@ class ApplicationController < ActionController::API
     base_url = ENV.fetch('siat_url', nil)
     params = { nit: nit, cuf: cuf, numero: number, t: page_size }
     "#{base_url}?#{params.to_param}"
+  end
+
+  protected
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :nickname, :role])
   end
 end

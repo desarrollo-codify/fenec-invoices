@@ -3,7 +3,7 @@
 module Api
   module V1
     class CompaniesController < ApplicationController
-      # before_action :authenticate_user!
+      before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
       before_action :set_company, only: %i[show update destroy]
 
