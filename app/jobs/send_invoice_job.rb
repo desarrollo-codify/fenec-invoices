@@ -186,5 +186,6 @@ class SendInvoiceJob < ApplicationJob
     @contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.last
     @contingency.close!
     ContingencyJob.perform_now(@contingency)
+    SendCancelInvoicesJob.perform_now
   end
 end
