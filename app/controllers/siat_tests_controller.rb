@@ -20,8 +20,9 @@ class SiatTestsController < ApplicationController
 
     (1..50).each do |i|
       response = client.call(params[:siat_key].to_sym, message: body)
+      data = response.to_array("#{params[:siat_key]}_response".to_sym).first
       if response.success?
-        puts response.success?
+        puts data
         puts "Punto #{pos} - #{i}..."
       end
     end
@@ -66,7 +67,7 @@ class SiatTestsController < ApplicationController
       @invoice.municipality = @branch_office.city
       @invoice.phone = @branch_office.phone
 
-      daily_code = @branch_office.daily_codes.current
+      daily_code = @branch_office.daily_codes.where(point_of_sale: invoice_params[:point_of_sale]).current
       @invoice.cufd_code = daily_code.code
 
       client = @company.clients.find_by(code: invoice_params[:client_code])
@@ -120,8 +121,8 @@ class SiatTestsController < ApplicationController
       reason = params[:reason]
 
       branch_office = invoice.branch_office
-      daily_code = branch_office.daily_codes.current
-      cuis_code = branch_office.cuis_codes.current
+      daily_code = branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current
+      cuis_code = branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current
 
       client = Savon.client(
         wsdl: ENV.fetch('siat_pilot_invoices', nil),
@@ -166,7 +167,8 @@ class SiatTestsController < ApplicationController
 
   def set_company
     @company = Company.find(params[:company_id])
-    @cuis_code = @company.branch_offices.find_by(number: params[:branch_office_id]).cuis_codes.current
+    @cuis_code = @company.branch_offices.find_by(number: params[:branch_office_id]).
+      cuis_codes.where(point_of_sale: params[:point_of_sale]).current
   end
 
   def siat_client(wsdl_name)
@@ -222,7 +224,7 @@ class SiatTestsController < ApplicationController
         codigoEmision: 1,
         codigoModalidad: 2,
         cufd: invoice.cufd_code,
-        cuis: invoice.branch_office.cuis_codes.current.code,
+        cuis: invoice.branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current.code,
         tipoFacturaDocumento: 1,
         archivo: base64_file,
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
