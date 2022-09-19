@@ -103,6 +103,16 @@
               <td class="text-right"><%= '%.2f' % @invoice.discount %></td>
             </tr>
             <%# Gift card? QR? another payments? %>
+            <% if @invoice.card_number.present? %>
+              <tr style="line-height:13px;height:13px;">
+                <td>Tarjeta Cred:</td>
+                <td class="text-right"><%=@invoice.card_paid %></td>
+              </tr>
+              <tr style="line-height:13px;height:13px;">
+                <td>Nro:</td>
+                <td class="text-right"><%=@invoice.card_number %></td>
+              </tr>
+            <% end %>
             <tr style="line-height:13px;height:13px;">
               <td>Total a pagar Bs.:</td>
               <td class="text-right"><%= '%.2f' % @invoice.total %></td>
