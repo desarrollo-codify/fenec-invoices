@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_19_015013) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_19_130707) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -298,6 +298,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_19_015013) do
     t.bigint "cancellation_reason_id"
     t.datetime "emailed_at"
     t.string "graphic_representation_text"
+    t.boolean "cancel_sent_at"
     t.index ["branch_office_id"], name: "index_invoices_on_branch_office_id"
     t.index ["cancellation_reason_id"], name: "index_invoices_on_cancellation_reason_id"
     t.index ["invoice_status_id"], name: "index_invoices_on_invoice_status_id"
