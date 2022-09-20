@@ -120,7 +120,7 @@
             <% if @invoice.card_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>Tarjeta Cred:</td>
-                <td class="text-right"><%=@invoice.card_paid %></td>
+                <td class="text-right"><%= '%.2f' % @invoice.card_paid %></td>
               </tr>
               <tr style="line-height:13px;height:13px;">
                 <td>Nro:</td>
@@ -130,13 +130,13 @@
             <% if @invoice.qr_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>Transferencia bancaria:</td>
-                <td class="text-right"><%=@invoice.qr_paid %></td>
+                <td class="text-right"><%= '%.2f' % @invoice.qr_paid %></td>
               </tr>
             <% end %>
             <% if @invoice.online_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>Pago online:</td>
-                <td class="text-right"><%=@invoice.online_paid %></td>
+                <td class="text-right"><%= '%.2f' % @invoice.online_paid %></td>
               </tr>
             <% end %>
           </tbody>
