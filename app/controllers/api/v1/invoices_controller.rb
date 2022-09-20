@@ -73,6 +73,12 @@ module Api
         @invoice.legend = @economic_activity.random_legend.description
         @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
 
+        if @invoice.payment_method == 2
+          return render json: 'No se ha insertado el monto del pago por tarjeta.', status: :unprocessable_entity unless @invoice.card_paid > 0
+          card_number = invoice_params[:card_number].insert(4,'00000000')
+          @invoice.card_number = card_number
+        end
+
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal - detail.discount
           detail.product = @company.products.find_by(primary_code: detail.product_code)
@@ -82,7 +88,7 @@ module Api
         if SiatAvailable.available(@invoice, false) == true
           if @invoice.document_type == 5 && (VerifyNit.verify(@invoice.business_nit,
                                                               @branch_office) == false)
-            return render json: 'El nit es invalido', status: :unprocessable_entity
+            return render json: 'El nit es invalido.', status: :unprocessable_entity
           end
         else
           @invoice.exception_code = 1
