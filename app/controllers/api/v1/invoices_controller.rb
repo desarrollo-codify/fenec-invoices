@@ -68,7 +68,6 @@ module Api
                         end
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.gift_card - @invoice.advance
-        @invoice.cash_paid = @invoice.total # TODO: implement different payments
         @invoice.invoice_status_id = 1
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
