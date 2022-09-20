@@ -13,12 +13,6 @@ class SendInvoiceJob < ApplicationJob
     generate_xml(@invoice)
 
     if SiatAvailable.available(@invoice, true) == true
-      begin
-        InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml,
-                           sender: @company.company_setting).send_invoice.deliver_now
-      rescue StandardError => e
-        p e.message
-      end
       @invoice.update(sent_at: DateTime.now)
       send_to_siat(@invoice)
       if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
@@ -28,15 +22,16 @@ class SendInvoiceJob < ApplicationJob
       # rubocop:disable all
       @invoice.update(graphic_representation_text: 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido fuera de línea, verifique su envío con su proveedor o en la página web www.impuestos.gob.bo.')
       # rubocop:enable all
-      begin
-        InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml,
-                           sender: @company.company_setting).send_invoice.deliver_now
-      rescue StandardError => e
-        p e.message
-      end
       unless @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
         create_contingency(@invoice, 2)
       end
+    end
+
+    begin
+      InvoiceMailer.with(client: @client, invoice: @invoice, xml: @xml,
+                         sender: @company.company_setting).send_invoice.deliver_now
+    rescue StandardError => e
+      p e.message
     end
   end
 

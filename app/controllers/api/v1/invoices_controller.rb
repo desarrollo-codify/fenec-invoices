@@ -74,7 +74,8 @@ module Api
         @invoice.legend = @economic_activity.random_legend.description
         @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
         @invoice.card_number = nil
-        if @invoice.payment_method == 2 || @invoice.payment_method == 10 || @invoice.payment_method == 40 || @invoice.payment_method == 83 || @invoice.payment_method == 86
+        
+        if [2, 10, 40, 83, 86].include? @invoice.payment_method
           unless @invoice.card_paid.positive?
             return render json: 'No se ha insertado el monto del pago por tarjeta.',
                           status: :unprocessable_entity
