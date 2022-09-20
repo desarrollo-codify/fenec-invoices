@@ -36,6 +36,7 @@ class Invoice < ApplicationRecord
   belongs_to :invoice_status
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
   has_one :cancellation_reason
+  has_and_belongs_to_many :payment_methods
   accepts_nested_attributes_for :invoice_details, reject_if: :all_blank
 
   scope :for_sending, -> { where(sent_at: nil) }

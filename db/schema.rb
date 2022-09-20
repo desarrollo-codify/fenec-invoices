@@ -305,6 +305,11 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_19_130707) do
     t.index ["number", "cufd_code"], name: "index_invoices_on_number_and_cufd_code", unique: true
   end
 
+  create_table "invoices_payment_methods", id: false, force: :cascade do |t|
+    t.bigint "invoice_id", null: false
+    t.bigint "payment_method_id", null: false
+  end
+
   create_table "issuance_types", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
