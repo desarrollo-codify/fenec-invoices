@@ -141,9 +141,10 @@ module Api
                         status: :unprocessable_entity
         end
         @reason = params[:reason]
-        CancelInvoiceJob.perform_later(@invoice, @reason)
+        @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: @reason)
+        CancelInvoiceJob.perform_later(@invoice, @reason) unless @invoice.sent_at.nil?
 
-        render json: @invoice
+        render json: @invoice.as_json(only: %i[id number total cuf cancellation_date]), status: :created
       end
 
       def resend
