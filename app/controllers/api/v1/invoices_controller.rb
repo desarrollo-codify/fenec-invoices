@@ -36,6 +36,7 @@ module Api
       end
 
       # POST /api/v1/invoices
+      # rubocop:disable all
       def create
         # TODO: implement validate!
 
@@ -67,16 +68,25 @@ module Api
                           contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
                         end
         @invoice.document_sector_code = 1
-        @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.gift_card - @invoice.advance
+        @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.gift_card_total - @invoice.advance
         @invoice.invoice_status_id = 1
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
         @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
+        @invoice.card_number = nil
+        if @invoice.payment_method == 2 || @invoice.payment_method == 10 || @invoice.payment_method == 40 || @invoice.payment_method == 83 || @invoice.payment_method == 86
+          unless @invoice.card_paid.positive?
+            return render json: 'No se ha insertado el monto del pago por tarjeta.',
+                          status: :unprocessable_entity
+          end
 
-        if @invoice.payment_method == 2
-          return render json: 'No se ha insertado el monto del pago por tarjeta.', status: :unprocessable_entity unless @invoice.card_paid > 0
-          card_number = invoice_params[:card_number].insert(4,'00000000')
+          card_number = invoice_params[:card_number]
+          card_number = "#{card_number[0, 4]}00000000#{card_number[card_number.length - 4, 4]}"
           @invoice.card_number = card_number
+        end
+        if (@invoice.payment_method == 7 || @invoice.payment_method == 13) && @invoice.qr_paid.zero?
+          return render json: 'No se ha insertado el monto del pago por transferencia bancaria.',
+                        status: :unprocessable_entity
         end
 
         @invoice.invoice_details.each do |detail|
@@ -108,6 +118,7 @@ module Api
           render json: @invoice.errors, status: :unprocessable_entity
         end
       end
+      # rubocop:enable all
 
       # PATCH/PUT /api/v1/invoices/1
       def update
@@ -165,7 +176,7 @@ module Api
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
-                                        :cancellation_reason_id, :point_of_sale,
+                                        :cancellation_reason_id, :point_of_sale, :cash_paid, :qr_paid, :card_paid, :gift_card,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])

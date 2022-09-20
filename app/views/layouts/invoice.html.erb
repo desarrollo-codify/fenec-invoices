@@ -95,19 +95,29 @@
         <table class="table table-sm table-borderless my-0 py-0">
           <tbody>
             <tr style="line-height:13px;height:13px;">
-              <td>Subtotal:</td>
+              <td>SUBTOTAL Bs</td>
               <td class="text-right"><%= '%.2f' % @invoice.subtotal %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
-              <td>Descuento:</td>
+              <td>DESCUENTO Bs</td>
               <td class="text-right"><%= '%.2f' % @invoice.discount %></td>
             </tr>
-            <tr style="line-height:13px;height:13px;">
-              <td>Monto Gift Card:</td>
-              <td class="text-right"><%= '%.2f' % @invoice.gift_card %></td>
-            </tr>
+            <% if @invoice.gift_card > 0 %>
+              <tr style="line-height:13px;height:13px;">
+                <td>MONTO GIFT CARD Bs</td>
+                <td class="text-right"><%= '%.2f' % @invoice.gift_card %></td>
+              </tr>
+            <% end %>
             <%# Gift card? QR? another payments? %>
-            <% if @invoice.card_number.present? %>
+            <tr style="line-height:13px;height:13px;">
+              <td><b>MONTO A PAGAR Bs</b></td>
+              <td class="text-right"><%= '%.2f' % @invoice.total %></td>
+            </tr>
+            <tr style="line-height:13px;height:13px;">
+              <td><b>Importe base crédito fiscal Bs</b></td>
+              <td class="text-right"><%= '%.2f' % @invoice.total %></td>
+            </tr>
+            <% if @invoice.card_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>Tarjeta Cred:</td>
                 <td class="text-right"><%=@invoice.card_paid %></td>
@@ -117,14 +127,18 @@
                 <td class="text-right"><%=@invoice.card_number %></td>
               </tr>
             <% end %>
-            <tr style="line-height:13px;height:13px;">
-              <td>Total a pagar Bs.:</td>
-              <td class="text-right"><%= '%.2f' % @invoice.total %></td>
-            </tr>
-            <tr style="line-height:13px;height:13px;">
-              <td>Importe base crédito fiscal Bs.:</td>
-              <td class="text-right"><%= '%.2f' % @invoice.total %></td>
-            </tr>
+            <% if @invoice.qr_paid > 0 %>
+              <tr style="line-height:13px;height:13px;">
+                <td>Transferencia bancaria:</td>
+                <td class="text-right"><%=@invoice.qr_paid %></td>
+              </tr>
+            <% end %>
+            <% if @invoice.online_paid > 0 %>
+              <tr style="line-height:13px;height:13px;">
+                <td>Pago online:</td>
+                <td class="text-right"><%=@invoice.online_paid %></td>
+              </tr>
+            <% end %>
           </tbody>
         </table>
       </div>
