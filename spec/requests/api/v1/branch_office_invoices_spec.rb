@@ -23,6 +23,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       currency_code: 1,
       exchange_rate: 1,
       currency_total: 100,
+      cash_paid: 100,
       user: 'jperez',
       point_of_sale: 0,
       invoice_details_attributes: [

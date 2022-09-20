@@ -36,6 +36,7 @@ module Api
       end
 
       # POST /api/v1/invoices
+      # rubocop:disable all
       def create
         # TODO: implement validate!
 
@@ -67,12 +68,27 @@ module Api
                           contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
                         end
         @invoice.document_sector_code = 1
-        @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.gift_card - @invoice.advance
-        @invoice.cash_paid = @invoice.total # TODO: implement different payments
+        @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.gift_card_total - @invoice.advance
         @invoice.invoice_status_id = 1
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
         @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
+        @invoice.card_number = nil
+        
+        if [2, 10, 40, 83, 86].include? @invoice.payment_method
+          unless @invoice.card_paid.positive?
+            return render json: 'No se ha insertado el monto del pago por tarjeta.',
+                          status: :unprocessable_entity
+          end
+
+          card_number = invoice_params[:card_number]
+          card_number = "#{card_number[0, 4]}00000000#{card_number[card_number.length - 4, 4]}"
+          @invoice.card_number = card_number
+        end
+        if (@invoice.payment_method == 7 || @invoice.payment_method == 13) && @invoice.qr_paid.zero?
+          return render json: 'No se ha insertado el monto del pago por transferencia bancaria.',
+                        status: :unprocessable_entity
+        end
 
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal - detail.discount
@@ -83,7 +99,7 @@ module Api
         if SiatAvailable.available(@invoice, false) == true
           if @invoice.document_type == 5 && (VerifyNit.verify(@invoice.business_nit,
                                                               @branch_office) == false)
-            return render json: 'El nit es invalido', status: :unprocessable_entity
+            return render json: 'El nit es invalido.', status: :unprocessable_entity
           end
         else
           @invoice.exception_code = 1
@@ -103,6 +119,7 @@ module Api
           render json: @invoice.errors, status: :unprocessable_entity
         end
       end
+      # rubocop:enable all
 
       # PATCH/PUT /api/v1/invoices/1
       def update
@@ -161,7 +178,7 @@ module Api
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
-                                        :cancellation_reason_id, :point_of_sale,
+                                        :cancellation_reason_id, :point_of_sale, :cash_paid, :qr_paid, :card_paid, :gift_card,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
