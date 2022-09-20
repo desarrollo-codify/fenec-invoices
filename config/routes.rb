@@ -61,7 +61,7 @@ Rails.application.routes.draw do
         post 'siat/document_sectors'
         post 'siat/service_messages'
         post 'siat/document_sector_types'
-        post 'siat/verify_nit'
+        get 'siat/verify_nit'
       end
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]

@@ -7,7 +7,7 @@ module Api
       require 'verify_nit'
 
       before_action :set_branch_office, except: %i[verify_communication]
-      before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
+      before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication verify_nit]
       before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]
 
       def generate_cuis
@@ -489,7 +489,6 @@ module Api
 
       def verify_nit
         response = VerifyNit.verify(params[:nit], @branch_office)
-
         render json: response
       end
 
