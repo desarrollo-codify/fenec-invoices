@@ -14,10 +14,13 @@ class SendInvoiceJob < ApplicationJob
 
     if SiatAvailable.available(@invoice, true) == true
       @invoice.update(sent_at: DateTime.now)
-      send_to_siat(@invoice)
       if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
         close_contingencies(@branch_office, @invoice)
       end
+
+      daily_code = @branch_office.daily_codes.where(point_of_sale: @invoice.point_of_sale).current.code
+      @invoice.update(cufd_code: daily_code)
+      send_to_siat(@invoice)
     else
       # rubocop:disable all
       @invoice.update(graphic_representation_text: 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido fuera de línea, verifique su envío con su proveedor o en la página web www.impuestos.gob.bo.')
