@@ -10,16 +10,14 @@ class SendInvoiceJob < ApplicationJob
     @company = invoice.branch_office.company
     @client = @company.clients.find_by(code: client_code)
     @branch_office = invoice.branch_office
-    generate_xml(@invoice)
-
+    
     if SiatAvailable.available(@invoice, true) == true
       @invoice.update(sent_at: DateTime.now)
       if @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
         close_contingencies(@branch_office, @invoice)
+        process_invoice(@branch_office, @invoice)
       end
-
-      daily_code = @branch_office.daily_codes.where(point_of_sale: @invoice.point_of_sale).current.code
-      @invoice.update(cufd_code: daily_code)
+      generate_xml(@invoice)
       send_to_siat(@invoice)
     else
       # rubocop:disable all
@@ -28,6 +26,7 @@ class SendInvoiceJob < ApplicationJob
       unless @invoice.branch_office.point_of_sales.find_by(code: @invoice.point_of_sale).contingencies.pending.any?
         create_contingency(@invoice, 2)
       end
+      generate_xml(@invoice)
     end
 
     begin
@@ -192,7 +191,57 @@ class SendInvoiceJob < ApplicationJob
     GenerateCufd.generate(branch_office, invoice)
     @contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.last
     @contingency.close!
-    ContingencyJob.perform_now(@contingency)
+    #ContingencyJob.perform_now(@contingency)
     SendCancelInvoicesJob.perform_now
+  end
+
+  def process_invoice(branch_office, invoice)
+    daily_code = branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current
+    invoice.update(cufd_code: daily_code.code, control_code: daily_code.control_code)
+    cuf = cuf(invoice.date, invoice.number, invoice.control_code, invoice.point_of_sale, branch_office)
+    invoice.update(cuf: cuf)
+    invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
+    invoice.save
+  end
+
+  def module_eleven(code, limit)
+    sum = 0
+    multiplier = 2
+    code.reverse.each_char.with_index do |character, _i|
+      sum += multiplier * character.to_i
+      multiplier += 1
+      multiplier = 2 if multiplier > limit
+    end
+    digit = sum % 11
+    last_char = digit == 10 ? '1' : digit.to_s
+    code + last_char
+  end
+
+  def hex_base(value)
+    value.to_s(16)
+  end
+
+  def qr_content(nit, cuf, number, page_size)
+    base_url = ENV.fetch('siat_url', nil)
+    params = { nit: nit, cuf: cuf, numero: number, t: page_size }
+    "#{base_url}?#{params.to_param}"
+  end
+
+  def cuf(invoice_date, current_number, control_code, point_of_sale, branch_office)
+    nit = branch_office.company.nit.rjust(13, '0')
+    date = invoice_date.strftime('%Y%m%d%H%M%S%L')
+    branch_office = branch_office.number.to_s.rjust(4, '0')
+    modality = '2' # TODO: save modality in company or branch office
+    generation_type = '1' # TODO: add generation types for: online, offline and massive
+    invoice_type = '1' # TODO: add invoice types table
+    sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
+    number = current_number.to_s.rjust(10, '0')
+    point_of_sale = point_of_sale.to_s.rjust(4, '0')
+
+    long_code = nit + date + branch_office + modality + generation_type + invoice_type + sector_document_type + number +
+                point_of_sale
+    mod_11_value = module_eleven(long_code, 9)
+    hex_code = hex_base(mod_11_value.to_i)
+    (hex_code + control_code).upcase
   end
 end
