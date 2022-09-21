@@ -2,21 +2,24 @@
 
 class CancelInvoiceJob < ApplicationJob
   queue_as :default
+  require 'siat_available'
 
   def perform(invoice, reason)
-    send_to_siat(invoice, reason)
-    @invoice = invoice
-    client_code = @invoice.client_code
-    @company = invoice.branch_office.company
-    @client = @company.clients.find_by(code: client_code)
-    @reason = CancellationReason.find_by(code: reason)
-    begin
-      if @invoice.cancellation_date.present?
-        CancellationInvoiceMailer.with(client: @client, invoice: invoice, sender: @company.company_setting,
-                                       reason: @reason).send_invoice.deliver_now
+    if SiatAvailable.available(invoice, false) == true
+      send_to_siat(invoice, reason)
+      @invoice = invoice
+      client_code = @invoice.client_code
+      @company = invoice.branch_office.company
+      @client = @company.clients.find_by(code: client_code)
+      @reason = CancellationReason.find_by(code: reason)
+      begin
+        if @invoice.cancellation_date.present?
+          CancellationInvoiceMailer.with(client: @client, invoice: invoice, sender: @company.company_setting,
+                                        reason: @reason).send_invoice.deliver_now
+        end
+      rescue StandardError => e
+        p e.message
       end
-    rescue StandardError => e
-      p e.message
     end
   end
 
