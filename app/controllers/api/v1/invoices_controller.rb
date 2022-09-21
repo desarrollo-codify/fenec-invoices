@@ -96,17 +96,18 @@ module Api
           detail.sin_code = detail.product.sin_code
         end
 
-        if SiatAvailable.available(@invoice, false) == true
-          if @invoice.document_type == 5 && (VerifyNit.verify(@invoice.business_nit,
-                                                              @branch_office) == false)
-            return render json: 'El nit es invalido.', status: :unprocessable_entity
+        if @invoice.document_type == 5
+          if SiatAvailable.available(@invoice, false)
+            unless VerifyNit.verify(@invoice.business_nit, @branch_office)
+              return render json: { message: 'El NIT del cliente es inválido' }, status: :unprocessable_entity
+            end
+          else
+            @invoice.exception_code = 1
           end
-        else
-          @invoice.exception_code = 1
         end
 
         unless @invoice.valid?
-          render json: @invoice.errors, status: :unprocessable_entity
+          render json: { message: @invoice.errors.first }, status: :unprocessable_entity
           return
         end
 
@@ -116,7 +117,7 @@ module Api
 
           render json: @invoice.as_json(only: %i[id number total cuf]), status: :created
         else
-          render json: @invoice.errors, status: :unprocessable_entity
+          render json: { message: @invoice.errors.first }, status: :unprocessable_entity
         end
       end
       # rubocop:enable all
