@@ -137,15 +137,15 @@ module Api
 
       # POST /api/v1/invoices/1/cancel
       def cancel
-        if @invoice.cancellation_date?
+        if @invoice.cancel_sent_at == true
           return render json: "La factura ya fue anulada el #{@invoice.cancellation_date}",
                         status: :unprocessable_entity
         end
         @reason = params[:reason]
         @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: @reason)
-        CancelInvoiceJob.perform_later(@invoice, @reason) unless SiatAvailable.available == true
+        CancelInvoiceJob.perform_later(@invoice, @reason)
 
-        render json: @invoice.as_json(only: %i[id number total cuf cancellation_date]), status: :created
+        render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
       end
 
       def resend
