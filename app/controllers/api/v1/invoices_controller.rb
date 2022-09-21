@@ -97,12 +97,11 @@ module Api
         end
 
         if @invoice.document_type == 5
+          @invoice.exception_code = 1
           if SiatAvailable.available(@invoice, false)
-            unless VerifyNit.verify(@invoice.business_nit, @branch_office)
-              return render json: { message: 'El NIT del cliente es inválido' }, status: :unprocessable_entity
+            if VerifyNit.verify(@invoice.business_nit, @branch_office)
+              @invoice.exception_code = nil
             end
-          else
-            @invoice.exception_code = 1
           end
         end
 
