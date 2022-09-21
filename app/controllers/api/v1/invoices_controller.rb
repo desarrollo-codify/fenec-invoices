@@ -144,7 +144,7 @@ module Api
         end
         @reason = params[:reason]
         @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: @reason)
-        CancelInvoiceJob.perform_later(@invoice, @reason) unless @invoice.sent_at.nil?
+        CancelInvoiceJob.perform_later(@invoice, @reason) unless SiatAvailable.available == true
 
         render json: @invoice.as_json(only: %i[id number total cuf cancellation_date]), status: :created
       end
