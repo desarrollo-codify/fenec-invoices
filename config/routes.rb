@@ -74,6 +74,7 @@ Rails.application.routes.draw do
         post :resend, on: :member
       end
       resources :contingency_codes, only: %i[show update destroy]
+      resources :clients, only: %i[update destroy]
 
       # siat controller
       post 'siat/bulk_products_update'
