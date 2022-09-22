@@ -94,6 +94,7 @@ module Api
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal - detail.discount
           detail.product = @company.products.find_by(primary_code: detail.product_code)
+          detail.description = detail.product.description
           detail.sin_code = detail.product.sin_code
         end
 

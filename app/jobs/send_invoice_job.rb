@@ -2,8 +2,6 @@
 
 class SendInvoiceJob < ApplicationJob
   queue_as :default
-  require 'generate_cufd'
-  require 'siat_available'
 
   def perform(invoice)
     client = Savon.client(
@@ -44,8 +42,8 @@ class SendInvoiceJob < ApplicationJob
     }
     response = client.call(:recepcion_factura, message: body)
     p response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-  end
 
+    update_invoice(invoice) if response[:codigo_estado] == 908
   private
 
   def generate_gzip_file(invoice)
@@ -62,12 +60,7 @@ class SendInvoiceJob < ApplicationJob
     Digest::SHA2.hexdigest(file)
   end
 
-  # TODO: refactor this and move it to its right place
-  def close_contingencies(branch_office, invoice)
-    GenerateCufd.generate(branch_office, invoice)
-    @contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.last
-    @contingency.close!
-    CloseContingencyJob.perform_now(@contingency)
-    SendCancelInvoicesJob.perform_now
+  def update_invoice(invoice)
+    invoice.update(sent_at: DateTime.now)
   end
 end
