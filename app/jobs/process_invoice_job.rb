@@ -40,8 +40,8 @@ class ProcessInvoiceJob < ApplicationJob
     point_of_sale.contingencies.pending.first
   end
 
-  def close_contingency(point_of_sale)
-    CloseContingencyJob.perform_later(@contingency)
+  def close_contingency(contingency)
+    CloseContingencyJob.perform_later(contingency)
     SendCancelInvoicesJob.perform_later
   end
 
@@ -72,7 +72,14 @@ class ProcessInvoiceJob < ApplicationJob
     SendInvoiceJob.perform_later(invoice)
   end
 
+  def current_daily_code(branch_office, point_of_sale)
+    branch_office.daily_codes.where(point_of_sale: point_of_sale.code).current
+  end
+
   def process_pending_data(invoice, point_of_sale, siat_available)
+    daily_code = current_daily_code(invoice.branch_office, point_of_sale)
+    invoice.cufd_code = daily_code.code
+    invoice.control_code = daily_code.control_code
     invoice.number = invoice_number(point_of_sale)
     invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, point_of_sale)
     # TODO: implement paper size: 1 roll, 2 half office or half letter

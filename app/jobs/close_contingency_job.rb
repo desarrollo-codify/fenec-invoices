@@ -3,6 +3,7 @@
 class CloseContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
+
   def perform(contingency)
     contingency.close!
     
