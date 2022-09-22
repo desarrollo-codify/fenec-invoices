@@ -36,6 +36,8 @@ module FenecInvoices
     config.time_zone = 'La Paz'
     config.active_record.default_timezone = :local
 
+    config.active_storage.variant_processor = :mini_magick
+
     # rubocop:disable all
     config.before_configuration do
       env_file = File.join(Rails.root, 'config', 'siat.yml')

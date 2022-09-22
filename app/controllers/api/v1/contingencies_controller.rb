@@ -35,7 +35,7 @@ module Api
         @contingency.close!
 
         if @contingency.save
-          ContingencyJob.perform_later(@contingency)
+          CloseContingencyJob.perform_later(@contingency)
           render json: @contingency, status: :created
         else
           render json: @contingency.errors, status: :unprocessable_entity
