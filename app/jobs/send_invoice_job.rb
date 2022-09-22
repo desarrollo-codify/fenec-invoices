@@ -41,9 +41,12 @@ class SendInvoiceJob < ApplicationJob
       }
     }
     response = client.call(:recepcion_factura, message: body)
-    p response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+    p data
 
-    update_invoice(invoice) if response[:codigo_estado] == 908
+    update_invoice(invoice) if data[:codigo_estado] == '908'
+  end
+
   private
 
   def generate_gzip_file(invoice)

@@ -12,7 +12,7 @@ class ProcessInvoiceJob < ApplicationJob
     if is_siat_available
       if pending_contingency_exists
         generate_cufd(point_of_sale)
-        close_contingency(current_contingency)
+        close_contingency(current_contingency(point_of_sale))
       end
     else
       # TODO: don't send a magic number like 2, use an enum or something similar
@@ -23,7 +23,7 @@ class ProcessInvoiceJob < ApplicationJob
     generate_invoice_documents(invoice)
 
     send_mail(invoice)
-    sent_to_siat(invoice)
+    sent_to_siat(invoice) if is_siat_available
   end
 
   private

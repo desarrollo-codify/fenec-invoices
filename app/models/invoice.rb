@@ -91,8 +91,8 @@ class Invoice < ApplicationRecord
   end
 
   def business_nit_is_ci_or_nit
-    return unless document_type == 5 || (document_type == 1 && !business_nit.present? && business_nit.scan(/\D/).empty?)
-
-    errors.add(:business_nit, 'El número de documento debe ser numérico.')
+    return unless document_type == 5 || document_type == 1
+    
+    errors.add(:business_nit, 'El número de documento debe ser numérico.') if business_nit.present? && business_nit.scan(/\D/).any?
   end
 end
