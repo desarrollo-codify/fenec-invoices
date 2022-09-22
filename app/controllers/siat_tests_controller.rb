@@ -167,8 +167,8 @@ class SiatTestsController < ApplicationController
 
   def set_company
     @company = Company.find(params[:company_id])
-    @cuis_code = @company.branch_offices.find_by(number: params[:branch_office_id]).
-      cuis_codes.where(point_of_sale: params[:point_of_sale]).current
+    @cuis_code = @company.branch_offices.find_by(number: params[:branch_office_id])
+                         .cuis_codes.where(point_of_sale: params[:point_of_sale]).current
   end
 
   def siat_client(wsdl_name)

@@ -85,6 +85,7 @@ module Api
           card_number = "#{card_number[0, 4]}00000000#{card_number[card_number.length - 4, 4]}"
           @invoice.card_number = card_number
         end
+
         if (@invoice.payment_method == 7 || @invoice.payment_method == 13) && @invoice.qr_paid.zero?
           return render json: 'No se ha insertado el monto del pago por transferencia bancaria.',
                         status: :unprocessable_entity
@@ -93,6 +94,7 @@ module Api
         @invoice.invoice_details.each do |detail|
           detail.total = detail.subtotal - detail.discount
           detail.product = @company.products.find_by(primary_code: detail.product_code)
+          detail.description = detail.product.description
           detail.sin_code = detail.product.sin_code
         end
 
@@ -111,10 +113,10 @@ module Api
         end
 
         if @invoice.save
-          process_pending_data(@invoice, daily_code)
-          SendInvoiceJob.perform_later(@invoice, invoice_params[:client_code]) unless params[:is_manual].present?
+          point_of_sale = @branch_office.point_of_sales.find_by(code: @invoice.point_of_sale)
+          ProcessInvoiceJob.perform_later(@invoice, point_of_sale)
 
-          render json: @invoice.as_json(only: %i[id number total cuf]), status: :created
+          render json: @invoice.as_json(only: %i[id total]), status: :created
         else
           render json: { message: @invoice.errors.first }, status: :unprocessable_entity
         end
@@ -182,39 +184,6 @@ module Api
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
-      end
-
-      def process_pending_data(invoice, daily_code)
-        invoice.number = invoice_number(invoice.point_of_sale)
-        invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, daily_code.point_of_sale)
-        # TODO: implement paper size: 1 roll, 2 half office or half letter
-        invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
-        invoice.save
-      end
-
-      def cuf(invoice_date, current_number, control_code, point_of_sale)
-        nit = @branch_office.company.nit.rjust(13, '0')
-        date = invoice_date.strftime('%Y%m%d%H%M%S%L')
-        branch_office = @branch_office.number.to_s.rjust(4, '0')
-        modality = '2' # TODO: save modality in company or branch office
-        generation_type = '1' # TODO: add generation types for: online, offline and massive
-        invoice_type = '1' # TODO: add invoice types table
-        sector_document_type = '1'.rjust(2, '0') # TODO: add sector types table
-        number = current_number.to_s.rjust(10, '0')
-        point_of_sale = point_of_sale.to_s.rjust(4, '0')
-
-        long_code = nit + date + branch_office + modality + generation_type + invoice_type + sector_document_type + number +
-                    point_of_sale
-        mod_11_value = module_eleven(long_code, 9)
-        hex_code = hex_base(mod_11_value.to_i)
-        (hex_code + control_code).upcase
-      end
-
-      def invoice_number(point_of_sale)
-        cuis_code = @branch_office.cuis_codes.where(point_of_sale: point_of_sale).current
-        current_number = cuis_code.current_number
-        cuis_code.increment!
-        current_number
       end
     end
   end

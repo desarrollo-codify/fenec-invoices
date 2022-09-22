@@ -4,6 +4,7 @@ class SendCancelInvoicesJob < ApplicationJob
   queue_as :default
 
   def perform(*_args)
+    # TODO: refactor this and filter by branch office or company or point_of_sale
     invoices = Invoice.for_sending_cancel
     invoices.each do |invoice|
       send_to_siat(invoice, invoice.cancellation_reason_id)
