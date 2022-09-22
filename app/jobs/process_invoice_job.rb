@@ -12,7 +12,7 @@ class ProcessInvoiceJob < ApplicationJob
     if is_siat_available
       if pending_contingency_exists
         generate_cufd(point_of_sale)
-        close_contingency(point_of_sale)
+        close_contingency(current_contingency)
       end
     else
       # TODO: don't send a magic number like 2, use an enum or something similar
@@ -41,7 +41,8 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def close_contingency(point_of_sale)
-    CloseContingencyJob.perform_later(current_contingency(point_of_sale))
+    CloseContingencyJob.perform_later(@contingency)
+    SendCancelInvoicesJob.perform_later
   end
 
   def generate_cufd(point_of_sale)
