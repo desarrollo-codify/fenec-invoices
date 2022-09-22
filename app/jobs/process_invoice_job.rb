@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProcessInvoiceJob < ApplicationJob
   queue_as :default
 
@@ -8,7 +10,7 @@ class ProcessInvoiceJob < ApplicationJob
     pending_contingency_exists = pending_contingency?(point_of_sale)
     is_siat_available = siat_available?(invoice)
     if is_siat_available
-      if pending_contingency?(point_of_sale) 
+      if pending_contingency_exists
         generate_cufd(point_of_sale)
         close_contingency(point_of_sale)
       end
@@ -70,13 +72,15 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def process_pending_data(invoice, point_of_sale, siat_available)
-    daily_code = invoice.branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current
-
     invoice.number = invoice_number(point_of_sale)
     invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, point_of_sale)
     # TODO: implement paper size: 1 roll, 2 half office or half letter
     invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
-    invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido fuera de línea, verifique su envío con su proveedor o en la página web www.impuestos.gob.bo.' unless siat_available
+    unless siat_available
+      # rubocop:disable Layout/LineLength
+      invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido fuera de línea, verifique su envío con su proveedor o en la página web www.impuestos.gob.bo.'
+      # rubocop:enable Layout/LineLength
+    end
     invoice.save
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GeneratePdfJob < ApplicationJob
   include Rails.application.routes.url_helpers
 
@@ -19,26 +21,28 @@ class GeneratePdfJob < ApplicationJob
     view.view_context_class.include(ActionView::Helpers, ApplicationHelper)
 
     pdf_html = view.render_to_string(template: 'layouts/invoice',
-      locals: { invoice: @invoice, branch_office: @branch_office, company: @company, economic_activity: @economic_activity,
-        literal_amount: @literal_amount, qr_code_file: @qr_code_file })
-  
+                                     locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
+                                               economic_activity: @economic_activity,
+                                               literal_amount: @literal_amount, qr_code_file: @qr_code_file })
+
     pdf_content = WickedPdf.new.pdf_from_string(
-                    pdf_html,  
-                    page_width: '8.5cm',
-                    page_height: "#{height}cm",
-                    page_size: nil,
-                    title: '',
-                    margin: {
-                      top: '0', bottom: '0', left: '0', right: '0'
-                    }
-                  )
-    
+      pdf_html,
+      page_width: '8.5cm',
+      page_height: "#{height}cm",
+      page_size: nil,
+      title: '',
+      margin: {
+        top: '0', bottom: '0', left: '0', right: '0'
+      }
+    )
+
     pdf_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
-    unless File.exist?(pdf_path)
-      File.open(pdf_path, 'wb') do |file|
-        file << pdf_content
-        file.close
-      end
+
+    return if File.exist?(pdf_path)
+
+    File.open(pdf_path, 'wb') do |file|
+      file << pdf_content
+      file.close
     end
   end
 

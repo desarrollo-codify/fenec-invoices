@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GenerateXmlJob < ApplicationJob
   queue_as :default
 
