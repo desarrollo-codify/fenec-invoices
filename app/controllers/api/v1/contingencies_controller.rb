@@ -32,14 +32,9 @@ module Api
 
       # POST api/v1/contingencies/:contingency_id/close
       def close
-        @contingency.close!
-
-        if @contingency.save
-          CloseContingencyJob.perform_later(@contingency)
-          render json: @contingency, status: :created
-        else
-          render json: @contingency.errors, status: :unprocessable_entity
-        end
+        CloseContingencyJob.perform_later(@contingency)
+        SendCancelInvoicesJob.perform_later
+        render json: @contingency, status: :created
       end
 
       # PATCH/PUT /api/v1/contingencies/1
