@@ -37,7 +37,7 @@ class GenerateXmlJob < ApplicationJob
 
           # card number
           xml.numeroTarjeta('xsi:nil' => true) unless invoice.card_number
-          xml.numeroTarjeta @invoice.card_number if invoice.card_number
+          xml.numeroTarjeta invoice.card_number if invoice.card_number
 
           xml.montoTotal invoice.total
           xml.montoTotalSujetoIva invoice.total # TODO: check for not IVA
@@ -53,7 +53,7 @@ class GenerateXmlJob < ApplicationJob
 
           # cafc
           xml.cafc('xsi:nil' => true) unless invoice.cafc
-          xml.cafc @invoice.cafc if invoice.cafc
+          xml.cafc invoice.cafc if invoice.cafc
 
           xml.leyenda invoice.legend
           xml.usuario invoice.user
