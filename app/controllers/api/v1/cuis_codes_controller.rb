@@ -12,7 +12,7 @@ module Api
         render json: @cuis_codes
       end
 
-      # GET /api/v1/branch_offices/:branch_office_id/current_code
+      # GET /api/v1/branch_offices/:branch_office_id/current
       def current
         @cuis_code = @branch_office.cuis_codes.where(point_of_sale: params[:point_of_sale]).current
         if @cuis_code.present?

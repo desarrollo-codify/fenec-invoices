@@ -6,7 +6,7 @@ class CloseContingencyJob < ApplicationJob
 
   def perform(contingency)
     contingency.close!
-    
+
     point_of_sale = contingency.point_of_sale.code
     invoices = contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
