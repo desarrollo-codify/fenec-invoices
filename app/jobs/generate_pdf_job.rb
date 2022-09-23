@@ -10,7 +10,7 @@ class GeneratePdfJob < ApplicationJob
     @branch_office = @invoice.branch_office
     @company = @branch_office.company
     @economic_activity = @company.economic_activities.first
-    @literal_amount = literal_amount(@invoice.total)
+    @literal_amount = literal_amount(@invoice.amount_payable)
     @qr_code_file = qr_code(@invoice.qr_content, @invoice.cuf)
 
     height = 33
@@ -49,6 +49,8 @@ class GeneratePdfJob < ApplicationJob
   private
 
   def literal_amount(amount)
+    return 'Cero 00/100' if amount == 0
+    
     decimal = BigDecimal(amount.to_s).frac.to_s.gsub! '0.', ''
 
     group_by_three = amount.to_i.to_s.reverse.scan(/\d{1,3}/).map { |n| n.reverse.to_i }

@@ -23,15 +23,15 @@
         <table class="table table-sm table-borderless mb-0">
           <tbody>
             <tr style="line-height:13px;height:13px;">
-              <td class="text-right w-50">NIT:</td>
+              <td class="text-right w-50"><strong>NIT:</strong></td>
               <td><%= invoice.company_nit %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
-              <td class="text-right">FACTURA No:</td>
+              <td class="text-right"><strong>FACTURA No:</strong></td>
               <td><%= invoice.number %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
-              <td colspan="2" class="text-center">CÓD. AUTORIZACIÓN:</td>
+              <td colspan="2" class="text-center"><strong>CÓD. AUTORIZACIÓN:</strong></td>
             </tr>
             <tr>
               <td colspan="2" class="text-center text-break"><%= invoice.cuf %></td>
@@ -102,20 +102,24 @@
               <td>DESCUENTO Bs</td>
               <td class="text-right"><%= '%.2f' % invoice.discount %></td>
             </tr>
-            <% if invoice.gift_card > 0 %>
+            <tr style="line-height:13px;height:13px;">
+              <td>TOTAL Bs</td>
+              <td class="text-right"><%= '%.2f' % invoice.total %></td>
+            </tr>
+            <% if invoice.gift_card_total > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>MONTO GIFT CARD Bs</td>
-                <td class="text-right"><%= '%.2f' % invoice.gift_card %></td>
+                <td class="text-right"><%= '%.2f' % invoice.gift_card_total %></td>
               </tr>
             <% end %>
             <%# Gift card? QR? another payments? %>
-            <tr style="line-height:13px;height:13px;">
+            <tr style="line-height:13px;height:13px;" class="pt-1 bg-light">
               <td><b>MONTO A PAGAR Bs</b></td>
-              <td class="text-right"><%= '%.2f' % invoice.total %></td>
+              <td class="text-right"><%= '%.2f' % invoice.amount_payable %></td>
             </tr>
-            <tr style="line-height:13px;height:13px;">
+            <tr style="line-height:13px;height:13px;" class="bg-light">
               <td><b>Importe base crédito fiscal Bs</b></td>
-              <td class="text-right"><%= '%.2f' % invoice.total %></td>
+              <td class="text-right"><%= '%.2f' % invoice.amount_payable %></td>
             </tr>
             <% if invoice.card_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
@@ -142,7 +146,7 @@
           </tbody>
         </table>
       </div>
-      <div class="w-100" style="border-top: 1px solid #000;">
+      <div class="w-100 pt-2" style="border-top: 1px solid #000;">
         <div class="m-0 py-0">SON: <%= literal_amount.upcase %> Bs.</div>
       </div>
       <div class="w-100 m-0 py-3">Usr.: <%= invoice.user %></div>

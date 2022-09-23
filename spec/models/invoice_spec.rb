@@ -243,7 +243,7 @@ RSpec.describe Invoice, type: :model do
 
     context 'validates calculation of total' do
       context 'with invalid calculation' do
-        let(:invoice) { build(:invoice, subtotal: 10, discount: 1, gift_card: 1, advance: 1, total: 8, cash_paid: 8) }
+        let(:invoice) { build(:invoice, subtotal: 10, discount: 1, gift_card_total: 1, advance: 1, total: 8, cash_paid: 8) }
 
         it 'is not valid' do
           expect(invoice).to_not be_valid
@@ -253,7 +253,7 @@ RSpec.describe Invoice, type: :model do
 
       context 'with valid calculation' do
         let(:invoice) do
-          build(:invoice, default_values: true, business_name: 'Abc', subtotal: 10, discount: 1, gift_card: 1, advance: 1,
+          build(:invoice, default_values: true, business_name: 'Abc', subtotal: 10, discount: 1, gift_card_total: 1, advance: 1,
                           total: 7, cash_paid: 7)
         end
 
@@ -402,7 +402,7 @@ RSpec.describe Invoice, type: :model do
 
       it 'has default values' do
         expect(invoice.discount).to eq(0)
-        expect(invoice.gift_card).to eq(0)
+        expect(invoice.gift_card_total).to eq(0)
         expect(invoice.advance).to eq(0)
         expect(invoice.cash_paid).to eq(0)
         expect(invoice.online_paid).to eq(0)

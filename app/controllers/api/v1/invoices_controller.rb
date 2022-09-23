@@ -69,6 +69,7 @@ module Api
                         end
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.advance
+        @invoice.amount_payable = @invoice.total - @invoice.gift_card_total
         @invoice.invoice_status_id = 1
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
@@ -91,7 +92,7 @@ module Api
                         status: :unprocessable_entity
         end
 
-        if ([27, 35, 40, 86, 115,159].include? @invoice.payment_method ) && @invoice.gift_card.zero?
+        if ([27, 35, 40, 86, 115,159].include? @invoice.payment_method ) && @invoice.gift_card_total.zero?
           return render json: 'No se ha insertado el monto del pago por Gift Card.',
                         status: :unprocessable_entity
         end
