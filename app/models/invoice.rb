@@ -85,7 +85,8 @@ class Invoice < ApplicationRecord
   end
 
   def total_paid_must_be_equal_to_total
-    return if total && qr_paid && cash_paid && card_paid && total == qr_paid + cash_paid + card_paid
+    return if total && qr_paid && cash_paid && card_paid && gift_card_total && online_paid && total == qr_paid +
+      cash_paid + card_paid + gift_card_total + online_paid
 
     errors.add(:total, 'El total pagado no concuerda con el total a pagar.')
   end

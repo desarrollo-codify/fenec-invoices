@@ -75,7 +75,7 @@ module Api
         @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
         @invoice.card_number = nil
         
-        if [2, 10, 40, 83, 86].include? @invoice.payment_method
+        if [2, 10, 18, 40, 43, 83, 86].include? @invoice.payment_method
           unless @invoice.card_paid.positive?
             return render json: 'No se ha insertado el monto del pago por tarjeta.',
                           status: :unprocessable_entity
@@ -181,6 +181,7 @@ module Api
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
                                         :cancellation_reason_id, :point_of_sale, :cash_paid, :qr_paid, :card_paid, :gift_card,
+                                        :online_paid,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
