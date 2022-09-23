@@ -31,6 +31,7 @@ class Invoice < ApplicationRecord
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total
   validate :business_nit_is_ci_or_nit
+  validate :amount_payable_must_be_correctly_calculated
 
   belongs_to :branch_office
   belongs_to :invoice_status
@@ -62,12 +63,13 @@ class Invoice < ApplicationRecord
 
   def default_values
     self.discount ||= 0.00
-    self.gift_card ||= 0.00
+    self.gift_card_total ||= 0.00
     self.advance ||= 0.00
     self.cash_paid ||= 0.00
     self.online_paid ||= 0.00
     self.qr_paid ||= 0.00
     self.card_paid ||= 0.00
+    self.amount_payable ||= 0.00
     self.business_name ||= 'S/N'
     self.business_nit ||= '0'
   end
@@ -77,15 +79,21 @@ class Invoice < ApplicationRecord
   end
 
   def total_must_be_correctly_calculated
-    if total && discount && subtotal && discount && gift_card && advance && (total == subtotal - discount - gift_card - advance)
+    if total && discount && subtotal && discount && gift_card_total && advance && (total == subtotal - discount - advance)
       return
     end
 
     errors.add(:total, 'El monto total no concuerda con el calculo realizado.')
   end
 
+  def amount_payable_must_be_correctly_calculated
+    return if amount_payable && gift_card_total && amount_payable == total - gift_card_total
+
+    errors.add(:amount_payable, 'El monto a pagar debe ser igual al total de la factura menos el monto del gift card, si existe.')
+  end
+
   def total_paid_must_be_equal_to_total
-    return if total && qr_paid && cash_paid && card_paid && total == qr_paid + cash_paid + card_paid
+    return if total && qr_paid && cash_paid && card_paid && gift_card_total && total == qr_paid + cash_paid + card_paid + gift_card_total
 
     errors.add(:total, 'El total pagado no concuerda con el total a pagar.')
   end
