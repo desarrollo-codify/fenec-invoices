@@ -30,6 +30,7 @@ Rails.application.routes.draw do
       get '/branch_offices/:branch_office_id/daily_codes/current', to: 'daily_codes#current'
       get '/branch_offices/:branch_office_id/cuis_codes/current', to: 'cuis_codes#current'
       resources :branch_offices, only: %i[show update destroy] do
+        get :contingencies, on: :member
         resources :daily_codes, shallow: true
         resources :cuis_codes, only: %i[index]
         resources :invoices, only: %i[index create] do
@@ -64,6 +65,7 @@ Rails.application.routes.draw do
         post 'siat/document_sector_types'
         get 'siat/verify_nit'
       end
+
       resources :economic_activities, only: :show do
         resources :legends, only: %i[index]
         resources :document_sectors, only: %i[index]

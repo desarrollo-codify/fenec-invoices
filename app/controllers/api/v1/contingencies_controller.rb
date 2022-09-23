@@ -7,7 +7,7 @@ module Api
       before_action :set_point_of_sale, only: %i[index create]
       # GET /api/v1/contingencies
       def index
-        @contingencies = @point_of_sale.contingencies.includes(:significative_event)
+        @contingencies = @point_of_sale.contingencies.includes(:significative_event, :point_of_sale)
 
         render json: @contingencies.as_json(include: [
           { significative_event: { except: %i[created_at updated_at] } },
