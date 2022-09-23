@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       get '/branch_offices/:branch_office_id/cuis_codes/current', to: 'cuis_codes#current'
       resources :branch_offices, only: %i[show update destroy] do
         resources :daily_codes, shallow: true
+        resources :cuis_codes, only: %i[index]
         resources :invoices, only: %i[index create] do
           get :pending, on: :collection
         end
