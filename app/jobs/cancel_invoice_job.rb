@@ -21,6 +21,8 @@ class CancelInvoiceJob < ApplicationJob
     rescue StandardError => e
       p e.message
     end
+
+    GeneratePdfJob.perform_now(invoice)
   end
 
   def send_to_siat(invoice, reason)
