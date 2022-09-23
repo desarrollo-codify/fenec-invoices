@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
-class ContingencyJob < ApplicationJob
+class CloseContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
+
   def perform(contingency)
+    contingency.close!
+
     point_of_sale = contingency.point_of_sale.code
     invoices = contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
@@ -24,6 +27,8 @@ class ContingencyJob < ApplicationJob
       File.delete(filename)
     end
     reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
+
+    SendCancelInvoicesJob.perform_later(contingency)
   end
 
   def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)

@@ -7,9 +7,12 @@ module Api
       before_action :set_point_of_sale, only: %i[index create]
       # GET /api/v1/contingencies
       def index
-        @contingencies = @point_of_sale.contingencies.includes(:significative_event)
+        @contingencies = @point_of_sale.contingencies.includes(:significative_event, :point_of_sale)
 
-        render json: @contingencies.as_json(include: { significative_event: { except: %i[created_at updated_at] } })
+        render json: @contingencies.as_json(include: [
+          { significative_event: { except: %i[created_at updated_at] } },
+          { point_of_sale: { except: %i[created_at updated_at] } },
+        ])
       end
 
       # GET /api/v1/contingencies/1
@@ -32,14 +35,8 @@ module Api
 
       # POST api/v1/contingencies/:contingency_id/close
       def close
-        @contingency.close!
-
-        if @contingency.save
-          ContingencyJob.perform_later(@contingency)
-          render json: @contingency, status: :created
-        else
-          render json: @contingency.errors, status: :unprocessable_entity
-        end
+        CloseContingencyJob.perform_now(@contingency)
+        render json: @contingency, status: :created
       end
 
       # PATCH/PUT /api/v1/contingencies/1

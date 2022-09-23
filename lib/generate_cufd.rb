@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 class GenerateCufd
-  def self.generate(branch_office, invoice)
-    cuis_code = branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current.code
+  def self.generate(point_of_sale)
+    branch_office = point_of_sale.branch_office
+    company = branch_office.company
+    cuis_code = branch_office.cuis_codes.where(point_of_sale: point_of_sale.code).current.code
 
     client = Savon.client(
       wsdl: ENV.fetch('cuis_wsdl'.to_s, nil),
       headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
+        'apikey' => company.company_setting.api_key,
         'SOAPAction' => ''
       },
       namespace: ENV.fetch('siat_namespace', nil),
@@ -16,9 +18,9 @@ class GenerateCufd
     body = {
       SolicitudCufd: {
         codigoAmbiente: 2,
-        codigoPuntoVenta: invoice.point_of_sale,
-        codigoSistema: branch_office.company.company_setting.system_code,
-        nit: branch_office.company.nit.to_i,
+        codigoPuntoVenta: point_of_sale.code,
+        codigoSistema: company.company_setting.system_code,
+        nit: company.nit.to_i,
         codigoModalidad: 2,
         cuis: cuis_code,
         codigoSucursal: branch_office.number
@@ -34,7 +36,6 @@ class GenerateCufd
     code = data[:codigo]
     control_code = data[:codigo_control]
     end_date = data[:fecha_vigencia]
-    point_of_sale = invoice.point_of_sale
-    branch_office.add_daily_code!(code, control_code, Date.today, end_date, point_of_sale)
+    branch_office.add_daily_code!(code, control_code, Date.today, end_date, point_of_sale.code)
   end
 end

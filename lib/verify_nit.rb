@@ -2,7 +2,7 @@
 
 class VerifyNit
   require 'siat_available'
-  
+
   def self.verify(nit, branch_office)
     result = true
     if SiatAvailable.available(branch_office.invoices.last, false)
@@ -28,10 +28,10 @@ class VerifyNit
           nitParaVerificacion: nit
         }
       }
-  
+
       response = client.call(:verificar_nit, message: body)
       return unless response.success?
-  
+
       data = response.to_array(:verificar_nit_response, :respuesta_verificar_nit, :mensajes_list).first
       description = data[:descripcion]
       result = description == 'NIT ACTIVO'
