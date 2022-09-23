@@ -42,7 +42,6 @@ class ProcessInvoiceJob < ApplicationJob
 
   def close_contingency(contingency)
     CloseContingencyJob.perform_later(contingency)
-    SendCancelInvoicesJob.perform_later
   end
 
   def generate_cufd(point_of_sale)

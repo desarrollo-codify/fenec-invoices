@@ -35,8 +35,7 @@ module Api
 
       # POST api/v1/contingencies/:contingency_id/close
       def close
-        CloseContingencyJob.perform_later(@contingency)
-        SendCancelInvoicesJob.perform_later
+        CloseContingencyJob.perform_now(@contingency)
         render json: @contingency, status: :created
       end
 
