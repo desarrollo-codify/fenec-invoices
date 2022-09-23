@@ -37,10 +37,13 @@ class GenerateXmlJob < ApplicationJob
 
           # card number
           xml.numeroTarjeta('xsi:nil' => true) unless invoice.card_number
-          xml.numeroTarjeta @invoice.card_number if invoice.card_number
-
+          xml.numeroTarjeta invoice.card_number if invoice.card_number
           xml.montoTotal invoice.total
-          xml.montoTotalSujetoIva invoice.total # TODO: check for not IVA
+
+          # montoTotalSujetoIva
+          xml.montoTotalSujetoIva invoice.total unless invoice.gift_card_total
+          xml.montoTotalSujetoIva invoice.total - invoice.gift_card_total if invoice.gift_card_total
+
           xml.codigoMoneda invoice.currency_code
           xml.tipoCambio invoice.exchange_rate
           xml.montoTotalMoneda invoice.currency_total
@@ -53,7 +56,7 @@ class GenerateXmlJob < ApplicationJob
 
           # cafc
           xml.cafc('xsi:nil' => true) unless invoice.cafc
-          xml.cafc @invoice.cafc if invoice.cafc
+          xml.cafc invoice.cafc if invoice.cafc
 
           xml.leyenda invoice.legend
           xml.usuario invoice.user
