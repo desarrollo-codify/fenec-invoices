@@ -157,9 +157,6 @@ module Api
         @reason = params[:reason]
         @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: @reason, invoice_status_id: 2)
 
-        filename = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
-        File.delete(filename) if File.exist?(filename)
-
         CancelInvoiceJob.perform_later(@invoice, @reason) unless @invoice.sent_at.nil?
 
         render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
