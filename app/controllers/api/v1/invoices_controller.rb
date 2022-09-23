@@ -76,7 +76,7 @@ module Api
         @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
         @invoice.card_number = nil
         
-        if [2, 10, 18, 40, 43, 83, 86].include? @invoice.payment_method
+        if [2, 10, 18, 40, 43].include? @invoice.payment_method
           unless @invoice.card_paid.positive?
             return render json: 'No se ha insertado el monto del pago por tarjeta.',
                           status: :unprocessable_entity
@@ -87,12 +87,17 @@ module Api
           @invoice.card_number = card_number
         end
 
-        if (@invoice.payment_method == 7 || @invoice.payment_method == 13) && @invoice.qr_paid.zero?
+        if ([7, 13, 18, 64, 67].include? @invoice.payment_method) && @invoice.qr_paid.zero?
           return render json: 'No se ha insertado el monto del pago por transferencia bancaria.',
                         status: :unprocessable_entity
         end
 
-        if ([27, 35, 40, 86, 115,159].include? @invoice.payment_method ) && @invoice.gift_card_total.zero?
+        if ([33, 38, 43, 67, 78].include? @invoice.payment_method) && @invoice.online_paid.zero?
+          return render json: 'No se ha insertado el monto del pago online.',
+                        status: :unprocessable_entity
+        end
+
+        if ([27, 35, 40, 64, 78].include? @invoice.payment_method ) && @invoice.gift_card_total.zero?
           return render json: 'No se ha insertado el monto del pago por Gift Card.',
                         status: :unprocessable_entity
         end
