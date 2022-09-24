@@ -65,7 +65,9 @@ module Api
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         contingency = Contingency.where(point_of_sale_id: invoice_params[:point_of_sale]).pending.last # TODO: Refactor
         @invoice.cafc = if contingency.present? && params[:is_manual].present?
-                          contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
+                          contingency_code = @economic_activity.contingency_codes.available.first
+                          contingency.significative_event_id >= 5 ? contingency_code.code : nil
+                          contingency_code.increment!
                         end
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.advance
