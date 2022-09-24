@@ -19,7 +19,12 @@ class ContingencyCode < ApplicationRecord
   belongs_to :economic_activity
 
   scope :available, -> { where(available: true)}
-
+  
+  def increment!
+    self.current_use += 1
+    save!
+  end
+  
   private
 
   def default_values
@@ -31,9 +36,5 @@ class ContingencyCode < ApplicationRecord
     update_column(available: false) if current_use == limit
   end
 
-  def increment!
-    self.current_use += 1
-    save!
-  end
 
 end

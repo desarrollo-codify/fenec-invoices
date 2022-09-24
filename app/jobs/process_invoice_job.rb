@@ -8,11 +8,12 @@ class ProcessInvoiceJob < ApplicationJob
 
   def perform(invoice, point_of_sale)
     pending_contingency_exists = pending_contingency?(point_of_sale)
+    contingency = current_contingency(point_of_sale)
     is_siat_available = siat_available?(invoice)
     if is_siat_available
-      if pending_contingency_exists
+      if pending_contingency_exists && contingency.significative_event_id < 5
         generate_cufd(point_of_sale)
-        close_contingency(current_contingency(point_of_sale))
+        close_contingency(contingency)
       end
     else
       # TODO: don't send a magic number like 2, use an enum or something similar
@@ -21,9 +22,10 @@ class ProcessInvoiceJob < ApplicationJob
 
     process_pending_data(invoice, point_of_sale, is_siat_available)
     generate_invoice_documents(invoice)
-
-    send_mail(invoice)
-    sent_to_siat(invoice) if is_siat_available
+    unless invoice.is_manual
+      send_mail(invoice)
+      sent_to_siat(invoice) if is_siat_available
+    end
   end
 
   private

@@ -22,11 +22,11 @@ module Api
         render json: @contingency
       end
 
-      # POST /api/v1/branch_office/:branch_office_id/contingencies
+      # POST /api/v1/point_of_sales/:point_of_sales_id/contingencies
       def create
         @contingency = @point_of_sale.contingencies.build(contingency_params)
         @contingency.start_date = DateTime.now
-        @contingency.cufd_code = DailyCode.where(point_of_sale: params[:point_of_sale_id]).last.code
+        @contingency.cufd_code = DailyCode.where(point_of_sale: params[:point_of_sale_id]).current.code
 
         if @contingency.save
           render json: @contingency, status: :created
