@@ -488,9 +488,28 @@ module Api
       end
 
       def verify_nit
-        response = VerifyNit.verify(params[:nit], @branch_office)
+        nit = params[:nit]
+        client = siat_client('cuis_wsdl')
+        body = {
+          SolicitudVerificarNit: {
+            codigoAmbiente: 2,
+            codigoSistema: @branch_office.company.company_setting.system_code,
+            codigoModalidad: 2,
+            nit: @branch_office.company.nit.to_i,
+            cuis: @cuis_code.code,
+            codigoSucursal: @branch_office.number,
+            nitParaVerificacion: nit
+          }
+        }
 
-        render json: response
+        response = client.call(:verificar_nit, message: body)
+        return unless response.success?
+
+        data = response.to_array(:verificar_nit_response, :respuesta_verificar_nit, :mensajes_list).first
+        description = data[:descripcion]
+        result = description == 'NIT ACTIVO'
+
+        render json: result
       end
 
       private
