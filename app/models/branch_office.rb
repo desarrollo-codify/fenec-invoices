@@ -11,6 +11,7 @@ class BranchOffice < ApplicationRecord
   has_many :invoices
   has_many :cuis_codes, dependent: :destroy
   has_many :point_of_sales, dependent: :destroy
+  has_many :contingencies, through: :point_of_sales
 
   def add_cuis_code!(code, expiration_date, point_of_sale)
     return if cuis_codes.find_by(code: code).present?

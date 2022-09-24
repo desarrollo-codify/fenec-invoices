@@ -27,6 +27,8 @@ class CloseContingencyJob < ApplicationJob
       File.delete(filename)
     end
     reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
+
+    SendCancelInvoicesJob.perform_later(contingency)
   end
 
   def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)

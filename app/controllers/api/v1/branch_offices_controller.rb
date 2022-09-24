@@ -3,7 +3,7 @@
 module Api
   module V1
     class BranchOfficesController < ApplicationController
-      before_action :set_branch_office, only: %i[show update destroy]
+      before_action :set_branch_office, only: %i[show update destroy contingencies]
       before_action :set_company, only: %i[index create]
 
       # GET /api/v1/companies/:company_id/branch_offices
@@ -41,6 +41,15 @@ module Api
       # DELETE /api/v1/branch_offices/1
       def destroy
         @branch_office.destroy
+      end
+
+      def contingencies
+        @contingencies = @branch_office.contingencies.includes(:significative_event, :point_of_sale)
+
+        render json: @contingencies.as_json(include: [
+          { significative_event: { except: %i[created_at updated_at] } },
+          { point_of_sale: { except: %i[created_at updated_at] } },
+        ])
       end
 
       private

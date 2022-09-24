@@ -3,11 +3,13 @@
 module Api
   module V1
     class ContingenciesController < ApplicationController
+      require 'generate_cufd'
+
       before_action :set_contingency, only: %i[show close update destroy]
       before_action :set_point_of_sale, only: %i[index create]
       # GET /api/v1/contingencies
       def index
-        @contingencies = @point_of_sale.contingencies.includes(:significative_event)
+        @contingencies = @point_of_sale.contingencies.includes(:significative_event, :point_of_sale)
 
         render json: @contingencies.as_json(include: [
           { significative_event: { except: %i[created_at updated_at] } },
@@ -35,8 +37,8 @@ module Api
 
       # POST api/v1/contingencies/:contingency_id/close
       def close
-        CloseContingencyJob.perform_later(@contingency)
-        SendCancelInvoicesJob.perform_later
+        GenerateCufd.generate(point_of_sale)
+        CloseContingencyJob.perform_now(@contingency)
         render json: @contingency, status: :created
       end
 
