@@ -7,7 +7,7 @@ module Api
       require 'verify_nit'
 
       before_action :set_branch_office, except: %i[verify_communication]
-      before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication verify_nit]
+      before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
       before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]
 
       def generate_cuis
@@ -110,7 +110,7 @@ module Api
           activity_codes.each do |activity_code|
             economic_activity = company.economic_activities.find_by(code: activity_code.to_i)
             activity_products = products.select { |l| l[:activity_code] == activity_code }
-            activity_products_data = activity_products.map do |a|
+            activity_products_data = activity_products.uniq { |p| p[:code] }.map do |a|
               a.values_at :code, :description
             end
             products_select = activity_products_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
@@ -489,6 +489,7 @@ module Api
 
       def verify_nit
         response = VerifyNit.verify(params[:nit], @branch_office)
+
         render json: response
       end
 
