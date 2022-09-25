@@ -18,4 +18,8 @@ module ApplicationHelper
     file.close
     "data:image/jpeg;base64,#{Rack::Utils.escape(base64)}"
   end
+
+  def custom_currency(value)
+    number_with_precision(value, precision: 2, separator: '.', delimiter: ',')
+  end
 end

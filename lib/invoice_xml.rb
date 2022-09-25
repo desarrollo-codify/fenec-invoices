@@ -35,7 +35,7 @@ class InvoiceXml
 
           # card number
           xml.numeroTarjeta('xsi:nil' => true) unless invoice.card_number
-          xml.numeroTarjeta @invoice.card_number if invoice.card_number
+          xml.numeroTarjeta invoice.card_number if invoice.card_number
 
           xml.montoTotal invoice.total
           xml.montoTotalSujetoIva invoice.total # TODO: check for not IVA

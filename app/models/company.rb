@@ -5,6 +5,7 @@ class Company < ApplicationRecord
   validates :nit, presence: true, numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
   validates :address, presence: true
 
+  belongs_to :page_size
   has_one_attached :logo
   has_many :branch_offices, dependent: :destroy
   has_many :products, dependent: :destroy
@@ -17,5 +18,11 @@ class Company < ApplicationRecord
 
   def bulk_load_economic_activities(activities)
     economic_activities.upsert_all(activities, unique_by: %i[company_id code])
+  end
+
+  private 
+
+  def default_values
+    self.page_size_id = 1
   end
 end
