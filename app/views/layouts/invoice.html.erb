@@ -83,9 +83,9 @@
               <td style="width:15%" class="text-right"><%= detail.quantity.to_i %></td>
               <td>PZA</td> 
               <%# <%= detail.measurement.description %>
-              <td class="text-right"><%= '%.2f' % detail.unit_price %></td>
-              <td class="text-right"><%= '%.2f' % detail.discount %></td>
-              <td class="text-right"><%= '%.2f' % detail.total %></td>
+              <td class="text-right"><%= custom_currency(detail.unit_price) %></td>
+              <td class="text-right"><%= custom_currency(detail.discount) %></td>
+              <td class="text-right"><%= custom_currency(detail.total) %></td>
             </tr>
           <% end %>
           <%# Discount ??? %>
@@ -96,51 +96,51 @@
           <tbody>
             <tr style="line-height:13px;height:13px;">
               <td>SUBTOTAL Bs</td>
-              <td class="text-right"><%= '%.2f' % invoice.subtotal %></td>
+              <td class="text-right"><%= custom_currency(invoice.subtotal) %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
               <td>DESCUENTO Bs</td>
-              <td class="text-right"><%= '%.2f' % invoice.discount %></td>
+              <td class="text-right"><%= custom_currency(invoice.discount) %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
               <td>TOTAL Bs</td>
-              <td class="text-right"><%= '%.2f' % invoice.total %></td>
+              <td class="text-right"><%= custom_currency(invoice.total) %></td>
             </tr>
             <% if invoice.gift_card_total > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>MONTO GIFT CARD Bs</td>
-                <td class="text-right"><%= '%.2f' % invoice.gift_card_total %></td>
+                <td class="text-right"><%= custom_currency(invoice.gift_card_total) %></td>
               </tr>
             <% end %>
             <%# Gift card? QR? another payments? %>
             <tr style="line-height:13px;height:13px;" class="pt-1 bg-light">
               <td><b>MONTO A PAGAR Bs</b></td>
-              <td class="text-right"><%= '%.2f' % invoice.amount_payable %></td>
+              <td class="text-right"><%= custom_currency(invoice.amount_payable) %></td>
             </tr>
             <tr style="line-height:13px;height:13px;" class="bg-light">
               <td><b>Importe base crédito fiscal Bs</b></td>
-              <td class="text-right"><%= '%.2f' % invoice.amount_payable %></td>
+              <td class="text-right"><%= custom_currency(invoice.amount_payable) %></td>
             </tr>
             <% if invoice.card_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>Tarjeta Cred. Bs:</td>
-                <td class="text-right"><%= '%.2f' % invoice.card_paid %></td>
+                <td class="text-right"><%= custom_currency(invoice.card_paid) %></td>
               </tr>
               <tr style="line-height:13px;height:13px;">
                 <td>Nro:</td>
-                <td class="text-right"><%=invoice.card_number %></td>
+                <td class="text-right"><%= invoice.card_number %></td>
               </tr>
             <% end %>
             <% if invoice.qr_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>Transferencia bancaria Bs:</td>
-                <td class="text-right"><%= '%.2f' % invoice.qr_paid %></td>
+                <td class="text-right"><%= custom_currency(invoice.qr_paid) %></td>
               </tr>
             <% end %>
             <% if invoice.online_paid > 0 %>
               <tr style="line-height:13px;height:13px;">
                 <td>Pago online Bs:</td>
-                <td class="text-right"><%= '%.2f' % invoice.online_paid %></td>
+                <td class="text-right"><%= custom_currency(invoice.online_paid) %></td>
               </tr>
             <% end %>
           </tbody>
