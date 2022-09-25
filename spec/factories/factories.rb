@@ -221,4 +221,8 @@ FactoryBot.define do
       end
     end
   end
+
+  factory :page_size do 
+    description { 'Roll' }
+  end
 end

@@ -27,7 +27,8 @@ module Api
                                                                                 updated_at company_id] } },
                                             branch_offices: { except: %i[created_at updated_at] },
                                             company_setting: { except: %i[created_at
-                                                                          updated_at company_id] }])
+                                                                          updated_at company_id] },
+                                            page_size: { only: %i[description] }])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
         render json: result
@@ -79,7 +80,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def company_params
-        params.require(:company).permit(:name, :nit, :address, :phone, :logo)
+        params.require(:company).permit(:name, :nit, :address, :phone, :logo, :page_size_id)
       end
 
       def super_admin_only

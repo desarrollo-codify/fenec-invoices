@@ -81,8 +81,8 @@
             </tr>
             <tr style="line-height:13px;height:13px;">
               <td style="width:15%" class="text-right"><%= detail.quantity.to_i %></td>
-              <td>PZA</td> 
-              <%# <%= detail.measurement.description %>
+              <%# <td>PZA</td>  %>
+              <td><%= detail.measurement.description %></td>
               <td class="text-right"><%= custom_currency(detail.unit_price) %></td>
               <td class="text-right"><%= custom_currency(detail.discount) %></td>
               <td class="text-right"><%= custom_currency(detail.total) %></td>
