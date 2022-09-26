@@ -8,10 +8,10 @@ class CloseContingencyJob < ApplicationJob
     contingency.close!
 
     point_of_sale = contingency.point_of_sale.code
-    invoices = if contingency.significative_event_id >= 5
+    invoices = if contingency.manual_type?
                  contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale, is_manual: true)
                else
-                 contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
+                 contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale, is_manual: false)
                end
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
 
@@ -105,7 +105,7 @@ class CloseContingencyJob < ApplicationJob
       convert_request_keys_to: :none
     )
 
-    cafc = contingency.significative_event_id >= 5 ? economic_activities.first.contingency_codes.last.code : nil
+    cafc = contingency.manual_type? ? economic_activities.first.contingency_codes.available.last.code : nil
 
     body = {
       SolicitudServicioRecepcionPaquete: {
@@ -128,7 +128,6 @@ class CloseContingencyJob < ApplicationJob
         codigoEvento: contingency.event_reception_code
       }
     }
-
     response = client.call(:recepcion_paquete_factura, message: body)
 
     if response.success?

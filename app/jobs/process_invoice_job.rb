@@ -11,7 +11,7 @@ class ProcessInvoiceJob < ApplicationJob
     contingency = current_contingency(point_of_sale)
     is_siat_available = siat_available?(invoice)
     if is_siat_available
-      if pending_contingency_exists && contingency.significative_event_id < 5
+      if pending_contingency_exists
         generate_cufd(point_of_sale)
         close_contingency(contingency)
       end
@@ -38,7 +38,7 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def current_contingency(point_of_sale)
-    point_of_sale.contingencies.pending.first
+    point_of_sale.contingencies.pending.no_manual.first
   end
 
   def close_contingency(contingency)
@@ -46,7 +46,7 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def generate_cufd(point_of_sale)
-    GenerateCufd.generate(point_of_sale.code)
+    GenerateCufd.generate(point_of_sale)
   end
 
   def create_contingency(point_of_sale, start_date, cufd_code, significative_event_id)

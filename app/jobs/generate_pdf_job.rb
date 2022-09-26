@@ -54,7 +54,6 @@ class GeneratePdfJob < ApplicationJob
         }
       )
     end
-    debugger
 
     pdf_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
 
