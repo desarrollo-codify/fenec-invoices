@@ -49,8 +49,8 @@ class GeneratePdfJob < ApplicationJob
   private
 
   def literal_amount(amount)
-    return 'Cero 00/100' if amount == 0
-    
+    return 'Cero 00/100' if amount.zero?
+
     decimal = BigDecimal(amount.to_s).frac.to_s.gsub! '0.', ''
 
     group_by_three = amount.to_i.to_s.reverse.scan(/\d{1,3}/).map { |n| n.reverse.to_i }

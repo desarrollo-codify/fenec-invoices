@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_09_24_214340) do
+ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -85,7 +85,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_24_214340) do
     t.string "phone"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "page_size_id"
     t.index ["name"], name: "index_companies_on_name", unique: true
+    t.index ["page_size_id"], name: "index_companies_on_page_size_id"
   end
 
   create_table "company_settings", force: :cascade do |t|
@@ -342,6 +344,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_24_214340) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "page_sizes", force: :cascade do |t|
+    t.string "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "payment_methods", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -438,6 +446,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_24_214340) do
   add_foreign_key "branch_offices", "companies"
   add_foreign_key "clients", "companies"
   add_foreign_key "clients", "document_types"
+  add_foreign_key "companies", "page_sizes"
   add_foreign_key "company_settings", "companies"
   add_foreign_key "contingencies", "point_of_sales"
   add_foreign_key "contingencies", "significative_events"

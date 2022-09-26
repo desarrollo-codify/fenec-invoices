@@ -8,7 +8,11 @@ class CloseContingencyJob < ApplicationJob
     contingency.close!
 
     point_of_sale = contingency.point_of_sale.code
-    invoices = contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
+    invoices = if contingency.significative_event_id >= 5
+                 contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale, is_manual: true)
+               else
+                 contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale)
+               end
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
 
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes

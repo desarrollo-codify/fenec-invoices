@@ -12,9 +12,9 @@ module Api
         @contingencies = @point_of_sale.contingencies.includes(:significative_event, :point_of_sale)
 
         render json: @contingencies.as_json(include: [
-          { significative_event: { except: %i[created_at updated_at] } },
-          { point_of_sale: { except: %i[created_at updated_at] } },
-        ])
+                                              { significative_event: { except: %i[created_at updated_at] } },
+                                              { point_of_sale: { except: %i[created_at updated_at] } }
+                                            ])
       end
 
       # GET /api/v1/contingencies/1
@@ -26,7 +26,7 @@ module Api
       def create
         @contingency = @point_of_sale.contingencies.build(contingency_params)
         @contingency.start_date = DateTime.now
-        @contingency.cufd_code = DailyCode.where(point_of_sale: params[:point_of_sale_id]).current.code
+        @contingency.cufd_code = DailyCode.where(point_of_sale: @contingency.point_of_sale.code).current.code
 
         if @contingency.save
           render json: @contingency, status: :created
@@ -37,7 +37,7 @@ module Api
 
       # POST api/v1/contingencies/:contingency_id/close
       def close
-        GenerateCufd.generate(point_of_sale)
+        GenerateCufd.generate(@contingency.point_of_sale)
         CloseContingencyJob.perform_now(@contingency)
         render json: @contingency, status: :created
       end

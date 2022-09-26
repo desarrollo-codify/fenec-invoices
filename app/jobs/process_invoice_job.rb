@@ -6,7 +6,7 @@ class ProcessInvoiceJob < ApplicationJob
   require 'siat_available'
   require 'generate_cufd'
 
-  def perform(invoice, point_of_sale)
+  def perform(invoice, point_of_sale, economic_activity)
     pending_contingency_exists = pending_contingency?(point_of_sale)
     contingency = current_contingency(point_of_sale)
     is_siat_available = siat_available?(invoice)
@@ -19,13 +19,12 @@ class ProcessInvoiceJob < ApplicationJob
       # TODO: don't send a magic number like 2, use an enum or something similar
       create_contingency(point_of_sale, invoice.date, invoice.cufd_code, 2) unless pending_contingency?(point_of_sale)
     end
-
-    process_pending_data(invoice, point_of_sale, is_siat_available)
+    process_pending_data(invoice, point_of_sale, is_siat_available, economic_activity)
     generate_invoice_documents(invoice)
-    unless invoice.is_manual
-      send_mail(invoice)
-      sent_to_siat(invoice) if is_siat_available
-    end
+    return if invoice.is_manual
+
+    send_mail(invoice)
+    sent_to_siat(invoice) if is_siat_available
   end
 
   private
@@ -47,7 +46,7 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def generate_cufd(point_of_sale)
-    GenerateCufd.generate(point_of_sale)
+    GenerateCufd.generate(point_of_sale.code)
   end
 
   def create_contingency(point_of_sale, start_date, cufd_code, significative_event_id)
@@ -77,7 +76,14 @@ class ProcessInvoiceJob < ApplicationJob
     branch_office.daily_codes.where(point_of_sale: point_of_sale.code).current
   end
 
-  def process_pending_data(invoice, point_of_sale, siat_available)
+  def process_cafc(invoice, economic_activity, point_of_sale)
+    contingency = invoice.branch_office.point_of_sales.find_by(code: point_of_sale.code).contingencies.pending.last
+    contingency_code = economic_activity.contingency_codes.available.first
+    contingency_code.increment!
+    contingency.significative_event_id >= 5 ? contingency_code.code : nil
+  end
+
+  def process_pending_data(invoice, point_of_sale, siat_available, economic_activity)
     daily_code = current_daily_code(invoice.branch_office, point_of_sale)
     invoice.cufd_code = daily_code.code
     invoice.control_code = daily_code.control_code
@@ -85,6 +91,7 @@ class ProcessInvoiceJob < ApplicationJob
     invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, point_of_sale)
     # TODO: implement paper size: 1 roll, 2 half office or half letter
     invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
+    invoice.cafc = process_cafc(invoice, economic_activity, point_of_sale) if invoice.is_manual
     unless siat_available
       # rubocop:disable Layout/LineLength
       invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido fuera de línea, verifique su envío con su proveedor o en la página web www.impuestos.gob.bo.'

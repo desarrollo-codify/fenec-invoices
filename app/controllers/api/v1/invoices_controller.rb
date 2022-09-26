@@ -63,12 +63,6 @@ module Api
         @invoice.address = @branch_office.address
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
-        contingency = @branch_office.point_of_sales.find_by(code: invoice_params[:point_of_sale]).contingencies.pending.last
-        @invoice.cafc = if contingency.present? && invoice_params[:is_manual]
-                          contingency_code = @economic_activity.contingency_codes.available.first
-                          contingency.significative_event_id >= 5 ? contingency_code.code : nil
-                          contingency_code.increment!
-                        end
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.advance
         @invoice.amount_payable = @invoice.total - @invoice.gift_card_total
@@ -126,7 +120,7 @@ module Api
 
         if @invoice.save
           point_of_sale = @branch_office.point_of_sales.find_by(code: @invoice.point_of_sale)
-          ProcessInvoiceJob.perform_later(@invoice, point_of_sale)
+          ProcessInvoiceJob.perform_later(@invoice, point_of_sale, @economic_activity)
 
           render json: @invoice.as_json(only: %i[id total]), status: :created
         else

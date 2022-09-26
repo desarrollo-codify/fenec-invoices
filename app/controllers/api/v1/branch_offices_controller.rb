@@ -47,9 +47,9 @@ module Api
         @contingencies = @branch_office.contingencies.includes(:significative_event, :point_of_sale)
 
         render json: @contingencies.as_json(include: [
-          { significative_event: { except: %i[created_at updated_at] } },
-          { point_of_sale: { except: %i[created_at updated_at] } },
-        ])
+                                              { significative_event: { except: %i[created_at updated_at] } },
+                                              { point_of_sale: { except: %i[created_at updated_at] } }
+                                            ])
       end
 
       private
