@@ -8,7 +8,10 @@
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
 
-company = Company.create(name: 'DomiUp SRL', nit: '401238026', phone: '77766655', address: 'Prolongacion Beni Edif. Top Center')
+page_size = PageSize.create(description: 'Roll')
+PageSize.create(description: 'Half page')
+company = Company.create(name: 'DomiUp SRL', nit: '401238026', phone: '77766655', address: 'Prolongacion Beni Edif. Top Center',
+    page_size_id: page_size.id)
 BranchOffice.create(name: 'CASA MATRIZ', number: 0, city: 'Santa Cruz', company_id: 1, address: 'Prolongacion Beni Edif. Top Center', 
   phone: '77766655')
 InvoiceStatus.create(description: 'VIGENTE')

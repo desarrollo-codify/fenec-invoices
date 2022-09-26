@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <head>
+      <title>PDFs - Ruby on Rails</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+      <%= wicked_pdf_stylesheet_link_tag "invoice" %>
+  </head>
+  <body> 
+    <div class="container mx-0 px-0">
+      <div class="table-responsive mb-0">
+        <table class="table table-sm table-borderless">
+          <tbody>
+            <tr style="line-height:13px;height:13px;">
+              <td class="text-center w-25">
+                <div class="w-100 text-center">
+                  <p class="m-0 pt-0 pb-0"><small><strong><%= company.name %></strong></small></p>
+                  <p class="m-0 pt-1"><small><strong><%= branch_office.name %></strong></small></p>
+                  <p class="m-0 pt-1"><small>No. Punto de Venta <%= invoice.point_of_sale %></small></p>
+                  <p class="m-0 pt-1"><small><%= branch_office.address %></small></p>
+                  <p class="m-0 pt-1"><small>Tel. <%= branch_office.phone %></small></p>
+                  <p class="m-0 pt-1"><small><%= branch_office.city %></small></p>
+                </div>
+              </td>
+              <td class="text-center" style="line-width:400px;width:400px;">
+                <%= image_tag(active_storage_to_base64_image(company.logo.variant(resize_to_limit: [75, 50]))) %>
+              </td>
+              <td>
+                <div class="table">
+                  <table class="table table-sm table-borderless mb-0">
+                    <tbody>
+                      <tr style="line-height:14px;height:14px;">
+                        <td class="w-50"><small><strong>NIT:</strong></small></td>
+                        <td><small><%= invoice.company_nit %></small></td>
+                      </tr>
+                      <tr style="line-height:14px;height:14px;">
+                        <td><small><strong>FACTURA No:</strong></small></td>
+                        <td><small><%= invoice.number %></small></td>
+                      </tr>
+                      <tr style="line-height:14px;height:14px;">
+                        <td><small><strong>CÓD. AUTORIZACIÓN:</strong></small></td>
+                        <td class="text-break"><small><%= invoice.cuf %></small></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+          </tbody>
+        </table>
+      </div>
+      <div class="w-100 text-center pt-0">
+        <h5 class="m-0 pt-1 pb-0"><strong>FACTURA</strong></h5>
+        <p class="m-0 py-0"><small><strong>(CON DERECHO A CRÉDITO FISCAL)</strong></small></p>
+      </div>
+      <table class="table table-sm table-borderless my-0 mt-2" style="font-size:13px;">
+        <tbody>
+          <tr style="line-height:13px;height:13px;">
+            <td style="width:30%"><strong>Fecha:</strong></td>
+            <td><%= invoice.date.strftime("%d/%m/%Y %H:%M") %></td>
+            <td></td>
+            <td></td>
+            <td><strong>NIT/CI/CEX:</strong></td>
+            <% if invoice.document_type == 1 %>
+              <td>
+                <%= invoice.business_nit %>
+                <% if invoice.complement %>-<%= invoice.complement %><% end %>
+              </td>
+            <% else %>
+              <td><strong><%= invoice.business_nit %></strong></td>
+            <% end %>
+          </tr>
+          <tr style="line-height:13px;height:13px;">
+            <td><strong>NOMBRE/RAZÓN SOCIAL:</strong></td>
+            <td class="text-break"><%= invoice.business_name %></td>
+            <td></td>
+            <td></td>
+            <td><strong>Cod. Cliente:</strong></td>
+            <td><%= invoice.client_code %></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-responsive pt-2">
+        <table class="table table-bordered table-sm table-centered mb-0" style="font-size:13px;">
+          <thead>
+            <tr>
+              <th><strong>Código Producto/Servicio</strong></th>
+              <th><strong>Cantidad</strong></th>
+              <th><strong>Unidad de Medida</strong></th>
+              <th><strong>Descripción</strong></th>
+              <th><strong>Precio Unitario</strong></th>
+              <th><strong>Descuento</strong></th>
+              <th><strong>Subtotal</strong></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% invoice.invoice_details.each do |detail| %>
+              <tr *ngFor="let detail of invoice.invoice_details">
+                <td><%= detail.product_code %></td>
+                <td><%= detail.quantity.to_i %></td>
+                <td><%= detail.measurement.description %></td>
+                <td><%= detail.description %></td>
+                <td class="text-right"><%= custom_currency(detail.unit_price) %></td>
+                <td class="text-right"><%= custom_currency(detail.discount) %></td>
+                <td class="text-right"><%= custom_currency(detail.total) %></td>
+              </tr>
+            <% end %>
+            <tr style="line-height:13px;height:13px;">
+              <td colspan="6" class="text-right" style="border:0;">SUBTOTAL Bs</td>
+              <td class="text-right"><%= custom_currency(invoice.subtotal) %></td>
+            </tr>
+            <tr style="line-height:13px;height:13px;">
+              <td colspan="6" class="text-right" style="border:0;">DESCUENTO Bs</td>
+              <td class="text-right"><%= custom_currency(invoice.discount) %></td>
+            </tr>
+            <tr style="line-height:13px;height:13px;">
+              <td colspan="6" class="text-right" style="border:0;">TOTAL Bs</td>
+              <td class="text-right"><%= custom_currency(invoice.total) %></td>
+            </tr>
+            <% if invoice.gift_card_total > 0 %>
+              <tr style="line-height:13px;height:13px;">
+                <td colspan="6" class="text-right" style="border:0;">MONTO GIFT CARD Bs</td>
+                <td class="text-right"><%= custom_currency(invoice.gift_card_total) %></td>
+              </tr>
+            <% end %>
+            <%# Gift card? QR? another payments? %>
+            <tr style="line-height:13px;height:13px;" class="pt-1 bg-light">
+              <td colspan="6" class="text-right" style="border:0;"><b>MONTO A PAGAR Bs</b></td>
+              <td class="text-right"><%= custom_currency(invoice.amount_payable) %></td>
+            </tr>
+            <tr style="line-height:13px;height:13px;" class="bg-light">
+              <td colspan="6" class="text-right" style="border:0;"><b>Importe base crédito fiscal Bs</b></td>
+              <td class="text-right"><%= custom_currency(invoice.amount_payable) %></td>
+            </tr>
+            <% if invoice.card_paid > 0 %>
+              <tr style="line-height:13px;height:13px;">
+                <td colspan="6" class="text-right" style="border:0;">Tarjeta Cred. Bs:</td>
+                <td class="text-right"><%= custom_currency(invoice.card_paid) %></td>
+              </tr>
+              <tr style="line-height:13px;height:13px;">
+                <td colspan="6" class="text-right" style="border:0;">Nro:</td>
+                <td class="text-right"><%= invoice.card_number %></td>
+              </tr>
+            <% end %>
+            <% if invoice.qr_paid > 0 %>
+              <tr style="line-height:13px;height:13px;">
+                <td colspan="6" class="text-right" style="border:0;">Transferencia bancaria Bs:</td>
+                <td class="text-right"><%= custom_currency(invoice.qr_paid) %></td>
+              </tr>
+            <% end %>
+            <% if invoice.online_paid > 0 %>
+              <tr style="line-height:13px;height:13px;">
+                <td colspan="6" class="text-right" style="border:0;">Pago online Bs:</td>
+                <td class="text-right"><%= custom_currency(invoice.online_paid) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-responsive pt-2">
+        <table class="table table-borderless table-sm table-centered mb-0" style="font-size:13px;">
+          <tr>
+            <td class="w-75">
+              <div class="m-0 py-0">SON: <%= literal_amount.upcase %> Bs.</div>
+            </td>
+            <td class="w-25">
+              <div class="w-100 m-0 py-0 text-right">Usr.: <%= invoice.user %></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="table-responsive pt-2">
+        <table class="table table-borderless table-sm table-centered mb-0" style="font-size:12px;">
+          <tr>
+            <td class="w-75">
+              <div class="text-center">
+                ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY
+              </div>
+              <div class="pt-1 text-center"><p class="fs-4"><%= invoice.legend %></p></div>
+              <div class="pt-1 px-2 text-center">"<%= invoice.graphic_representation_text %>"</div>
+            </td>
+            <td class="w-25 text-right">
+              <%= image_tag(embed_remote_image(qr_code_file, 'image/png'), style: 'height:75%;width:auto;') %>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+  </body>
+</html>

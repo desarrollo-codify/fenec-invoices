@@ -20,21 +20,41 @@ class GeneratePdfJob < ApplicationJob
     view = ActionController::Base.new
     view.view_context_class.include(ActionView::Helpers, ApplicationHelper)
 
-    pdf_html = view.render_to_string(template: 'layouts/invoice',
-                                     locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
-                                               economic_activity: @economic_activity,
-                                               literal_amount: @literal_amount, qr_code_file: @qr_code_file })
+    if @company.page_size_id == 1
+      pdf_html = view.render_to_string(template: 'layouts/invoice',
+        locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
+                  economic_activity: @economic_activity,
+                  literal_amount: @literal_amount, qr_code_file: @qr_code_file })
 
-    pdf_content = WickedPdf.new.pdf_from_string(
-      pdf_html,
-      page_width: '8.5cm',
-      page_height: "#{height}cm",
-      page_size: nil,
-      title: '',
-      margin: {
-        top: '0', bottom: '0', left: '0', right: '0'
-      }
-    )
+
+      pdf_content = WickedPdf.new.pdf_from_string(
+        pdf_html,
+        page_width: '8.5cm',
+        page_height: "#{height}cm",
+        page_size: nil,
+        title: '',
+        margin: {
+          top: '0', bottom: '0', left: '0', right: '0'
+        }
+      )
+    else
+      pdf_html = view.render_to_string(template: 'layouts/invoice-half-page',
+        locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
+                  economic_activity: @economic_activity,
+                  literal_amount: @literal_amount, qr_code_file: @qr_code_file })
+
+      pdf_content = WickedPdf.new.pdf_from_string(
+        pdf_html,
+        page_width: '216mm',
+        page_height: "279mm",
+        page_size: 'A4',
+        title: '',
+        margin: {
+          top: '0', bottom: '0', left: '1cm', right: '1cm'
+        }
+      )
+    end
+    debugger
 
     pdf_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
 
