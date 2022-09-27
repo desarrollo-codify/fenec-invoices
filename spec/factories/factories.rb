@@ -101,7 +101,7 @@ FactoryBot.define do
     number { 1 }
     subtotal { 1 }
     total { 1 }
-    amount_payable { 1 } 
+    amount_payable { 1 }
     document_sector_code { 1 }
     legend { 'legend' }
     user { 'jperez' }
