@@ -11,9 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -48,7 +45,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "address"
     t.string "city", null: false
     t.integer "number", null: false
-    t.bigint "company_id", null: false
+    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id", "number"], name: "index_branch_offices_on_company_id_and_number", unique: true
@@ -69,11 +66,11 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "nit", null: false
     t.string "email"
     t.string "phone"
-    t.bigint "company_id", null: false
+    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "complement"
-    t.bigint "document_type_id"
+    t.integer "document_type_id"
     t.index ["company_id"], name: "index_clients_on_company_id"
     t.index ["document_type_id"], name: "index_clients_on_document_type_id"
   end
@@ -85,7 +82,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "phone"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "page_size_id"
+    t.integer "page_size_id"
     t.index ["name"], name: "index_companies_on_name", unique: true
     t.index ["page_size_id"], name: "index_companies_on_page_size_id"
   end
@@ -96,7 +93,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "domain", null: false
     t.string "user_name", null: false
     t.string "password", null: false
-    t.bigint "company_id", null: false
+    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "system_code"
@@ -109,12 +106,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.datetime "end_date"
     t.string "reception_code"
     t.string "cufd_code"
-    t.bigint "significative_event_id", null: false
+    t.integer "significative_event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "event_reception_code"
     t.string "status"
-    t.bigint "point_of_sale_id", null: false
+    t.integer "point_of_sale_id", null: false
     t.index ["point_of_sale_id"], name: "index_contingencies_on_point_of_sale_id"
     t.index ["significative_event_id"], name: "index_contingencies_on_significative_event_id"
   end
@@ -125,7 +122,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.integer "limit", null: false
     t.integer "current_use", null: false
     t.boolean "available", null: false
-    t.bigint "economic_activity_id", null: false
+    t.integer "economic_activity_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["economic_activity_id"], name: "index_contingency_codes_on_economic_activity_id"
@@ -143,7 +140,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "code", null: false
     t.datetime "expiration_date", null: false
     t.integer "current_number", null: false
-    t.bigint "branch_office_id", null: false
+    t.integer "branch_office_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "point_of_sale"
@@ -162,7 +159,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "code", null: false
     t.datetime "effective_date", null: false
     t.string "control_code"
-    t.bigint "branch_office_id", null: false
+    t.integer "branch_office_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "end_date", null: false
@@ -173,7 +170,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
   create_table "delegated_tokens", force: :cascade do |t|
     t.string "token", null: false
     t.string "expiration_date", null: false
-    t.bigint "company_id", null: false
+    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_delegated_tokens_on_company_id"
@@ -190,7 +187,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
   create_table "document_sectors", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
-    t.bigint "economic_activity_id", null: false
+    t.integer "economic_activity_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["economic_activity_id", "code"], name: "index_document_sectors_on_economic_activity_id_and_code", unique: true
@@ -209,7 +206,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.integer "code", null: false
     t.string "description", null: false
     t.string "activity_type"
-    t.bigint "company_id", null: false
+    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id", "code"], name: "index_economic_activities_on_company_id_and_code", unique: true
@@ -228,9 +225,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.decimal "total", null: false
     t.string "serial_number"
     t.string "imei_code"
-    t.bigint "measurement_id", null: false
-    t.bigint "product_id", null: false
-    t.bigint "invoice_id", null: false
+    t.integer "measurement_id", null: false
+    t.integer "product_id", null: false
+    t.integer "invoice_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["invoice_id"], name: "index_invoice_details_on_invoice_id"
@@ -292,12 +289,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.decimal "qr_paid"
     t.decimal "card_paid"
     t.decimal "online_paid"
-    t.bigint "branch_office_id", null: false
-    t.bigint "invoice_status_id", null: false
+    t.integer "branch_office_id", null: false
+    t.integer "invoice_status_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "sent_at"
-    t.bigint "cancellation_reason_id"
+    t.integer "cancellation_reason_id"
     t.datetime "emailed_at"
     t.string "graphic_representation_text"
     t.boolean "cancel_sent_at"
@@ -310,8 +307,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
   end
 
   create_table "invoices_payment_methods", id: false, force: :cascade do |t|
-    t.bigint "invoice_id", null: false
-    t.bigint "payment_method_id", null: false
+    t.integer "invoice_id", null: false
+    t.integer "payment_method_id", null: false
   end
 
   create_table "issuance_types", force: :cascade do |t|
@@ -331,7 +328,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
   create_table "legends", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
-    t.bigint "economic_activity_id", null: false
+    t.integer "economic_activity_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["economic_activity_id", "description"], name: "index_legends_on_economic_activity_id_and_description", unique: true
@@ -362,7 +359,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "name", null: false
     t.integer "code", null: false
     t.string "description"
-    t.bigint "branch_office_id", null: false
+    t.integer "branch_office_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["branch_office_id", "code"], name: "index_point_of_sales_on_branch_office_id_and_code", unique: true
@@ -380,7 +377,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
   create_table "product_codes", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
-    t.bigint "economic_activity_id", null: false
+    t.integer "economic_activity_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["economic_activity_id", "code"], name: "index_product_codes_on_economic_activity_id_and_code", unique: true
@@ -392,7 +389,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.string "description", null: false
     t.string "sin_code"
     t.decimal "price"
-    t.bigint "company_id", null: false
+    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id", "primary_code"], name: "index_products_on_company_id_and_primary_code", unique: true

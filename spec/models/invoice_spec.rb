@@ -247,14 +247,14 @@ RSpec.describe Invoice, type: :model do
 
         it 'is not valid' do
           expect(invoice).to_not be_valid
-          expect(invoice.errors[:total]).to include('El monto total no concuerda con el calculo realizado.')
+          expect(invoice.errors[:total]).to include('El total pagado no concuerda con el total a pagar.')
         end
       end
 
       context 'with valid calculation' do
         let(:invoice) do
           build(:invoice, default_values: true, business_name: 'Abc', subtotal: 10, discount: 1, gift_card_total: 1, advance: 1,
-                          total: 7, cash_paid: 7)
+                          total: 8, cash_paid: 7, amount_payable: 7)
         end
 
         it 'is valid' do
@@ -442,7 +442,7 @@ RSpec.describe Invoice, type: :model do
     end
 
     context 'with correct calculation' do
-      let(:invoice) { build(:invoice, total: 3, subtotal: 3, qr_paid: 1, cash_paid: 1, card_paid: 1) }
+      let(:invoice) { build(:invoice, total: 3, subtotal: 3, qr_paid: 1, cash_paid: 1, card_paid: 1, amount_payable: 3) }
 
       it 'is valid' do
         expect(invoice).to be_valid

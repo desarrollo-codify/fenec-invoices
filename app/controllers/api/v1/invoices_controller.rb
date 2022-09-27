@@ -63,10 +63,6 @@ module Api
         @invoice.address = @branch_office.address
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
-        contingency = Contingency.where(point_of_sale_id: invoice_params[:point_of_sale]).pending.last # TODO: Refactor
-        @invoice.cafc = if contingency.present? && params[:is_manual].present?
-                          contingency.significative_event_id >= 5 ? @economic_activity.contingency_codes.first.code : nil
-                        end
         @invoice.document_sector_code = 1
         @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.advance
         @invoice.amount_payable = @invoice.total - @invoice.gift_card_total
@@ -117,7 +113,6 @@ module Api
             end
           end
         end
-
         unless @invoice.valid?
           render json: { message: @invoice.errors.first }, status: :unprocessable_entity
           return
@@ -125,7 +120,7 @@ module Api
 
         if @invoice.save
           point_of_sale = @branch_office.point_of_sales.find_by(code: @invoice.point_of_sale)
-          ProcessInvoiceJob.perform_later(@invoice, point_of_sale)
+          ProcessInvoiceJob.perform_later(@invoice, point_of_sale, @economic_activity)
 
           render json: @invoice.as_json(only: %i[id total]), status: :created
         else
@@ -193,7 +188,7 @@ module Api
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
                                         :cancellation_reason_id, :point_of_sale, :cash_paid, :qr_paid, :card_paid, :gift_card,
-                                        :online_paid,
+                                        :online_paid, :is_manual,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])

@@ -101,6 +101,7 @@ FactoryBot.define do
     number { 1 }
     subtotal { 1 }
     total { 1 }
+    amount_payable { 1 }
     document_sector_code { 1 }
     legend { 'legend' }
     user { 'jperez' }
@@ -110,6 +111,7 @@ FactoryBot.define do
     after(:build) do |invoice, evaluator|
       unless evaluator.default_values
         invoice.cash_paid = 1
+        invoice.gift_card_total = 0
         invoice.business_name = 'Codify'
         invoice.business_nit = '123'
       end
@@ -222,7 +224,7 @@ FactoryBot.define do
     end
   end
 
-  factory :page_size do 
+  factory :page_size do
     description { 'Roll' }
   end
 end

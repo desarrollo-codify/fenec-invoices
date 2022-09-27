@@ -75,7 +75,7 @@ module Api
           code = data[:codigo]
           control_code = data[:codigo_control]
           end_date = data[:fecha_vigencia]
-          @branch_office.add_daily_code!(code, control_code, Date.today, end_date, params[:point_of_sale])
+          @branch_office.add_daily_code!(code, control_code, DateTime.now, end_date, params[:point_of_sale])
 
           render json: data
         else
