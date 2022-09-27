@@ -22,10 +22,9 @@ class GeneratePdfJob < ApplicationJob
 
     if @company.page_size_id == 1
       pdf_html = view.render_to_string(template: 'layouts/invoice',
-        locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
-                  economic_activity: @economic_activity,
-                  literal_amount: @literal_amount, qr_code_file: @qr_code_file })
-
+                                       locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
+                                                 economic_activity: @economic_activity,
+                                                 literal_amount: @literal_amount, qr_code_file: @qr_code_file })
 
       pdf_content = WickedPdf.new.pdf_from_string(
         pdf_html,
@@ -39,14 +38,14 @@ class GeneratePdfJob < ApplicationJob
       )
     else
       pdf_html = view.render_to_string(template: 'layouts/invoice-half-page',
-        locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
-                  economic_activity: @economic_activity,
-                  literal_amount: @literal_amount, qr_code_file: @qr_code_file })
+                                       locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
+                                                 economic_activity: @economic_activity,
+                                                 literal_amount: @literal_amount, qr_code_file: @qr_code_file })
 
       pdf_content = WickedPdf.new.pdf_from_string(
         pdf_html,
         page_width: '216mm',
-        page_height: "279mm",
+        page_height: '279mm',
         page_size: 'A4',
         title: '',
         margin: {

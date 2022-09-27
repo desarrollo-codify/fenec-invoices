@@ -11,7 +11,7 @@ class ProcessInvoiceJob < ApplicationJob
     contingency = current_contingency(point_of_sale)
     is_siat_available = siat_available?(invoice)
     if is_siat_available
-      if pending_contingency_exists
+      if pending_contingency_exists && contingency.present?
         generate_cufd(point_of_sale)
         close_contingency(contingency)
       end
@@ -34,11 +34,11 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def pending_contingency?(point_of_sale)
-    point_of_sale.contingencies.pending.any?
+    point_of_sale.contingencies.automatic.pending.any?
   end
 
   def current_contingency(point_of_sale)
-    point_of_sale.contingencies.pending.no_manual.first
+    point_of_sale.contingencies.pending.automatic.first
   end
 
   def close_contingency(contingency)
@@ -77,14 +77,24 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def process_cafc(invoice, economic_activity, point_of_sale)
-    contingency = invoice.branch_office.point_of_sales.find_by(code: point_of_sale.code).contingencies.pending.last
+    contingency = invoice.branch_office.point_of_sales.find_by(code: point_of_sale.code).contingencies.pending.manual.last
     contingency_code = economic_activity.contingency_codes.available.first
     contingency_code.increment!
     contingency.significative_event_id >= 5 ? contingency_code.code : nil
   end
 
+  def daily_code(invoice, point_of_sale)
+    if invoice.is_manual
+      contingency = point_of_sale.contingencies.pending.manual.first
+      daily_code = point_of_sale.branch_office.daily_codes.find_by(code: contingency.cufd_code)
+    else
+      daily_code = current_daily_code(invoice.branch_office, point_of_sale)
+    end
+    daily_code
+  end
+
   def process_pending_data(invoice, point_of_sale, siat_available, economic_activity)
-    daily_code = current_daily_code(invoice.branch_office, point_of_sale)
+    daily_code = daily_code(invoice, point_of_sale)
     invoice.cufd_code = daily_code.code
     invoice.control_code = daily_code.control_code
     invoice.number = invoice_number(point_of_sale)

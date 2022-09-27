@@ -20,7 +20,7 @@ class Company < ApplicationRecord
     economic_activities.upsert_all(activities, unique_by: %i[company_id code])
   end
 
-  private 
+  private
 
   def default_values
     self.page_size_id = 1

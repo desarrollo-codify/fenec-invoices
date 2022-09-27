@@ -19,7 +19,7 @@ class InvoiceMailer < ApplicationMailer
     attachments['factura.xml'] = File.read(xml_path)
 
     pdf_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
-    File.delete(pdf_path) if File.exists?(pdf_path)
+    FileUtils.rm_f(pdf_path)
     GeneratePdfJob.perform_now(@invoice)
     attachments['factura.pdf'] = File.read(pdf_path)
 

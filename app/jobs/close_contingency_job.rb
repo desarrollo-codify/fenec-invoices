@@ -9,9 +9,9 @@ class CloseContingencyJob < ApplicationJob
 
     point_of_sale = contingency.point_of_sale.code
     invoices = if contingency.manual_type?
-                 contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale, is_manual: true)
+                 contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: true)
                else
-                 contingency.point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale, is_manual: false)
+                 contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: false)
                end
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
 
