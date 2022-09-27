@@ -86,7 +86,8 @@ class Invoice < ApplicationRecord
   end
 
   def amount_payable_must_be_correctly_calculated
-    return if amount_payable && gift_card_total && amount_payable == total - gift_card_total
+    return unless total
+    return if amount_payable && gift_card_total && amount_payable == (total - gift_card_total)
 
     errors.add(:amount_payable, 'El monto a pagar debe ser igual al total de la factura menos el monto del gift card, si existe.')
   end

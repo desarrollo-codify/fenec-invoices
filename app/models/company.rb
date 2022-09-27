@@ -5,7 +5,7 @@ class Company < ApplicationRecord
   validates :nit, presence: true, numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
   validates :address, presence: true
 
-  belongs_to :page_size
+  belongs_to :page_size, optional: true
   has_one_attached :logo
   has_many :branch_offices, dependent: :destroy
   has_many :products, dependent: :destroy
