@@ -25,8 +25,8 @@ module Api
       # POST /api/v1/point_of_sales/:point_of_sales_id/contingencies
       def create
         @contingency = @point_of_sale.contingencies.build(contingency_params)
-        @contingency.start_date = DateTime.now
-        @contingency.cufd_code = DailyCode.where(point_of_sale: @contingency.point_of_sale.code).current.code
+        @contingency.start_date = DateTime.now unless @contingency.start_date
+        @contingency.cufd_code = DailyCode.where(point_of_sale: @contingency.point_of_sale.code).current.code unless @contingency.cufd_code
 
         if @contingency.save
           render json: @contingency, status: :created
@@ -69,7 +69,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def contingency_params
-        params.require(:contingency).permit(:start_date, :end_date, :significative_event_id)
+        params.require(:contingency).permit(:start_date, :end_date, :cufd_code, :significative_event_id)
       end
     end
   end

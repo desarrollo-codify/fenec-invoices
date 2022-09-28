@@ -14,7 +14,7 @@ class CloseContingencyJob < ApplicationJob
                  contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: false)
                end
     pending_invoices = invoices.by_cufd(contingency.cufd_code)
-
+    
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes
                               .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
     current_cufd = contingency.point_of_sale.branch_office.daily_codes
@@ -64,7 +64,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:registro_evento_significativo, message: body)
-
+    
     return unless response.success?
 
     data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
@@ -129,7 +129,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:recepcion_paquete_factura, message: body)
-
+    
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
 
@@ -170,7 +170,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
-
+    
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       description = data[:codigo_descripcion]

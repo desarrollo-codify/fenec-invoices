@@ -57,7 +57,7 @@ module Api
         @invoice.complement = client.complement
         @invoice.document_type = client.document_type_id
 
-        @invoice.date = DateTime.now
+        @invoice.date = DateTime.now unless @invoice.date
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
@@ -188,7 +188,7 @@ module Api
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
                                         :cancellation_reason_id, :point_of_sale, :cash_paid, :qr_paid, :card_paid, :gift_card,
-                                        :online_paid, :is_manual,
+                                        :online_paid, :is_manual, :date,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
