@@ -19,10 +19,10 @@ Metrics/AbcSize:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Max: 20
+  Max: 25
 
 Metrics/CyclomaticComplexity:
-  Max: 20
+  Max: 25
 
 AllCops:
   NewCops: enable
