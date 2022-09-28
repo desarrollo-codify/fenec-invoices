@@ -21,6 +21,7 @@
                     <div>  
                       <div><ul>
                         <li>Nro Factura: <b><%= @invoice.number %></b></li>
+                        <li>Razón Social: <b><%= @invoice.company_name %></b></li>
                         <li>Codigo de control: <b><%= @invoice.cuf %></b></li>
                         <li>Fecha de anulación: <b><strong><%= @invoice.cancellation_date.strftime('%Y-%m-%d %H:%M:%S') %></strong></b></li>
                         <li>Motivo de anulación: <b><strong><%= @reason.description %></strong></b></li>
