@@ -36,6 +36,6 @@ class GenerateCufd
     code = data[:codigo]
     control_code = data[:codigo_control]
     end_date = data[:fecha_vigencia]
-    branch_office.add_daily_code!(code, control_code, Date.today, end_date, point_of_sale.code)
+    branch_office.add_daily_code!(code, control_code, DateTime.now, end_date, point_of_sale.code)
   end
 end

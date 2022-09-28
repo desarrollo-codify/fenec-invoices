@@ -44,6 +44,7 @@ class Invoice < ApplicationRecord
   scope :by_cufd, ->(cufd) { for_sending.where(cufd_code: cufd) }
   scope :descending, -> { order(date: :desc) }
   scope :for_sending_cancel, -> { where.not(cancellation_reason_id: nil).where(cancel_sent_at: nil) }
+  scope :by_point_of_sale, ->(pos) { where(point_of_sale: pos) }
 
   after_initialize :default_values
 
@@ -79,22 +80,21 @@ class Invoice < ApplicationRecord
   end
 
   def total_must_be_correctly_calculated
-    if total && discount && subtotal && discount && gift_card_total && advance && (total == subtotal - discount - advance)
-      return
-    end
+    return if total && discount && subtotal && discount && gift_card_total && advance && (total == subtotal - discount - advance)
 
     errors.add(:total, 'El monto total no concuerda con el calculo realizado.')
   end
 
   def amount_payable_must_be_correctly_calculated
-    return if amount_payable && gift_card_total && amount_payable == total - gift_card_total
+    return unless total
+    return if amount_payable && gift_card_total && amount_payable == (total - gift_card_total)
 
     errors.add(:amount_payable, 'El monto a pagar debe ser igual al total de la factura menos el monto del gift card, si existe.')
   end
 
   def total_paid_must_be_equal_to_total
-    return if total && qr_paid && cash_paid && card_paid && gift_card_total && online_paid && total == qr_paid +
-      cash_paid + card_paid + gift_card_total + online_paid
+    return if total && qr_paid && cash_paid && card_paid && gift_card_total &&
+              online_paid && total == qr_paid + cash_paid + card_paid + gift_card_total + online_paid
 
     errors.add(:total, 'El total pagado no concuerda con el total a pagar.')
   end

@@ -6,7 +6,7 @@ class SendCancelInvoicesJob < ApplicationJob
   def perform(contingency)
     # TODO: refactor this and filter by branch office or company or point_of_sale
     point_of_sale = contingency.point_of_sale
-    invoices = point_of_sale.branch_office.invoices.where(point_of_sale: point_of_sale.code).for_sending_cancel
+    invoices = point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale.code).for_sending_cancel
     invoices.each do |invoice|
       send_to_siat(invoice, invoice.cancellation_reason_id)
       @invoice = invoice

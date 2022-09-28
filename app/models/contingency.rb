@@ -7,10 +7,15 @@ class Contingency < ApplicationRecord
   belongs_to :significative_event
 
   scope :pending, -> { where(end_date: nil) }
-  scope :need_cafc, -> { where('significative_event_id >= 5') }
+  scope :manual, -> { where('significative_event_id >= 5') }
+  scope :automatic, -> { where('significative_event_id < 5') }
 
   def close!
     self.end_date = DateTime.now
     save
+  end
+
+  def manual_type?
+    [1, 5, 6, 7].include? significative_event_id
   end
 end
