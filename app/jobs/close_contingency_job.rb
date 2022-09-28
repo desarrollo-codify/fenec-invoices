@@ -64,7 +64,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:registro_evento_significativo, message: body)
-
+    debugger
     return unless response.success?
 
     data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
@@ -129,7 +129,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:recepcion_paquete_factura, message: body)
-
+    debugger
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
 
@@ -170,7 +170,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
-
+    debugger
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       description = data[:codigo_descripcion]
@@ -219,7 +219,11 @@ class CloseContingencyJob < ApplicationJob
           xml.numeroTarjeta invoice.card_number if invoice.card_number
 
           xml.montoTotal invoice.total
-          xml.montoTotalSujetoIva invoice.total # TODO: check for not IVA
+
+          # montoTotalSujetoIva
+          xml.montoTotalSujetoIva invoice.total unless invoice.gift_card_total
+          xml.montoTotalSujetoIva invoice.total - invoice.gift_card_total if invoice.gift_card_total
+          
           xml.codigoMoneda invoice.currency_code
           xml.tipoCambio invoice.exchange_rate
           xml.montoTotalMoneda invoice.currency_total
