@@ -9,7 +9,7 @@
   <body> 
     <div class="container mx-0 px-0">
       <div class="w-100 text-center" style="border-bottom: 1px solid #000;">
-        <%= image_tag(active_storage_to_base64_image(company.logo.variant(resize_to_limit: [150, 100]))) %>
+        <%# <%= image_tag(active_storage_to_base64_image(company.logo.variant(resize_to_limit: [150, 100]))) %> %>
         <h5 class="m-0 pt-2 pb-0"><strong>FACTURA</strong></h5>
         <h5 class="m-0 pt-2 pb-0"><strong>CON DERECHO A CRÉDITO FISCAL</strong></h5>
         <h5 class="m-0 pt-2 pb-0"><%= company.name %></h4>
@@ -72,7 +72,7 @@
           <th>Cantidad</th>
           <th class="text-right">Precio</th>
           <th class="text-right">Dcto.</th>
-          <th class="text-right">Total</th>
+          <th class="text-right">Subtotal</th>
         </thead>
         <tbody>
           <% invoice.invoice_details.each do |detail| %>
