@@ -3,7 +3,7 @@
 class GenerateXmlJob < ApplicationJob
   queue_as :default
 
-  def perform(invoice)
+  def perform(invoice, for_contingency = false)
     header = Nokogiri::XML('<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>')
     builder = Nokogiri::XML::Builder.with(header) do |xml|
       xml.facturaComputarizadaCompraVenta('xsi:noNamespaceSchemaLocation' => '/compraVenta/facturaComputarizadaCompraVenta.xsd',
@@ -89,7 +89,8 @@ class GenerateXmlJob < ApplicationJob
       end
     end
 
-    filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
+    tmp_folder = for_contingency ? '/tmp/invoices' : 'public/tmp/mails'
+    filename = "#{Rails.root}/#{tmp_folder}/#{invoice.cuf}.xml"
     File.write(filename, builder.to_xml)
   end
 end
