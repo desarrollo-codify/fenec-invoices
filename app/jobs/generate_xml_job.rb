@@ -3,7 +3,7 @@
 class GenerateXmlJob < ApplicationJob
   queue_as :default
 
-  def perform(invoice, for_contingency = false)
+  def perform(invoice, for_contingency: false)
     header = Nokogiri::XML('<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>')
     builder = Nokogiri::XML::Builder.with(header) do |xml|
       xml.facturaComputarizadaCompraVenta('xsi:noNamespaceSchemaLocation' => '/compraVenta/facturaComputarizadaCompraVenta.xsd',
