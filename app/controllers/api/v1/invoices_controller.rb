@@ -39,8 +39,13 @@ module Api
       # rubocop:disable all
       def create
         # TODO: implement validate!
-
+        
         @invoice = @branch_office.invoices.build(invoice_params)
+        @errors = []
+        validate!(@invoice)
+        debugger
+        return render json: @errors, status: :unprocessable_entity if @errors.any?
+
         @company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
@@ -67,7 +72,6 @@ module Api
         @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.advance
         @invoice.amount_payable = @invoice.total - @invoice.gift_card_total
         @invoice.invoice_status_id = 1
-        @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.legend = @economic_activity.random_legend.description
         @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
         @invoice.card_number = nil
@@ -192,6 +196,91 @@ module Api
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
+      end
+
+      def validate!(invoice)
+        branch_office = invoice.branch_office
+        company = branch_office.company
+        validate_cuis(branch_office, invoice)
+        validate_cufd(branch_office, invoice) 
+        validate_sync(company)
+        validate_product(invoice, company)
+        validate_invoice_detail_measurement(invoice.invoice_details)
+        validate_invoice_statuses(invoice)
+        validate_client(company, invoice)
+        validate_document_types(company, invoice)
+        validate_payment_methods(invoice)
+        validate_manual_invoice(invoice)
+      end
+
+      def validate_cuis(branch_office, invoice)
+        @errors << 'El CUIS del punto de venta no ha sido generado.' unless branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current.present?
+      end
+
+      def validate_cufd(branch_office, invoice)
+        @errors << 'El CUFD del punto de venta no ha sido generado.' unless branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current.present?
+      end
+
+      def validate_sync(company)
+        @errors << 'No se han sincronizado las actividades economicas de la compañia.' unless company.economic_activities.present?
+        company.economic_activities.each do |economic_activity|
+          @errors << 'No se han sincronizado las leyendas de cada actividad economicas de la compañia.' unless economic_activity.legends.present?
+        end
+      end
+
+      def validate_product(invoice, company)
+        product_codes = invoice.invoice_details.pluck(:product_code).uniq
+        products = company.products.where(primary_code: product_codes)
+
+        @errors << 'No se han insertado producto por cada detalle de factura.' unless product_codes.length == products.length
+
+        products.each do |product|
+          @errors << 'El producto registrado no se encuentra homologado.' unless product.sin_code.present?
+        end
+      end
+      
+      def validate_invoice_detail_measurement(invoice_details)
+        invoice_details.each do |detail|
+          @errors << 'No se ha indica el tipo de unidad del producto.' unless detail.measurement_id.present?
+        end
+      end
+
+      def validate_invoice_statuses(invoice)
+        @errors << 'No se encuentran registrados los estados de factura en la BD.' unless InvoiceStatus.all.present?
+      end
+
+      def validate_client(company, invoice)
+        @errors << 'No se ha seleccionado un cliente valido.' unless company.clients.find_by(code: invoice.client_code).present?
+      end
+
+      def validate_document_types(company, invoice)
+        client = company.clients.find_by(code: invoice.client_code)
+        @errors << 'El tipo de documento insertado indica que debe ser de tipo númerico.' if ([1, 5].include? client.document_type_id) && client.nit.scan(/\D/).any?
+      end
+
+      def validate_payment_methods(invoice)
+        @errors << 'No se ha insertado el metodo de pago.' unless invoice.payment_method
+        # - Are there payment methods for card paid?
+        @errors << 'No se ha insertado el monto del pago por tarjeta.' if ([2, 10, 18, 40, 43].include? invoice.payment_method) && invoice.card_paid.zero?
+        @errors << 'No se ha insertado los digitos de la tarjeta que corresponden a este tipo de pago.' unless invoice.card_number.present?
+        # - Are there payment methods for qr paid?
+        @errors << 'No se ha insertado el monto del pago por transferencia bancaria.' if ([7, 13, 18, 64, 67].include? invoice.payment_method) && invoice.qr_paid.zero?
+        # - Are there payment methods for online paid?
+        @errors << 'No se ha insertado el monto del pago online.' if ([33, 38, 43, 67, 78].include? invoice.payment_method) && invoice.qr_paid.zero?
+        # - Are there payment methods for gift card?
+        @errors << 'No se ha insertado el monto del pago por Gift Card.' if ([27, 35, 40, 64, 78].include? invoice.payment_method) && invoice.gift_card_total.zero?
+      end
+
+      def validate_manual_invoice(invoice, company)
+        begin
+          contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.manual.last if invoice.is_manual
+        rescue => e
+          @errors << 'No se puede registrar una factura manual sin iniciar previamente una contingencia manual.'
+        end
+        activity_code = invoice.invoices_details.first.economic_activity_code
+        economic_activity = company.economic_activities.find_by(code: activity_code)
+
+        @errors << 'No se puede registrar una factura manual sin codigo CAFC vigente para la Actividad Economica.' if invoice.is_manual && contingency.present? && economic_activity.contingency_codes.available.first.present?
       end
     end
   end
