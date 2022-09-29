@@ -64,7 +64,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:registro_evento_significativo, message: body)
-
+    
     return unless response.success?
 
     data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
@@ -127,7 +127,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:recepcion_paquete_factura, message: body)
-
+    
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
 
@@ -168,7 +168,7 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
-
+    
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       description = data[:codigo_descripcion]
