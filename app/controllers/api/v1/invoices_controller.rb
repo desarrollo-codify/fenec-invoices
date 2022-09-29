@@ -57,7 +57,7 @@ module Api
         @invoice.complement = client.complement
         @invoice.document_type = client.document_type_id
 
-        @invoice.date = DateTime.now
+        @invoice.date ||= DateTime.now
         @invoice.control_code = daily_code.control_code
         @invoice.branch_office_number = @branch_office.number
         @invoice.address = @branch_office.address
