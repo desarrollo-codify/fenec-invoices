@@ -209,19 +209,19 @@ module Api
         validate_client(company, invoice)
         validate_document_types(company, invoice)
         validate_payment_methods(invoice)
-        validate_manual_invoice(invoice,company)
+        validate_manual_invoice(invoice, company)
       end
 
       def validate_cuis(branch_office, invoice)
-        unless branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current.present?
-          @errors << 'El CUIS del punto de venta no ha sido generado.'
-        end
+        return if branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current.present?
+
+        @errors << 'El CUIS del punto de venta no ha sido generado.'
       end
 
       def validate_cufd(branch_office, invoice)
-        unless branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current.present?
-          @errors << 'El CUFD del punto de venta no ha sido generado.'
-        end
+        return if branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current.present?
+
+        @errors << 'El CUFD del punto de venta no ha sido generado.'
       end
 
       def validate_sync(company)
@@ -282,13 +282,15 @@ module Api
                                                                               78].include? invoice.payment_method) &&
                                                                             invoice.gift_card_total.zero?
       end
-      
+
       def validate_card_paid(invoice)
         return unless [2, 10, 18, 40, 43].include? invoice.payment_method
+
         @errors << 'No se ha insertado el monto del pago por tarjeta.' if invoice.card_paid.zero?
-        unless invoice.card_number.present?
-          @errors << 'No se ha insertado los digitos de la tarjeta que corresponden a este tipo de pago.'
-        end
+
+        return if invoice.card_number.present?
+
+        @errors << 'No se ha insertado los digitos de la tarjeta que corresponden a este tipo de pago.'
       end
 
       def validate_manual_invoice(invoice, company)
@@ -297,12 +299,12 @@ module Api
         unless invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.manual.last.present?
           @errors << 'No se puede registrar una factura manual sin iniciar previamente una contingencia para la misma.'
         end
-        
+
         activity_code = invoice.invoice_details.first.economic_activity_code
         economic_activity = company.economic_activities.find_by(code: activity_code)
 
         return unless economic_activity.contingency_codes.available.first.present?
-        
+
         @errors << 'No se puede registrar una factura manual sin codigo CAFC vigente para la Actividad Economica.'
       end
     end
