@@ -271,7 +271,7 @@ module Api
         # - Are there payment methods for online paid?
         @errors << 'No se ha insertado el monto del pago online.' if ([33, 38, 43, 67,
                                                                        78].include? invoice.payment_method) &
-                                                                     invoice.qr_paid.zero?
+                                                                     invoice.online_paid.zero?
         # - Are there payment methods for gift card?
         @errors << 'No se ha insertado el monto del pago por Gift Card.' if ([27, 35, 40, 64,
                                                                               78].include? invoice.payment_method) &&
@@ -291,7 +291,7 @@ module Api
       def validate_manual_invoice(invoice, company)
         return unless invoice.is_manual
 
-        contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies?.pending.manual.last
+        contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.manual.last
         unless contingency.present?
           @errors << 'No se puede registrar una factura manual sin iniciar previamente una contingencia para la misma.'
         end
@@ -302,6 +302,7 @@ module Api
         cafc = economic_activity.contingency_codes.available.first.present?
 
         @errors << 'No se puede registrar una factura manual sin codigo CAFC vigente para la Actividad Economica.' unless cafc.present?
+
         return unless contingency.end_date
 
         @errors << 'La factura manual debe estar dentro del rango de la contingencia.' if invoice.date.between? contingency.start_date,
