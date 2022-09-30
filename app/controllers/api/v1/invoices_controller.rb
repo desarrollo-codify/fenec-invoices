@@ -36,10 +36,7 @@ module Api
       end
 
       # POST /api/v1/invoices
-      # rubocop:disable all
       def create
-        # TODO: implement validate!
-        
         @invoice = @branch_office.invoices.build(invoice_params)
         @errors = []
         validate!(@invoice)
@@ -72,9 +69,10 @@ module Api
         @invoice.amount_payable = @invoice.total - @invoice.gift_card_total
         @invoice.invoice_status_id = 1
         @invoice.legend = @economic_activity.random_legend.description
-        @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea'
+        @invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital ' \
+                                               'emitido en una modalidad de facturación en línea'
         @invoice.card_number = nil
-        
+
         if [2, 10, 18, 40, 43].include? @invoice.payment_method
           unless @invoice.card_paid.positive?
             return render json: 'No se ha insertado el monto del pago por tarjeta.',
@@ -96,7 +94,7 @@ module Api
                         status: :unprocessable_entity
         end
 
-        if ([27, 35, 40, 64, 78].include? @invoice.payment_method ) && @invoice.gift_card_total.zero?
+        if ([27, 35, 40, 64, 78].include? @invoice.payment_method) && @invoice.gift_card_total.zero?
           return render json: 'No se ha insertado el monto del pago por Gift Card.',
                         status: :unprocessable_entity
         end
@@ -110,10 +108,8 @@ module Api
 
         if @invoice.document_type == 5
           @invoice.exception_code = 1
-          if SiatAvailable.available(@invoice, false)
-            if VerifyNit.verify(@invoice.business_nit, @branch_office)
-              @invoice.exception_code = nil
-            end
+          if SiatAvailable.available(@invoice, false) && VerifyNit.verify(@invoice.business_nit, @branch_office)
+            @invoice.exception_code = nil
           end
         end
         unless @invoice.valid?
@@ -130,7 +126,6 @@ module Api
           render json: { message: @invoice.errors.first }, status: :unprocessable_entity
         end
       end
-      # rubocop:enable all
 
       # PATCH/PUT /api/v1/invoices/1
       def update
@@ -308,7 +303,9 @@ module Api
 
         @errors << 'No se puede registrar una factura manual sin codigo CAFC vigente para la Actividad Economica.' unless cafc.present?
         return unless contingency.end_date
-        @errors << 'La factura manual debe estar dentro del rango de la contingencia.' if invoice.date.between? contingency.start_date, contingency.end_date
+
+        @errors << 'La factura manual debe estar dentro del rango de la contingencia.' if invoice.date.between? contingency.start_date,
+                                                                                                                contingency.end_date
       end
     end
   end
