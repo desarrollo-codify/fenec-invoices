@@ -26,7 +26,8 @@ module Api
       def create
         @contingency = @point_of_sale.contingencies.build(contingency_params)
         @contingency.start_date ||= DateTime.now
-        @contingency.cufd_code ||= DailyCode.where(point_of_sale: @contingency.point_of_sale.code).by_date(@contingency.start_date).last.code
+        @contingency.cufd_code = DailyCode.where(point_of_sale: @contingency.point_of_sale.code).by_date(@contingency.start_date)
+                                          .last.code
 
         if @contingency.save
           render json: @contingency, status: :created
