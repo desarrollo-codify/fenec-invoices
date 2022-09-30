@@ -4,6 +4,7 @@ module Api
   module V1
     class SiatController < ApplicationController
       require 'savon'
+      require 'siat_available'
       require 'verify_nit'
 
       before_action :set_branch_office, except: %i[verify_communication]
@@ -488,6 +489,10 @@ module Api
       end
 
       def verify_nit
+        unless SiatAvailable.available(@invoice, false) && VerifyNit.verify(@invoice.business_nit, @branch_office)
+          return render json: true
+        end
+
         nit = params[:nit]
         client = siat_client('cuis_wsdl')
         body = {
