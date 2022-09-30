@@ -11,10 +11,10 @@ class ContingencyCode < ApplicationRecord
   validates :current_use, presence: true, numericality: {
     less_than_or_equal_to: :limit
   }
-  validates :available, presence: true
+  validates :available, inclusion: { in: [true, false] }
 
   after_initialize :default_values
-  after_update :availability_of_current_use
+  after_commit :availability_of_current_use
 
   belongs_to :economic_activity
 
@@ -28,11 +28,13 @@ class ContingencyCode < ApplicationRecord
   private
 
   def default_values
+    return unless new_record?
+
     self.current_use ||= 0
     self.available ||= true
   end
 
   def availability_of_current_use
-    update_column(available: false) if current_use > limit
+    update_column(:available, false) if current_use == limit
   end
 end
