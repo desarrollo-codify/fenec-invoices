@@ -221,11 +221,11 @@ module Api
 
       def validate_sync(company)
         @errors << 'No se han sincronizado las actividades economicas de la compañia.' unless company.economic_activities.present?
-        company.economic_activities.each do |economic_activity|
-          unless economic_activity.legends.present?
-            @errors << 'No se han sincronizado las leyendas de cada actividad economicas de la compañia.'
-          end
-        end
+        # company.economic_activities.each do |economic_activity|
+        #   unless economic_activity.legends.present?
+        #     @errors << 'No se han sincronizado las leyendas de cada actividad economicas de la compañia.'
+        #   end
+        # end
       end
 
       def validate_product(invoice, company)
