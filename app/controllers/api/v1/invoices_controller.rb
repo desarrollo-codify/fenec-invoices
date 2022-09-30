@@ -296,16 +296,19 @@ module Api
       def validate_manual_invoice(invoice, company)
         return unless invoice.is_manual
 
-        unless invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.manual.last.present?
+        contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies?.pending.manual.last
+        unless contingency.present?
           @errors << 'No se puede registrar una factura manual sin iniciar previamente una contingencia para la misma.'
         end
 
         activity_code = invoice.invoice_details.first.economic_activity_code
         economic_activity = company.economic_activities.find_by(code: activity_code)
 
-        return unless economic_activity.contingency_codes.available.first.present?
+        cafc = economic_activity.contingency_codes.available.first.present?
 
-        @errors << 'No se puede registrar una factura manual sin codigo CAFC vigente para la Actividad Economica.'
+        @errors << 'No se puede registrar una factura manual sin codigo CAFC vigente para la Actividad Economica.' unless cafc.present?
+        return unless contingency.end_date
+        @errors << 'La factura manual debe estar dentro del rango de la contingencia.' if invoice.date.between? contingency.start_date, contingency.end_date
       end
     end
   end
