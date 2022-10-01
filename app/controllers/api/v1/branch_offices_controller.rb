@@ -24,6 +24,7 @@ module Api
 
         if @branch_office.save
           render json: @branch_office, status: :created
+          @branch_office.point_of_sales.create(name: 'POS-0', code: 0)
         else
           render json: @branch_office.errors, status: :unprocessable_entity
         end

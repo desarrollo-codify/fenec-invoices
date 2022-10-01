@@ -29,7 +29,11 @@ class BranchOffice < ApplicationRecord
     contingencies.create(start_date: DateTime.now, significative_event_id: 2)
   end
 
-  def add_point_of_sales!(point_of_sales)
-    point_of_sales.upsert_all(point_of_sales, unique_by: :code)
+  def add_point_of_sales!(pos_list)
+    point_of_sales.upsert_all(pos_list, unique_by: %i[branch_office_id code])
+  end
+
+  def add_point_of_sale!(code, name, description, pos_type)
+    point_of_sales.create(code: code, name: name, description: description, pos_type_id: pos_type)
   end
 end

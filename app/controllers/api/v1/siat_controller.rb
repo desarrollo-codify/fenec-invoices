@@ -520,26 +520,85 @@ module Api
             codigoSistema: @branch_office.company.company_setting.system_code,
             codigoSucursal: @branch_office.number,
             cuis: @cuis_code.code,
-            nit: @branch_office.company.nit.to_i,
+            nit: @branch_office.company.nit.to_i
           }
         }
 
         response = client.call(:consulta_punto_venta, message: body)
         return unless response.success?
+
         data = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta).first
         transaction = data[:transaccion]
-        debugger
         if transaction
-          data_pos = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta, :lista_puntos_ventas).first 
-          
+          data_pos = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta, :lista_puntos_ventas)
+
           response_data = data_pos.map do |a|
             a.values_at :codigo_punto_venta, :nombre_punto_venta, :tipo_punto_venta
           end
 
-          point_of_sales = response_data.map { |attrs| { code: attrs[0], name: attrs[1], pos_type_id: PosType.find_by(description: attrs[2]) } }
-  
-          @branch_office.add_point_of_sales!(point_of_sales)
+          pos_list = response_data.map do |attrs|
+            { code: attrs[0], name: attrs[1], pos_type_id: PosType.find_by(description: attrs[2]).id }
+          end
+
+          @branch_office.add_point_of_sales!(pos_list)
         end
+        render json: pos_list
+      end
+
+      def created_point_of_sale
+        pos_type = params[:pos_type]
+        description = params[:description]
+        name = params[:name]
+        client = siat_client('siat_operations')
+        body = {
+          SolicitudRegistroPuntoVenta: {
+            codigoAmbiente: 2,
+            codigoModalidad: 2,
+            codigoSistema: @branch_office.company.company_setting.system_code,
+            codigoSucursal: @branch_office.number,
+            codigoTipoPuntoVenta: pos_type,
+            cuis: @cuis_code.code,
+            nit: @branch_office.company.nit.to_i,
+            descripcion: description,
+            nombrePuntoVenta: name
+          }
+        }
+
+        response = client.call(:registro_punto_venta, message: body)
+        return unless response.success?
+
+        data = response.to_array(:registro_punto_venta_response, :respuesta_registro_punto_venta).first
+        transaction = data[:transaccion]
+        return unless transaction
+
+        code = data[:codigo_punto_venta]
+        @branch_office.add_point_of_sale!(code, name, description, pos_type)
+      end
+
+      def destroy_point_of_sale
+        pos = params[:point_of_sale]
+
+        client = siat_client('siat_operations')
+        body = {
+          SolicitudCierrePuntoVenta: {
+            codigoAmbiente: 2,
+            codigoSistema: @branch_office.company.company_setting.system_code,
+            codigoSucursal: @branch_office.number,
+            cuis: @cuis_code.code,
+            nit: @branch_office.company.nit.to_i,
+            codigoPuntoVenta: pos
+          }
+        }
+
+        response = client.call(:cierre_punto_venta, message: body)
+        return unless response.success?
+
+        data = response.to_array(:cierre_punto_venta_response, :respuesta_cierre_punto_venta).first
+        transaction = data[:transaccion]
+        return unless transaction
+
+        code = data[:codigo_punto_venta]
+        @branch_office.point_of_sales.find(code).destroy
       end
 
       private
