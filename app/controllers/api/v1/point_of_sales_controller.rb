@@ -41,7 +41,8 @@ module Api
 
       # DELETE /api/v1/point_of_sales/1
       def destroy
-        @point_of_sale.destroy
+        PointOfSaleDestroyJob.perform_now(@point_of_sale) if Rails.env.development? || Rails.env.production?
+        @point_of_sale.destroy if Rails.env.test?
       end
 
       private

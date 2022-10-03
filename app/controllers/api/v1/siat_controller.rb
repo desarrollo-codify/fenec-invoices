@@ -545,62 +545,6 @@ module Api
         render json: pos_list
       end
 
-      def created_point_of_sale
-        pos_type = params[:pos_type]
-        description = params[:description]
-        name = params[:name]
-        client = siat_client('siat_operations')
-        body = {
-          SolicitudRegistroPuntoVenta: {
-            codigoAmbiente: 2,
-            codigoModalidad: 2,
-            codigoSistema: @branch_office.company.company_setting.system_code,
-            codigoSucursal: @branch_office.number,
-            codigoTipoPuntoVenta: pos_type,
-            cuis: @cuis_code.code,
-            nit: @branch_office.company.nit.to_i,
-            descripcion: description,
-            nombrePuntoVenta: name
-          }
-        }
-
-        response = client.call(:registro_punto_venta, message: body)
-        return unless response.success?
-
-        data = response.to_array(:registro_punto_venta_response, :respuesta_registro_punto_venta).first
-        transaction = data[:transaccion]
-        return unless transaction
-
-        code = data[:codigo_punto_venta]
-        @branch_office.add_point_of_sale!(code, name, description, pos_type)
-      end
-
-      def destroy_point_of_sale
-        pos = params[:point_of_sale]
-
-        client = siat_client('siat_operations')
-        body = {
-          SolicitudCierrePuntoVenta: {
-            codigoAmbiente: 2,
-            codigoSistema: @branch_office.company.company_setting.system_code,
-            codigoSucursal: @branch_office.number,
-            cuis: @cuis_code.code,
-            nit: @branch_office.company.nit.to_i,
-            codigoPuntoVenta: pos
-          }
-        }
-
-        response = client.call(:cierre_punto_venta, message: body)
-        return unless response.success?
-
-        data = response.to_array(:cierre_punto_venta_response, :respuesta_cierre_punto_venta).first
-        transaction = data[:transaccion]
-        return unless transaction
-
-        code = data[:codigo_punto_venta]
-        @branch_office.point_of_sales.find(code).destroy
-      end
-
       private
 
       def set_branch_office

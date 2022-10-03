@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-class PointOfSaleJob < ApplicationJob
+class PointOfSaleDestroyJob < ApplicationJob
   queue_as :default
 
   def perform(point_of_sale)
@@ -21,29 +19,24 @@ class PointOfSaleJob < ApplicationJob
     )
 
     body = {
-      SolicitudRegistroPuntoVenta: {
+      SolicitudCierrePuntoVenta: {
         codigoAmbiente: 2,
-        codigoModalidad: 2,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
-        codigoTipoPuntoVenta: point_of_sale.pos_type_id,
-        cuis: cuis_codes.code,
-        descripcion: point_of_sale.description,
-        nombrePuntoVenta: point_of_sale.name,
-        nit: branch_office.company.nit.to_i
+        cuis: cuis_code.code,
+        nit: branch_office.company.nit.to_i,
+        codigoPuntoVenta: point_of_sale.code
       }
     }
 
-    response = client.call(:registro_punto_venta, message: body)
+    response = client.call(:cierre_punto_venta, message: body)
     return unless response.success?
 
-    data = response.to_array(:registro_punto_venta_response, :respuesta_registro_punto_venta).first
+    data = response.to_array(:cierre_punto_venta_response, :respuesta_cierre_punto_venta).first
     transaction = data[:transaccion]
-    if transaction
-      code = data[:codigo_punto_venta]
-      point_of_sale.update(code: code)
-    else
-      point_of_sale.destroy
-    end
+    return unless transaction
+
+    code = data[:codigo_punto_venta]
+    point_of_sale.destroy
   end
 end
