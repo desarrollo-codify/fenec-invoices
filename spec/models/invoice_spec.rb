@@ -449,4 +449,47 @@ RSpec.describe Invoice, type: :model do
       end
     end
   end
+
+  describe 'for_sending scope' do
+    context 'with include or not invoices for sending' do
+      let(:for_sending){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 3)}
+      let(:send){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 2, sent_at: DateTime.now)}
+
+      it 'Includes invoice for sending' do
+        expect(Invoice.for_sending).to include(for_sending)
+      end
+  
+      it 'Excludes invoice for sending' do
+        expect(Invoice.for_sending).to_not include(send)
+      end
+    end
+  end
+
+  describe 'by_cufd scope' do
+    context 'with include or not invoices for sending' do
+      before(:all)do
+        @cufd_code = 'ABCD1234'
+      end
+      let(:cufd){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 3, cufd_code: @cufd_code)}
+      let(:non_cufd){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 2, sent_at: DateTime.now)}
+
+      it 'Includes only the expected invoice' do
+        expect(Invoice.by_cufd(@cufd_code)).to include(cufd)
+        expect(Invoice.by_cufd(@cufd_code)).to_not include(non_cufd)
+      end
+    end
+  end
+
+  describe 'for_sendig_cancel scope' do
+    before{ create(:cancellation_reason) } 
+    context 'with include or not invoices for sending cancel' do
+      let(:for_sendig_cancel){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 3, cancellation_reason_id: 1)}
+      let(:non_cancel){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 2)}
+
+      it 'Includes only the expected invoice' do
+        expect(Invoice.for_sending_cancel).to include(for_sendig_cancel)
+        expect(Invoice.for_sending_cancel).to_not include(non_cancel)
+      end
+    end
+  end
 end
