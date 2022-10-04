@@ -102,7 +102,7 @@ class ProcessInvoiceJob < ApplicationJob
     # TODO: implement paper size: 1 roll, 2 half office or half letter
     invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
     invoice.cafc = process_cafc(invoice, economic_activity, point_of_sale) if invoice.is_manual
-    unless siat_available
+    if !siat_available || invoice.is_manual
       # rubocop:disable Layout/LineLength
       invoice.graphic_representation_text = 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido fuera de línea, verifique su envío con su proveedor o en la página web www.impuestos.gob.bo.'
       # rubocop:enable Layout/LineLength
