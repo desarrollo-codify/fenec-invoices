@@ -42,7 +42,10 @@
       <table class="table table-sm table-borderless my-0 py-0" style="border-style: none none double;">
         <tbody>
           <tr style="line-height:13px;height:13px;">
-            <td><strong>NOMBRE/RAZÓN SOCIAL:</strong></td>
+            <td><strong>NOMBRE/</strong></td>
+          </tr>
+          <tr style="line-height:13px;height:13px;">
+            <td><strong>RAZÓN SOCIAL:</strong></td>
             <td class="text-break"><strong><%= invoice.business_name %></strong></td>
           </tr>
           <tr style="line-height:13px;height:13px;">
@@ -150,7 +153,7 @@
         </table>
       </div>
       <div class="w-100 pt-2" style="border-top: 1px solid #000;">
-        <div class="m-0 py-0">SON: <%= literal_amount.upcase %> Bs.</div>
+        <div class="m-0 py-0">SON: <%= literal_amount.upcase %> Bolivianos</div>
       </div>
       <div class="w-100 m-0 py-3">Usr.: <%= invoice.user %></div>
       <div class="text-center">
