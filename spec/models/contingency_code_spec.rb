@@ -138,11 +138,8 @@ RSpec.describe ContingencyCode, type: :model do
       @available = ContingencyCode.create!(code: '1234abcd', document_sector_code: 1, limit: 10, current_use: 0, available: true, economic_activity: economic_activity)
     end
 
-    it 'Includes contingency codes availables' do
+    it 'Includes only the expected contingency code' do
       expect(ContingencyCode.available).to_not include(@non_available)
-    end
-
-    it 'Excludes contingency codes availables' do
       expect(ContingencyCode.available).to include(@available)
     end
   end

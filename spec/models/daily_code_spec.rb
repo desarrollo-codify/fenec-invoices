@@ -73,11 +73,8 @@ RSpec.describe DailyCode, type: :model do
       @not_current = DailyCode.create!(code: 'ABC123', effective_date: DateTime.now - 2.hour, end_date: DateTime.now - 1.hour, branch_office: branch_office_2)
     end
 
-    it 'Includes cuis codes current' do
+    it 'Includes only the expected daily code' do
       expect(DailyCode.current).to eq(@current)
-    end
-    
-    it 'Excludes cuis codes current' do
       expect(DailyCode.current).to_not eq(@not_current)
     end
   end
@@ -92,11 +89,8 @@ RSpec.describe DailyCode, type: :model do
       @by_date = DailyCode.create!(code: 'ABC123', effective_date: DateTime.now, end_date: DateTime.now + 10.hour, branch_office: branch_office_2)
     end
 
-    it 'Includes date in daily code' do
+    it 'Includes only the expected daily code' do
       expect(DailyCode.by_date(@date)).to include(@by_date)
-    end
-    
-    it 'Excludes date in daily code' do
       expect(DailyCode.by_date(@date)).to_not include(@non_by_date)
     end
   end

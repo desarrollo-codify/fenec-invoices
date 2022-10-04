@@ -55,11 +55,8 @@ RSpec.describe Contingency, type: :model do
       @pending = Contingency.create!(start_date: '2022-10-2T19:26:40.905', significative_event: significative_event, point_of_sale: point_of_sale)
     end
 
-    it 'Exclude contingency pending' do
+    it 'Includes only the expected contingency' do
       expect(Contingency.pending).to_not include(@not_pending)
-    end
-
-    it 'Include contingency pending' do
       expect(Contingency.pending).to include(@pending)
     end
   end
@@ -73,11 +70,8 @@ RSpec.describe Contingency, type: :model do
       @not_manual = Contingency.create!(start_date: '2022-10-2T19:26:40.905', significative_event: significative_event_not_manual, point_of_sale: point_of_sale)
     end
 
-    it 'Includes contingency manual' do
+    it 'Includes only the expected cotingency' do
       expect(Contingency.manual).to include(@is_manual)
-    end
-
-    it 'Excludes contingency manual' do
       expect(Contingency.manual).to_not include(@not_manual)
     end
   end
@@ -91,11 +85,8 @@ RSpec.describe Contingency, type: :model do
       @not_automatic = Contingency.create!(start_date: '2022-10-2T19:26:40.905', significative_event: significative_event_not_automatic, point_of_sale: point_of_sale)
     end
 
-    it 'Includes contingency codes automatic' do
+    it 'Includes only the expected cotingency' do
       expect(Contingency.automatic).to_not include(@not_automatic)
-    end
-
-    it 'Excludes contingency codes automatic' do
       expect(Contingency.automatic).to include(@is_automatic)
     end
   end

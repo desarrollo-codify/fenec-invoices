@@ -455,11 +455,8 @@ RSpec.describe Invoice, type: :model do
       let(:for_sending){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 3)}
       let(:send){ create(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 2, sent_at: DateTime.now)}
 
-      it 'Includes invoice for sending' do
+      it 'Includes only the expected invoice' do
         expect(Invoice.for_sending).to include(for_sending)
-      end
-  
-      it 'Excludes invoice for sending' do
         expect(Invoice.for_sending).to_not include(send)
       end
     end
