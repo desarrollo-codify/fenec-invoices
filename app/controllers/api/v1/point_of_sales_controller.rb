@@ -52,12 +52,16 @@ module Api
 
       # DELETE /api/v1/point_of_sales/1
       def destroy
-        transaction = PointOfSale.destroy(@point_of_sale) if Rails.env.development? || Rails.env.production?
-        if transaction
-          @point_of_sale.destroy
-          render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}."
+        if Rails.env.development? || Rails.env.production?
+          transaction = PointOfSale.destroy(@point_of_sale)
+          if transaction
+            @point_of_sale.destroy
+            render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}."
+          else
+            render json: 'No se ha podido eliminar el punto de venta, verifique sus datos e intente nuevamente.'
+          end
         else
-          render json: 'No se ha podido eliminar el punto de venta, verifique sus datos e intente nuevamente.'
+          @point_of_sale.destroy
         end
       end
 
