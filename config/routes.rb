@@ -58,7 +58,7 @@ Rails.application.routes.draw do
         post 'siat/service_messages'
         post 'siat/document_sector_types'
         get 'siat/verify_nit'
-        post 'siat/consult_point_of_sale'
+        post 'siat/point_of_sales'
       end
 
       resources :economic_activities, only: :show do

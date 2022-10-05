@@ -517,7 +517,7 @@ module Api
         render json: result
       end
 
-      def consult_point_of_sale
+      def point_of_sales
         client = siat_client('siat_operations')
         body = {
           SolicitudConsultaPuntoVenta: {
