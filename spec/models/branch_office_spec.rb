@@ -61,9 +61,10 @@ RSpec.describe BranchOffice, type: :model do
     context 'validates uniqueness per company' do
       context 'with duplicated number' do
         before { create(:branch_office) }
-        let(:branch_office) { build(:branch_office, company_id: 1) }
+        let(:branch_office) { build(:branch_office) }
 
         it 'is invalid when number is duplicated' do
+          branch_office.company_id = Company.first.id
           expect(branch_office).to_not be_valid
           expect(branch_office.errors[:number]).to eq ['el numero de sucursal no puede duplicarse en una empresa.']
         end

@@ -30,18 +30,18 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: 
   end
 
   describe 'POST /create' do
-    let(:branch_office) { create(:branch_office) }
+    before { create(:branch_office) }
 
     context 'with valid parameters' do
       it 'creates a new PointOfSale' do
         expect do
-          post api_v1_branch_office_point_of_sales_url(branch_office_id: branch_office.id),
+          post api_v1_branch_office_point_of_sales_url(branch_office_id: BranchOffice.last.id),
                params: { point_of_sale: valid_attributes }, headers: valid_headers, as: :json
-        end.to change(PointOfSale, :count).by(2)
+        end.to change(PointOfSale, :count).by(1)
       end
 
       it 'renders a JSON response with the new api_v1_branch_office' do
-        post api_v1_branch_office_point_of_sales_url(branch_office_id: branch_office.id),
+        post api_v1_branch_office_point_of_sales_url(branch_office_id: BranchOffice.last.id),
              params: { point_of_sale: valid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -51,13 +51,13 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: 
     context 'with invalid parameters' do
       it 'does not create a new PointOfSale' do
         expect do
-          post api_v1_branch_office_point_of_sales_url(branch_office_id: branch_office.id),
+          post api_v1_branch_office_point_of_sales_url(branch_office_id: BranchOffice.last.id),
                params: { point_of_sale: invalid_attributes }, as: :json
-        end.to change(PointOfSale, :count).by(1)
+        end.to change(PointOfSale, :count).by(0)
       end
 
       it 'renders a JSON response with errors for the new api_v1_company_branch_office' do
-        post api_v1_branch_office_point_of_sales_url(branch_office_id: branch_office.id),
+        post api_v1_branch_office_point_of_sales_url(branch_office_id: BranchOffice.last.id),
              params: { point_of_sale: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
