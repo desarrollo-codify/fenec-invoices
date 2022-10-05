@@ -20,6 +20,7 @@ Rails.application.routes.draw do
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
+        put '/settings', to: 'companies#update_settings'
       end
       get '/branch_offices/:branch_office_id/daily_codes/current', to: 'daily_codes#current'
       get '/branch_offices/:branch_office_id/cuis_codes/current', to: 'cuis_codes#current'
