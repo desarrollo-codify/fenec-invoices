@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  devise_for :users,
-             controllers: {
-               sessions: 'users/sessions',
-               registrations: 'users/registrations'
-             },
-             defaults: { format: :json }
-
   resources :invoicing, only: :show
 
   post 'siat_tests/sync_codes'
