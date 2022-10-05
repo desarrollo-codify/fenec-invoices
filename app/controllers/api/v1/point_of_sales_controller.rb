@@ -5,7 +5,7 @@ module Api
     class PointOfSalesController < ApplicationController
       before_action :set_point_of_sale, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create]
-      require 'tasks_point_of_sale'
+      require 'point_of_sale'
 
       # GET /api/v1/branch_offices/:branch_office_id/point_of_sales
       def index
@@ -23,7 +23,7 @@ module Api
       def create
         @point_of_sale = @branch_office.point_of_sales.build(point_of_sale_params)
         if Rails.env.development? || Rails.env.production? 
-          transaction = TasksPointOfSale.add(@point_of_sale) # TODO: Mock this in rspec and remove if statement
+          transaction = PointOfSale.add(@point_of_sale) # TODO: Mock this in rspec and remove if statement
           if @point_of_sale.save && transaction
             render json: @point_of_sale, status: :created
           else
@@ -52,7 +52,7 @@ module Api
 
       # DELETE /api/v1/point_of_sales/1
       def destroy
-        transaction = TasksPointOfSale.destroy(@point_of_sale) if Rails.env.development? || Rails.env.production?
+        transaction = PointOfSale.destroy(@point_of_sale) if Rails.env.development? || Rails.env.production?
         if transaction
           @point_of_sale.destroy
           render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}."
@@ -74,7 +74,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def point_of_sale_params
-        params.require(:point_of_sale).permit(:code, :name, :description, :branch_office_id, :pos_type_id)
+        params.require(:point_of_sale).permit(:name, :description, :branch_office_id, :pos_type_id)
       end
     end
   end

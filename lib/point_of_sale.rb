@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TasksPointOfSale
+class PointOfSale
   def self.add(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
