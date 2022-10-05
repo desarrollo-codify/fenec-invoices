@@ -5,6 +5,7 @@ module Api
     class PointOfSalesController < ApplicationController
       before_action :set_point_of_sale, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create]
+      require 'tasks_point_of_sale'
 
       # GET /api/v1/branch_offices/:branch_office_id/point_of_sales
       def index
@@ -21,11 +22,11 @@ module Api
       # POST /api/v1/branch_offices/:branch_office_id/point_of_sales
       def create
         @point_of_sale = @branch_office.point_of_sales.build(point_of_sale_params)
-
-        if @point_of_sale.save
-          PointOfSaleJob.perform_now(@point_of_sale) if Rails.env.development? || Rails.env.production?
+        transaction = TasksPointOfSale.add(@point_of_sale)
+        if @point_of_sale.save && transaction
           render json: @point_of_sale, status: :created
         else
+          @point_of_sale.errors.add('No se pudo crear el punto de venta en el SIAT, verifique sus datos e intente nuevamente.') unless transaction
           render json: @point_of_sale.errors, status: :unprocessable_entity
         end
       end
@@ -41,8 +42,13 @@ module Api
 
       # DELETE /api/v1/point_of_sales/1
       def destroy
-        PointOfSaleDestroyJob.perform_now(@point_of_sale) if Rails.env.development? || Rails.env.production?
-        @point_of_sale.destroy if Rails.env.test?
+        transaction = TasksPointOfSale.destroy(@point_of_sale) if Rails.env.development? || Rails.env.production?
+        if transaction
+          @point_of_sale.destroy
+          render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}."
+        else
+          render json: 'No se ha podido eliminar el punto de venta, verifique sus datos e intente nuevamente.'
+        end
       end
 
       private
@@ -58,7 +64,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def point_of_sale_params
-        params.require(:point_of_sale).permit(:name, :code, :description, :branch_office_id)
+        params.require(:point_of_sale).permit(:code, :name, :description, :branch_office_id, :pos_type_id)
       end
     end
   end
