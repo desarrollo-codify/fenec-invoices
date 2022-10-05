@@ -69,10 +69,14 @@ class GeneratePdfJob < ApplicationJob
   def literal_amount(amount)
     return 'Cero 00/100' if amount.zero?
 
-    # words = amount < 1 ? ['Cero'] : []
-
+    words = amount < 1 ? ['Cero'] : integer_literal(amount)
     decimal = BigDecimal(amount.to_s).frac.to_s.gsub! '0.', ''
+    decimales = decimal == '0' ? '00' : decimal.to_s[0..1].ljust(2, '0')
+    
+    "#{words.compact.reverse.join(' ')} #{decimales}/100"
+  end
 
+  def integer_literal(amount)
     group_by_three = amount.to_i.to_s.reverse.scan(/\d{1,3}/).map { |n| n.reverse.to_i }
 
     millions = [
@@ -95,9 +99,7 @@ class GeneratePdfJob < ApplicationJob
         [hundred_to_words(numbers), 'mil']
       end
     end
-
-    decimales = decimal == '0' ? '00' : decimal.to_s[0..1].ljust(2, '0')
-    "#{words.compact.reverse.join(' ')} #{decimales}/100"
+    words
   end
 
   def hundred_to_words(amount)
