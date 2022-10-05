@@ -42,7 +42,7 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[7.0]
       ## User Info
       t.string :full_name
       t.string :username
-      t.string :role
+      t.integer :role
       t.string :email
       t.references :company, foreign_key: true
 

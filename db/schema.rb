@@ -434,7 +434,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_10_05_141951) do
     t.inet "last_sign_in_ip"
     t.string "full_name"
     t.string "username"
-    t.string "role"
+    t.integer "role"
     t.string "email"
     t.bigint "company_id"
     t.json "tokens"
