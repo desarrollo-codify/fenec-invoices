@@ -28,7 +28,6 @@ class GenerateCufd
     }
 
     response = client.call(:cufd, message: body)
-
     return unless response.success?
 
     data = response.to_array(:cufd_response, :respuesta_cufd).first
