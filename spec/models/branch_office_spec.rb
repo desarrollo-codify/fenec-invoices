@@ -159,11 +159,11 @@ RSpec.describe BranchOffice, type: :model do
   end
 
   describe 'after create branch office' do
-    before{create(:branch_office, company: company)}
+    before { create(:branch_office, company: company) }
 
     it 'has a point of sale with code 0' do
       point_of_sale = BranchOffice.last.point_of_sales.last
-      expect(point_of_sale.code).to eq 0  
+      expect(point_of_sale.code).to eq 0
     end
   end
 end

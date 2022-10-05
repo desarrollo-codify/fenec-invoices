@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 class TasksPointOfSale
   def self.add(point_of_sale)
@@ -67,10 +68,6 @@ class TasksPointOfSale
     return unless response.success?
 
     data = response.to_array(:cierre_punto_venta_response, :respuesta_cierre_punto_venta).first
-    transaction = data[:transaccion]
-    return unless transaction
-
-    code = data[:codigo_punto_venta]
-    transaction
+    data[:transaccion]
   end
 end

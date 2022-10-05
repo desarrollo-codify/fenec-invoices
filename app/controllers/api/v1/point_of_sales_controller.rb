@@ -26,7 +26,9 @@ module Api
         if @point_of_sale.save && transaction
           render json: @point_of_sale, status: :created
         else
-          @point_of_sale.errors.add('No se pudo crear el punto de venta en el SIAT, verifique sus datos e intente nuevamente.') unless transaction
+          unless transaction
+            @point_of_sale.errors.add('No se pudo crear el punto de venta en el SIAT, verifique sus datos e intente nuevamente.')
+          end
           render json: @point_of_sale.errors, status: :unprocessable_entity
         end
       end

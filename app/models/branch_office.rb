@@ -17,20 +17,20 @@ class BranchOffice < ApplicationRecord
 
   def add_cuis_code!(code, expiration_date, point_of_sale)
     return if cuis_codes.find_by(code: code).present?
-    
+
     cuis_codes.create(code: code, expiration_date: expiration_date,
-      point_of_sale: point_of_sale)
+                      point_of_sale: point_of_sale)
   end
-    
+
   def add_daily_code!(code, control_code, effective_date, end_date, point_of_sale)
     daily_codes.create(code: code, control_code: control_code, effective_date: effective_date, end_date: end_date,
-      point_of_sale: point_of_sale)
+                       point_of_sale: point_of_sale)
   end
-      
+
   def create_contingency
     contingencies.create(start_date: DateTime.now, significative_event_id: 2)
   end
-      
+
   def add_point_of_sales!(pos_list)
     point_of_sales.upsert_all(pos_list, unique_by: %i[branch_office_id code])
   end
