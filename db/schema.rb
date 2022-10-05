@@ -319,12 +319,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.index ["code"], name: "index_issuance_types_on_code", unique: true
   end
 
-  create_table "jwt_denylist", force: :cascade do |t|
-    t.string "jti", null: false
-    t.datetime "exp", null: false
-    t.index ["jti"], name: "index_jwt_denylist_on_jti"
-  end
-
   create_table "legends", force: :cascade do |t|
     t.integer "code", null: false
     t.string "description", null: false
@@ -429,11 +423,17 @@ ActiveRecord::Schema[7.0].define(version: 2022_09_25_203327) do
     t.integer "sign_in_count", default: 0, null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
-    t.string "current_sign_in_ip"
-    t.string "last_sign_in_ip"
+    t.inet "current_sign_in_ip"
+    t.inet "last_sign_in_ip"
+    t.string "full_name"
+    t.string "username"
+    t.string "role"
+    t.string "email"
+    t.bigint "company_id"
+    t.json "tokens"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "role"
+    t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
