@@ -72,7 +72,7 @@ class GeneratePdfJob < ApplicationJob
     words = amount < 1 ? ['Cero'] : integer_literal(amount)
     decimal = BigDecimal(amount.to_s).frac.to_s.gsub! '0.', ''
     decimales = decimal == '0' ? '00' : decimal.to_s[0..1].ljust(2, '0')
-    
+
     "#{words.compact.reverse.join(' ')} #{decimales}/100"
   end
 
@@ -88,7 +88,7 @@ class GeneratePdfJob < ApplicationJob
 
     previous_hundred = 0
     counter = -1
-    words = group_by_three.map do |numbers|
+    group_by_three.map do |numbers|
       counter += 1
       if counter.even?
         previous_hundred = numbers
@@ -99,7 +99,6 @@ class GeneratePdfJob < ApplicationJob
         [hundred_to_words(numbers), 'mil']
       end
     end
-    words
   end
 
   def hundred_to_words(amount)
