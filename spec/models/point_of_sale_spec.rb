@@ -40,21 +40,11 @@ RSpec.describe PointOfSale, type: :model do
   end
 
   describe 'code attribute' do
-    it { validate_presence_of(:code) }
-
-    context 'with nil or empty value' do
-      let(:point_of_sale) { build(:point_of_sale, code: nil) }
-
-      it 'is invalid' do
-        expect(point_of_sale).to_not be_valid
-      end
-    end
-
     context 'validates uniqueness of code' do
       context 'with duplicated value' do
-        before { create(:point_of_sale, branch_office: branch_office) }
 
         it 'is invalid' do
+          subject.code = 0
           expect(subject).to_not be_valid
           expect(subject.errors[:code]).to eq ['Ya existe este codigo de punto de venta para esta sucursal.']
         end

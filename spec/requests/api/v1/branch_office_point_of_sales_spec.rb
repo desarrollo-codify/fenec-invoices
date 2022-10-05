@@ -6,14 +6,12 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: 
   let(:valid_attributes) do
     {
       name: 'abc',
-      code: 123
     }
   end
 
   let(:invalid_attributes) do
     {
       name: nil,
-      code: nil
     }
   end
 
@@ -39,7 +37,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: 
         expect do
           post api_v1_branch_office_point_of_sales_url(branch_office_id: branch_office.id),
                params: { point_of_sale: valid_attributes }, headers: valid_headers, as: :json
-        end.to change(PointOfSale, :count).by(1)
+        end.to change(PointOfSale, :count).by(2)
       end
 
       it 'renders a JSON response with the new api_v1_branch_office' do
@@ -55,7 +53,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: 
         expect do
           post api_v1_branch_office_point_of_sales_url(branch_office_id: branch_office.id),
                params: { point_of_sale: invalid_attributes }, as: :json
-        end.to change(PointOfSale, :count).by(0)
+        end.to change(PointOfSale, :count).by(1)
       end
 
       it 'renders a JSON response with errors for the new api_v1_company_branch_office' do

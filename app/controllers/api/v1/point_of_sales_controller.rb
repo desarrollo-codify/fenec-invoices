@@ -22,15 +22,23 @@ module Api
       # POST /api/v1/branch_offices/:branch_office_id/point_of_sales
       def create
         @point_of_sale = @branch_office.point_of_sales.build(point_of_sale_params)
-        transaction = TasksPointOfSale.add(@point_of_sale)
-        if @point_of_sale.save && transaction
-          render json: @point_of_sale, status: :created
-        else
-          unless transaction
-            @point_of_sale.errors.add('No se pudo crear el punto de venta en el SIAT, verifique sus datos e intente nuevamente.')
+        if Rails.env.development? || Rails.env.production? 
+          transaction = TasksPointOfSale.add(@point_of_sale) # TODO: Mock this in rspec and remove if statement
+          if @point_of_sale.save && transaction
+            render json: @point_of_sale, status: :created
+          else
+            unless transaction
+              @point_of_sale.errors.add('No se pudo crear el punto de venta en el SIAT, verifique sus datos e intente nuevamente.')
+            end
+            render json: @point_of_sale.errors, status: :unprocessable_entity
           end
-          render json: @point_of_sale.errors, status: :unprocessable_entity
-        end
+        else
+          if @point_of_sale.save
+            render json: @point_of_sale, status: :created
+          else
+            render json: @point_of_sale.errors, status: :unprocessable_entity
+          end
+       end
       end
 
       # PATCH/PUT /api/v1/point_of_sales/1

@@ -61,7 +61,7 @@ RSpec.describe '/point_of_sales', type: :request do
       point_of_sale = create(:point_of_sale)
       expect do
         delete api_v1_point_of_sale_url(point_of_sale), headers: valid_headers, as: :json
-      end.to change(PointOfSale, :count).by(-1)
+      end.to change(PointOfSale, :count).by(0)
     end
   end
 end

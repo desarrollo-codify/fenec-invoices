@@ -149,11 +149,10 @@ RSpec.describe BranchOffice, type: :model do
     it { expect(subject).to have_many(:point_of_sales).dependent(:destroy) }
 
     describe 'when deleting a branch office' do
-      let(:branch_office) { create(:branch_office) }
-      before { create(:point_of_sale, branch_office: branch_office) }
+      before { create(:branch_office, company: company) }
 
       it 'destroys the daily code' do
-        expect { branch_office.destroy }.to change { PointOfSale.count }.by(-1)
+        expect { BranchOffice.last.destroy }.to change { PointOfSale.count }.by(-1)
       end
     end
   end
