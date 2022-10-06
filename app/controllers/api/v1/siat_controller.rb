@@ -517,6 +517,39 @@ module Api
         render json: result
       end
 
+      def point_of_sales
+        client = siat_client('siat_operations')
+        body = {
+          SolicitudConsultaPuntoVenta: {
+            codigoAmbiente: 2,
+            codigoSistema: @branch_office.company.company_setting.system_code,
+            codigoSucursal: @branch_office.number,
+            cuis: @cuis_code.code,
+            nit: @branch_office.company.nit.to_i
+          }
+        }
+
+        response = client.call(:consulta_punto_venta, message: body)
+        return unless response.success?
+
+        data = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta).first
+        transaction = data[:transaccion]
+        if transaction
+          data_pos = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta, :lista_puntos_ventas)
+
+          response_data = data_pos.map do |a|
+            a.values_at :codigo_punto_venta, :nombre_punto_venta, :tipo_punto_venta
+          end
+
+          pos_list = response_data.map do |attrs|
+            { code: attrs[0], name: attrs[1], pos_type_id: PosType.find_by(description: attrs[2]).id }
+          end
+
+          @branch_office.add_point_of_sales!(pos_list)
+        end
+        render json: pos_list
+      end
+
       private
 
       def set_branch_office
