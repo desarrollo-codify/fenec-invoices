@@ -63,6 +63,7 @@ class ProcessInvoiceJob < ApplicationJob
     client = company.clients.find_by(code: invoice.client_code)
     begin
       InvoiceMailer.with(client: client, invoice: invoice, sender: company.company_setting).send_invoice.deliver_now
+      invoice.update(emailed_at: DateTime.now)
     rescue StandardError => e
       p e.message
     end

@@ -132,10 +132,12 @@ RSpec.describe ContingencyCode, type: :model do
 
   describe 'available attribute' do
     it { validate_presence_of(:available) }
-    
+
     before(:each) do
-      @non_available = ContingencyCode.create!(code: 'abcd1234', document_sector_code: 1, limit: 10, current_use: 10, available: false, economic_activity: economic_activity)
-      @available = ContingencyCode.create!(code: '1234abcd', document_sector_code: 1, limit: 10, current_use: 0, available: true, economic_activity: economic_activity)
+      @non_available = ContingencyCode.create!(code: 'abcd1234', document_sector_code: 1, limit: 10, current_use: 10,
+                                               available: false, economic_activity: economic_activity)
+      @available = ContingencyCode.create!(code: '1234abcd', document_sector_code: 1, limit: 10, current_use: 0, available: true,
+                                           economic_activity: economic_activity)
     end
 
     it 'Includes only the expected contingency code' do

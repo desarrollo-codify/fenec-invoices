@@ -22,6 +22,5 @@ class InvoiceMailer < ApplicationMailer
     attachments['factura.pdf'] = File.read(pdf_path)
 
     mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
-    @invoice.update(emailed_at: DateTime.now)
   end
 end
