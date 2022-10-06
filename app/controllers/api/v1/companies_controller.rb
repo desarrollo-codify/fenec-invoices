@@ -73,7 +73,7 @@ module Api
 
       # POST /companies/1/settings
       def update_settings
-        @settings =  @company.company_setting
+        @settings = @company.company_setting
         @settings.update(setting_params)
       end
 

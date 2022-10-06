@@ -5,13 +5,13 @@ require 'rails_helper'
 RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: :request do
   let(:valid_attributes) do
     {
-      name: 'abc',
+      name: 'abc'
     }
   end
 
   let(:invalid_attributes) do
     {
-      name: nil,
+      name: nil
     }
   end
 

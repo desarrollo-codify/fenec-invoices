@@ -42,7 +42,6 @@ RSpec.describe PointOfSale, type: :model do
   describe 'code attribute' do
     context 'validates uniqueness of code' do
       context 'with duplicated value' do
-
         it 'is invalid' do
           subject.code = 0
           expect(subject).to_not be_valid

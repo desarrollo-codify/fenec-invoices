@@ -22,7 +22,7 @@ module Api
       # POST /api/v1/branch_offices/:branch_office_id/point_of_sales
       def create
         @point_of_sale = @branch_office.point_of_sales.build(point_of_sale_params)
-        if Rails.env.development? || Rails.env.production? 
+        if Rails.env.development? || Rails.env.production?
           transaction = PointOfSale.add(@point_of_sale) # TODO: Mock this in rspec and remove if statement
           if @point_of_sale.save && transaction
             render json: @point_of_sale, status: :created
@@ -32,13 +32,11 @@ module Api
             end
             render json: @point_of_sale.errors, status: :unprocessable_entity
           end
+        elsif @point_of_sale.save
+          render json: @point_of_sale, status: :created
         else
-          if @point_of_sale.save
-            render json: @point_of_sale, status: :created
-          else
-            render json: @point_of_sale.errors, status: :unprocessable_entity
-          end
-       end
+          render json: @point_of_sale.errors, status: :unprocessable_entity
+        end
       end
 
       # PATCH/PUT /api/v1/point_of_sales/1
