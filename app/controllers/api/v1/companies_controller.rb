@@ -8,7 +8,6 @@ module Api
       before_action :set_company, only: %i[show update destroy]
       before_action :set_parent_company, only: %i[update_settings]
 
-
       # GET /companies
       def index
         @companies = Company.all
