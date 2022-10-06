@@ -5,7 +5,7 @@ module Api
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
-      before_action :set_company, only: %i[show update destroy]
+      before_action :set_company, only: %i[show update destroy update_settings]
 
       # GET /companies
       def index
@@ -71,6 +71,12 @@ module Api
         end
       end
 
+      # POST /companies/1/settings
+      def update_settings
+        @settings = @company.company_setting
+        @settings.update(setting_params)
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
@@ -81,6 +87,10 @@ module Api
       # Only allow a list of trusted parameters through.
       def company_params
         params.require(:company).permit(:name, :nit, :address, :phone, :logo, :page_size_id)
+      end
+
+      def setting_params
+        params.require(:company_setting).permit(:address, :port, :domain, :user_name, :password)
       end
 
       def super_admin_only
