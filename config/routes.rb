@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  devise_for :users,
-             controllers: {
-               sessions: 'users/sessions',
-               registrations: 'users/registrations'
-             },
-             defaults: { format: :json }
-
+  mount_devise_token_auth_for 'User', at: 'auth'
   resources :invoicing, only: :show
 
   post 'siat_tests/sync_codes'
@@ -26,6 +20,7 @@ Rails.application.routes.draw do
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
+        put '/settings', to: 'companies#update_settings'
       end
       get '/branch_offices/:branch_office_id/daily_codes/current', to: 'daily_codes#current'
       get '/branch_offices/:branch_office_id/cuis_codes/current', to: 'cuis_codes#current'
@@ -64,6 +59,7 @@ Rails.application.routes.draw do
         post 'siat/service_messages'
         post 'siat/document_sector_types'
         get 'siat/verify_nit'
+        post 'siat/point_of_sales'
       end
 
       resources :economic_activities, only: :show do

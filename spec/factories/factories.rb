@@ -180,7 +180,6 @@ FactoryBot.define do
 
   factory :point_of_sale do
     name { 'ABC' }
-    code { 1 }
     branch_office factory: :branch_office
   end
 

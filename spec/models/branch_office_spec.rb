@@ -61,9 +61,10 @@ RSpec.describe BranchOffice, type: :model do
     context 'validates uniqueness per company' do
       context 'with duplicated number' do
         before { create(:branch_office) }
-        let(:branch_office) { build(:branch_office, company_id: 1) }
+        let(:branch_office) { build(:branch_office) }
 
         it 'is invalid when number is duplicated' do
+          branch_office.company_id = Company.first.id
           expect(branch_office).to_not be_valid
           expect(branch_office.errors[:number]).to eq ['el numero de sucursal no puede duplicarse en una empresa.']
         end
@@ -149,12 +150,20 @@ RSpec.describe BranchOffice, type: :model do
     it { expect(subject).to have_many(:point_of_sales).dependent(:destroy) }
 
     describe 'when deleting a branch office' do
-      let(:branch_office) { create(:branch_office) }
-      before { create(:point_of_sale, branch_office: branch_office) }
+      before { create(:branch_office, company: company) }
 
       it 'destroys the daily code' do
-        expect { branch_office.destroy }.to change { PointOfSale.count }.by(-1)
+        expect { BranchOffice.last.destroy }.to change { PointOfSale.count }.by(-1)
       end
+    end
+  end
+
+  describe 'after create branch office' do
+    before { create(:branch_office, company: company) }
+
+    it 'has a point of sale with code 0' do
+      point_of_sale = BranchOffice.last.point_of_sales.last
+      expect(point_of_sale.code).to eq 0
     end
   end
 end

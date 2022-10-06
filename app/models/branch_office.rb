@@ -13,6 +13,8 @@ class BranchOffice < ApplicationRecord
   has_many :point_of_sales, dependent: :destroy
   has_many :contingencies, through: :point_of_sales
 
+  after_create :add_point_of_sale
+
   def add_cuis_code!(code, expiration_date, point_of_sale)
     return if cuis_codes.find_by(code: code).present?
 
@@ -27,5 +29,15 @@ class BranchOffice < ApplicationRecord
 
   def create_contingency
     contingencies.create(start_date: DateTime.now, significative_event_id: 2)
+  end
+
+  def add_point_of_sales!(pos_list)
+    point_of_sales.upsert_all(pos_list, unique_by: %i[branch_office_id code])
+  end
+
+  private
+
+  def add_point_of_sale
+    point_of_sales.create(name: 'POS-0', code: 0)
   end
 end
