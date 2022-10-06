@@ -76,6 +76,8 @@ module Api
       def update_settings
         @settings = @company.company_setting
         @settings.update(setting_params)
+
+        render json: @settings, status: :ok
       end
 
       private
