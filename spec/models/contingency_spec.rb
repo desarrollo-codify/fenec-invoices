@@ -48,4 +48,52 @@ RSpec.describe Contingency, type: :model do
       end
     end
   end
+
+  describe 'pending scope' do
+    before(:each) do
+      @not_pending = Contingency.create!(start_date: '2022-10-2T19:26:40.905', end_date: '2022-10-3T19:26:40.905',
+                                         significative_event: significative_event, point_of_sale: point_of_sale)
+      @pending = Contingency.create!(start_date: '2022-10-2T19:26:40.905', significative_event: significative_event,
+                                     point_of_sale: point_of_sale)
+    end
+
+    it 'Includes only the expected contingency' do
+      expect(Contingency.pending).to_not include(@not_pending)
+      expect(Contingency.pending).to include(@pending)
+    end
+  end
+
+  describe 'manual scope' do
+    before(:each) do
+      significative_event_not_manual = SignificativeEvent.create!(id: 1, code: 1, description: 'abc')
+      significative_event_manual = SignificativeEvent.create!(id: 5, code: 5, description: 'abc')
+
+      @is_manual = Contingency.create!(start_date: '2022-10-3T19:26:40.905', significative_event: significative_event_manual,
+                                       point_of_sale: point_of_sale)
+      @not_manual = Contingency.create!(start_date: '2022-10-2T19:26:40.905', significative_event: significative_event_not_manual,
+                                        point_of_sale: point_of_sale)
+    end
+
+    it 'Includes only the expected cotingency' do
+      expect(Contingency.manual).to include(@is_manual)
+      expect(Contingency.manual).to_not include(@not_manual)
+    end
+  end
+
+  describe 'automatic scope' do
+    before(:each) do
+      significative_event_not_automatic = SignificativeEvent.create!(id: 5, code: 5, description: 'abc')
+      significative_event_automatic = SignificativeEvent.create!(id: 1, code: 1, description: 'abc')
+
+      @is_automatic = Contingency.create!(start_date: '2022-10-3T19:26:40.905', significative_event: significative_event_automatic,
+                                          point_of_sale: point_of_sale)
+      @not_automatic = Contingency.create!(start_date: '2022-10-2T19:26:40.905',
+                                           significative_event: significative_event_not_automatic, point_of_sale: point_of_sale)
+    end
+
+    it 'Includes only the expected cotingency' do
+      expect(Contingency.automatic).to_not include(@not_automatic)
+      expect(Contingency.automatic).to include(@is_automatic)
+    end
+  end
 end
