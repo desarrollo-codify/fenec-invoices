@@ -171,6 +171,9 @@ FactoryBot.define do
     domain { 'example.com' }
     user_name { 'example@example.com' }
     password { 'passwords' }
+    api_key { '123456' }
+    system_code { '2' }
+    company factory: :company
   end
 
   factory :significative_event do
