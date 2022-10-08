@@ -34,6 +34,7 @@ RSpec.describe InvoiceMailer, type: :mailer do
         )
       }
     end
+
     xml_path = "#{Rails.root}/public/tmp/mails/abc123.xml"
     pdf_path = "#{Rails.root}/public/tmp/mails/abc123.pdf"
     File.write(xml_path, 'hola')

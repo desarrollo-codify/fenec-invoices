@@ -68,11 +68,11 @@ RSpec.describe DailyCode, type: :model do
     before(:each) do
       company = Company.create!(name: 'Abc123', nit: '123456', address: 'Av. Santa Cruz')
       branch_office = BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz de la Sierra', company: company)
-      branch_office_2 = BranchOffice.create!(name: 'Sucursal 2', number: 2, city: 'Santa Cruz de la Sierra', company: company)
+      branch_office2 = BranchOffice.create!(name: 'Sucursal 2', number: 2, city: 'Santa Cruz de la Sierra', company: company)
       @current = DailyCode.create!(code: 'ABC123', effective_date: DateTime.now, end_date: DateTime.now + 1.hour,
                                    branch_office: branch_office)
       @not_current = DailyCode.create!(code: 'ABC123', effective_date: DateTime.now - 2.hour, end_date: DateTime.now - 1.hour,
-                                       branch_office: branch_office_2)
+                                       branch_office: branch_office2)
     end
 
     it 'Includes only the expected daily code' do
@@ -86,11 +86,11 @@ RSpec.describe DailyCode, type: :model do
       @date = DateTime.now + 1.hour
       company = Company.create!(name: 'Abc4321', nit: '123456', address: 'Av. Santa Cruz')
       branch_office = BranchOffice.create!(name: 'Sucursal 1', number: 1, city: 'Santa Cruz de la Sierra', company: company)
-      branch_office_2 = BranchOffice.create!(name: 'Sucursal 2', number: 2, city: 'Santa Cruz de la Sierra', company: company)
+      branch_office2 = BranchOffice.create!(name: 'Sucursal 2', number: 2, city: 'Santa Cruz de la Sierra', company: company)
       @non_by_date = DailyCode.create!(code: 'ABC123', effective_date: DateTime.now - 3.hour, end_date: DateTime.now - 2.hour,
                                        branch_office: branch_office)
       @by_date = DailyCode.create!(code: 'ABC123', effective_date: DateTime.now, end_date: DateTime.now + 10.hour,
-                                   branch_office: branch_office_2)
+                                   branch_office: branch_office2)
     end
 
     it 'Includes only the expected daily code' do

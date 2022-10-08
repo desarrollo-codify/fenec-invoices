@@ -24,6 +24,9 @@ Metrics/PerceivedComplexity:
 Metrics/CyclomaticComplexity:
   Max: 25
 
+Style/OpenStructUse:
+  Enabled: false
+
 AllCops:
   NewCops: enable
   Exclude:

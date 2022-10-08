@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'siat_available'
 
 RSpec.describe '/api/v1/invoices', type: :request do
   let(:invalid_attributes) do
@@ -64,6 +65,20 @@ RSpec.describe '/api/v1/invoices', type: :request do
       expect do
         delete api_v1_invoice_url(invoice), headers: valid_headers, as: :json
       end.to change(Invoice, :count).by(-1)
+    end
+  end
+
+  describe 'POST /cancel' do
+    let(:invoice) { create(:invoice) }
+
+    before(:each) do
+      create(:cancellation_reason, code: 2)
+      create(:invoice_status, description: 'Anulado')
+    end
+
+    it 'destroys the requested api_v1_invoice' do
+      post cancel_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
+      expect(invoice.invoice_status_id).to eq(2)
     end
   end
 end

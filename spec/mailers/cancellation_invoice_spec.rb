@@ -41,7 +41,6 @@ RSpec.describe CancellationInvoiceMailer, type: :mailer do
         )
       }
     end
-
     let(:mail) { CancellationInvoiceMailer.with(params).send_invoice }
 
     it 'renders the headers' do

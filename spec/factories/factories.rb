@@ -24,7 +24,7 @@ FactoryBot.define do
   end
 
   factory :document_type do
-    code { '12345' }
+    code { 1 }
     description { 'Abc' }
   end
 
@@ -72,7 +72,7 @@ FactoryBot.define do
   end
 
   factory :invoice_status do
-    description { 'ABC' }
+    description { 'Vigente' }
   end
 
   factory :payment_channel do
