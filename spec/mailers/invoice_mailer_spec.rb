@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe InvoiceMailer, type: :mailer do
   describe 'send_invoice' do
+    # rubocop:disable all
     let(:params) do
       {
         client: OpenStruct.new(
@@ -34,6 +35,7 @@ RSpec.describe InvoiceMailer, type: :mailer do
         )
       }
     end
+    # rubocop:enable all
     xml_path = "#{Rails.root}/public/tmp/mails/abc123.xml"
     pdf_path = "#{Rails.root}/public/tmp/mails/abc123.pdf"
     File.write(xml_path, 'hola')

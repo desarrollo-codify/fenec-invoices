@@ -56,7 +56,7 @@ module Api
         @invoice.business_name = client.name
         @invoice.business_nit = client.nit
         @invoice.complement = client.complement
-        @invoice.document_type = client.document_type_id
+        @invoice.document_type = client.document_type.code
 
         @invoice.date ||= DateTime.now
         @invoice.control_code = daily_code.control_code

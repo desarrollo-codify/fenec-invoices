@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'siat_available'
+require 'verify_nit'
 
 RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :request do
   let(:valid_attributes) do
@@ -13,7 +15,6 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       company_name: 'Codify',
       company_nit: '12345',
       business_name: 'Juan Perez',
-      document_type: 1,
       business_nit: '1234567',
       client_code: '00001',
       payment_method: 1,
@@ -144,6 +145,76 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
              params: { invoice: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
+      end
+    end
+
+    context 'when siat is not available' do
+      before(:each) do
+        allow(SiatAvailable).to receive(:available).and_return(false)
+        allow(VerifyNit).to receive(:verify).with('123456', branch_office).and_return(true)
+      end
+      before { create(:cuis_code, branch_office: branch_office) }
+      before { create(:daily_code, branch_office: branch_office) }
+      before { create(:product, company: branch_office.company) }
+      let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+      before { create(:legend, economic_activity: economic_activity) }
+      before { create(:document_type, code: 2) }
+      before { create(:document_type, code: 3) }
+      before { create(:document_type, code: 4) }
+      let(:document_type) { create(:document_type, code: 5) }
+      before { create(:client, company: branch_office.company, document_type: document_type) }
+      before { create(:invoice_status, description: 'Vigente') }
+      before { create(:invoice_status, description: 'Anulada') }
+      before { create(:measurement) }
+
+      it 'works' do
+        post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
+             params: { invoice: valid_attributes }, headers: valid_headers, as: :json
+        expect(Invoice.first.exception_code).to eq(1)
+      end
+    end
+
+    context 'when siat is available' do
+      before(:each) do
+        allow(SiatAvailable).to receive(:available).and_return(true)
+      end
+
+      before { create(:cuis_code, branch_office: branch_office) }
+      before { create(:daily_code, branch_office: branch_office) }
+      before { create(:product, company: branch_office.company) }
+      let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+      before { create(:legend, economic_activity: economic_activity) }
+      before { create(:document_type, code: 2) }
+      before { create(:document_type, code: 3) }
+      before { create(:document_type, code: 4) }
+      let(:document_type) { create(:document_type, code: 5) }
+      before { create(:client, company: branch_office.company, document_type: document_type, nit: '123') }
+      before { create(:invoice_status, description: 'Vigente') }
+      before { create(:invoice_status, description: 'Anulada') }
+      before { create(:measurement) }
+
+      context 'nit is invalid' do
+        before(:each) do
+          allow(VerifyNit).to receive(:verify).with('123', branch_office).and_return(false)
+        end
+
+        it 'works' do
+          post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
+               params: { invoice: valid_attributes }, headers: valid_headers, as: :json
+          expect(Invoice.first.exception_code).to eq(1)
+        end
+      end
+
+      context 'nit is valid' do
+        before(:each) do
+          allow(VerifyNit).to receive(:verify).with('123', branch_office).and_return(true)
+        end
+
+        it 'works' do
+          post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
+               params: { invoice: valid_attributes }, headers: valid_headers, as: :json
+          expect(Invoice.first.exception_code).to be_nil
+        end
       end
     end
   end
