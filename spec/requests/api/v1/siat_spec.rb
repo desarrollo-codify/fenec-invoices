@@ -2,7 +2,17 @@
 
 require 'rails_helper'
 
+# require the helper module
+require "savon/mock/spec_helper"
+
 RSpec.describe 'Api::V1::Siats', type: :request do
+  # include the helper module
+  include Savon::SpecHelper
+
+  # set Savon in and out of mock mode
+  before(:all) { savon.mock!   }
+  after(:all)  { savon.unmock! }
+
   # describe 'POST /generate_cuis' do
   #   let(:branch_office) { create(:branch_office) }
 
@@ -10,7 +20,21 @@ RSpec.describe 'Api::V1::Siats', type: :request do
   #     post api_v1_branch_office_siat_generate_cuis_url(branch_office_id: branch_office.id)
   #     expect(response).to have_http_status(:success)
   #   end
+
+  #   context 'generate cuis' do
+  #     it 'response of generate cuis' do
+  #       fixture = true
+  
+  #       savon.expects(:generate_cuis).returns(fixture)
+  
+  #       service = SiatController.new
+  #       response = service.generate_cuis
+  
+  #       expect(response).to be_successful
+  #     end
+  #   end
   # end
+
 
   describe 'GET /show_cuis' do
     let(:branch_office) { create(:branch_office) }

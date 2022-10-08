@@ -74,29 +74,9 @@ module Api
         @invoice.card_number = nil
 
         if [2, 10, 18, 40, 43].include? @invoice.payment_method
-          unless @invoice.card_paid.positive?
-            return render json: 'No se ha insertado el monto del pago por tarjeta.',
-                          status: :unprocessable_entity
-          end
-
           card_number = invoice_params[:card_number]
           card_number = "#{card_number[0, 4]}00000000#{card_number[card_number.length - 4, 4]}"
           @invoice.card_number = card_number
-        end
-
-        if ([7, 13, 18, 64, 67].include? @invoice.payment_method) && @invoice.qr_paid.zero?
-          return render json: 'No se ha insertado el monto del pago por transferencia bancaria.',
-                        status: :unprocessable_entity
-        end
-
-        if ([33, 38, 43, 67, 78].include? @invoice.payment_method) && @invoice.online_paid.zero?
-          return render json: 'No se ha insertado el monto del pago online.',
-                        status: :unprocessable_entity
-        end
-
-        if ([27, 35, 40, 64, 78].include? @invoice.payment_method) && @invoice.gift_card_total.zero?
-          return render json: 'No se ha insertado el monto del pago por Gift Card.',
-                        status: :unprocessable_entity
         end
 
         @invoice.invoice_details.each do |detail|
@@ -112,6 +92,7 @@ module Api
             @invoice.exception_code = nil
           end
         end
+        
         unless @invoice.valid?
           render json: { message: @invoice.errors.first }, status: :unprocessable_entity
           return
