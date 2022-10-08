@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe CancellationInvoiceMailer, type: :mailer do
   describe 'send_invoice' do
-    # rubocop:disable all
     let(:params) do
       {
         client: OpenStruct.new(
@@ -42,7 +41,6 @@ RSpec.describe CancellationInvoiceMailer, type: :mailer do
         )
       }
     end
-    # rubocop:enable all
     let(:mail) { CancellationInvoiceMailer.with(params).send_invoice }
 
     it 'renders the headers' do
