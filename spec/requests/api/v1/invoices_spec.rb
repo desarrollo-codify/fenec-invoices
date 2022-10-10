@@ -83,59 +83,26 @@ RSpec.describe '/api/v1/invoices', type: :request do
   end
 
   describe 'POST /resend' do
-    let(:invoice) { create(:invoice) }
+    let(:branch_office) { create(:branch_office) }
+    before { create(:cuis_code, branch_office: branch_office) }
+    before { create(:daily_code, branch_office: branch_office) }
+    let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+    before { create(:legend, economic_activity: economic_activity) }
+    before { create(:measurement) }
+    before { create(:product, company: branch_office.company) }
+    before { create(:invoice_status) }
+    before { create(:client, company: branch_office.company) }
+    before { create(:company_setting, company: branch_office.company)}
+    let(:invoice) { create(:invoice, branch_office: branch_office, client_code: '00001') }
 
-    let(:params) do
-      {
-        client: OpenStruct.new(
-          {
-            code: '055',
-            email: 'carlos.gutierrez@codify.com.bo'
-          }
-        ),
-        invoice: OpenStruct.new(
-          {
-            business_name: 'Codify',
-            business_nit: 123_456,
-            number: 1,
-            total: 100,
-            date: '2022-08-26 16:00:00'.to_datetime,
-            cuf: 'abc123',
-            emailed_at: ''
-          }
-        ),
-        sender: OpenStruct.new(
-          {
-            user_name: 'carlos.gutierrez@codify.com.bo',
-            password: 'password',
-            domain: 'codify.com.bo',
-            port: 465,
-            address: 'codify.com.bo'
-          }
-        )
-      }
-    end
-
-    let(:mail) { InvoiceMailer.with(params).send_invoice }
+    xml_path = "#{Rails.root}/public/tmp/mails/abc.xml"
+    pdf_path = "#{Rails.root}/public/tmp/mails/abc.pdf"
+    File.write(xml_path, 'hola')
+    File.write(pdf_path, '')
 
     it 'resend the requested api_v1_invoice' do
       post resend_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
-      xml_path = "#{Rails.root}/public/tmp/mails/abc123.xml"
-      pdf_path = "#{Rails.root}/public/tmp/mails/abc123.pdf"
-      File.write(xml_path, 'hola')
-      File.write(pdf_path, '')
-
       expect(response).to have_http_status(:ok)
     end
-
-    it 'renders the headers to invoices' do
-      expect(mail.subject).to eq('Factura')
-      expect(mail.to).to eq(['carlos.gutierrez@codify.com.bo'])
-      expect(mail.from).to eq(['carlos.gutierrez@codify.com.bo'])
-    end
-    # TODO: Verify spect mailer
-    # it ' mail ' do
-    #   expect_mailer_call(InvoiceMailer, :send_invoice)
-    # end
   end
 end
