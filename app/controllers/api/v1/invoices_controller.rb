@@ -92,7 +92,7 @@ module Api
             @invoice.exception_code = nil
           end
         end
-        
+
         unless @invoice.valid?
           render json: { message: @invoice.errors.first }, status: :unprocessable_entity
           return
@@ -148,6 +148,7 @@ module Api
         rescue StandardError => e
           p e.message
         end
+        render json: "La factura #{@invoice.number} fue reenviada."
       end
 
       private

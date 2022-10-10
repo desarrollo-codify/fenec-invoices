@@ -1318,7 +1318,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         end
       end
     end
-    
+
     context 'when method paid is card paid' do
       before { create(:cuis_code, branch_office: branch_office) }
       before { create(:daily_code, branch_office: branch_office) }
@@ -1328,7 +1328,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
       before { create(:client, company: branch_office.company) }
-      
+
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1350,7 +1350,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_cash_and_card_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1366,7 +1366,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_card_and_qr_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1382,7 +1382,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_card_and_gift_card_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1398,7 +1398,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_card_and_online_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1417,7 +1417,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
       before { create(:client, company: branch_office.company) }
-      
+
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1439,7 +1439,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_qr_and_cash_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1455,7 +1455,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_qr_and_gift_card_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1471,7 +1471,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_qr_and_online_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1490,7 +1490,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
       before { create(:client, company: branch_office.company) }
-      
+
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1512,7 +1512,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_online_and_cash_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1528,7 +1528,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_online_and_cash_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1547,7 +1547,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
       before { create(:client, company: branch_office.company) }
-      
+
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1569,7 +1569,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
                  params: { invoice: valid_attributes_gift_card_and_cash_paid }, as: :json
           end.to change(Invoice, :count).by(1)
         end
-  
+
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1577,6 +1577,18 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
           end.to change(Invoice, :count).by(0)
         end
       end
+    end
+  end
+
+  describe 'GET /pending' do
+    let(:branch_office) { create(:branch_office) }
+
+    it 'renders a successful response' do
+      create(:invoice, branch_office: branch_office)
+      create(:invoice, branch_office: branch_office, number: 4, sent_at: '2022-10-10')
+      get pending_api_v1_branch_office_invoices_url(branch_office_id: branch_office.id), headers: valid_headers, as: :json
+      expect(response).to be_successful
+      expect(Invoice.for_sending.count).to eq(1)
     end
   end
 end
