@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'point_of_sale'
 
 RSpec.describe '/point_of_sales', type: :request do
   let(:invalid_attributes) do
@@ -57,11 +58,28 @@ RSpec.describe '/point_of_sales', type: :request do
   end
 
   describe 'DELETE /destroy' do
-    it 'destroys the requested point_of_sale' do
-      point_of_sale = create(:point_of_sale)
-      expect do
-        delete api_v1_point_of_sale_url(point_of_sale)
-      end.to change(PointOfSale, :count).by(-1)
+    context 'with siat transaction true' do
+      before(:each) do
+        allow(PointOfSale).to receive(:destroy).and_return(true)
+      end
+      it 'destroys the requested point_of_sale' do
+        point_of_sale = create(:point_of_sale)
+        expect do
+          delete api_v1_point_of_sale_url(point_of_sale)
+        end.to change(PointOfSale, :count).by(-1)
+      end
+    end
+
+    context 'with siat transaction false' do
+      before(:each) do
+        allow(PointOfSale).to receive(:destroy).and_return(false)
+      end
+      it 'destroys the requested point_of_sale' do
+        point_of_sale = create(:point_of_sale)
+        expect do
+          delete api_v1_point_of_sale_url(point_of_sale)
+        end.to change(PointOfSale, :count).by(0)
+      end
     end
   end
 end

@@ -92,7 +92,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
     before { create(:product, company: branch_office.company) }
     before { create(:invoice_status) }
     before { create(:client, company: branch_office.company) }
-    before { create(:company_setting, company: branch_office.company)}
+    before { create(:company_setting, company: branch_office.company) }
     let(:invoice) { create(:invoice, branch_office: branch_office, client_code: '00001') }
 
     xml_path = "#{Rails.root}/public/tmp/mails/abc.xml"
