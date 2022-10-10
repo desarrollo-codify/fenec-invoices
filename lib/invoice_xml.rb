@@ -38,7 +38,7 @@ class InvoiceXml
           xml.numeroTarjeta invoice.card_number if invoice.card_number
 
           xml.montoTotal invoice.total
-          xml.montoTotalSujetoIva invoice.total # TODO: check for not IVA
+          xml.montoTotalSujetoIva invoice.total
           xml.codigoMoneda invoice.currency_code
           xml.tipoCambio invoice.exchange_rate
           xml.montoTotalMoneda invoice.currency_total

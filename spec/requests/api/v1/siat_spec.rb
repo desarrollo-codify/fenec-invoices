@@ -1,18 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
-# require the helper module
 require "savon/mock/spec_helper"
 
-RSpec.describe 'Api::V1::Siats', type: :request do
-  # include the helper module
+RSpec.describe 'Api::V1::Siat', type: :request do
   include Savon::SpecHelper
 
-  # set Savon in and out of mock mode
   before(:all) { savon.mock!   }
   after(:all)  { savon.unmock! }
-
   # describe 'POST /generate_cuis' do
   #   let(:branch_office) { create(:branch_office) }
 
@@ -65,6 +60,23 @@ RSpec.describe 'Api::V1::Siats', type: :request do
     end
   end
 
+  describe 'POST /significative_events' do
+    let(:branch_office) { create(:branch_office) }
+    before { create(:cuis_code, branch_office: branch_office) }
+    before { create(:company_setting, company: branch_office.company )}
+
+    it 'returns http success' do
+      message = { SolicitudSincronizacion: {codigoAmbiente: 2, codigoSistema: '2', nit: 123, cuis: "ABC", codigoSucursal: 1} }
+      savon.expects(:sincronizar_parametrica_eventos_significativos).with(message: message).returns([])
+
+      post api_v1_branch_office_siat_significative_events_url(branch_office_id: branch_office.id)
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'bulk insert records' do
+
+    end
+  end
   # describe 'POST /siat_product_codes' do
   #   it 'returns http success' do
   #     get '/api/v1/siat/siat_codes'
