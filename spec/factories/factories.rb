@@ -103,6 +103,7 @@ FactoryBot.define do
     total { 1 }
     amount_payable { 1 }
     document_sector_code { 1 }
+    point_of_sale { 0 }
     legend { 'legend' }
     user { 'jperez' }
     branch_office factory: :branch_office
