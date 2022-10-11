@@ -24,7 +24,6 @@ module Api
             codigoSucursal: @branch_office.number
           }
         }
-
         response = client.call(:cuis, message: body)
         if response.success?
           data = response.to_array(:cuis_response, :respuesta_cuis).first

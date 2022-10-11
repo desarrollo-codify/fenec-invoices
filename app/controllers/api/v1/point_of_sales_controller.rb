@@ -22,20 +22,14 @@ module Api
       # POST /api/v1/branch_offices/:branch_office_id/point_of_sales
       def create
         @point_of_sale = @branch_office.point_of_sales.build(point_of_sale_params)
-        if Rails.env.development? || Rails.env.production?
-          transaction = PointOfSale.add(@point_of_sale) # TODO: Mock this in rspec and remove if statement
-          if @point_of_sale.save && transaction
-            render json: @point_of_sale, status: :created
-          else
-            unless transaction
-              @point_of_sale.errors.add('No se pudo crear el punto de venta en el SIAT, verifique sus datos e intente nuevamente.')
-            end
-            render json: @point_of_sale.errors, status: :unprocessable_entity
-          end
-        elsif @point_of_sale.save
+        transaction = PointOfSale.add(@point_of_sale)
+        if transaction && @point_of_sale.save
           render json: @point_of_sale, status: :created
         else
-          render json: @point_of_sale.errors, status: :unprocessable_entity
+          return render json: @point_of_sale.errors, status: :unprocessable_entity if transaction
+
+          render json: 'No se pudo crear el punto de venta en el SIAT, verifique sus datos e intente nuevamente.',
+                 status: :unprocessable_entity
         end
       end
 
@@ -50,16 +44,13 @@ module Api
 
       # DELETE /api/v1/point_of_sales/1
       def destroy
-        if Rails.env.development? || Rails.env.production?
-          transaction = PointOfSale.destroy(@point_of_sale)
-          if transaction
-            @point_of_sale.destroy
-            render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}."
-          else
-            render json: 'No se ha podido eliminar el punto de venta, verifique sus datos e intente nuevamente.'
-          end
-        else
+        transaction = PointOfSale.destroy(@point_of_sale)
+        if transaction
           @point_of_sale.destroy
+          render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}."
+        else
+          render json: 'No se ha podido eliminar el punto de venta, verifique sus datos e intente nuevamente.',
+                 status: :unprocessable_entity
         end
       end
 
