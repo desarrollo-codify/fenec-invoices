@@ -7,7 +7,7 @@ class CuisCode < ApplicationRecord
   validates :current_number, presence: true
 
   belongs_to :branch_office
-  
+
   after_initialize :default_values
 
   scope :active, -> { where('expiration_date >= ?', DateTime.now) }

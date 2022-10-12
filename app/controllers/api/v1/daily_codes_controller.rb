@@ -20,8 +20,7 @@ module Api
 
       # GET /api/v1/branch_offices/:branch_office_id/current_code
       def current
-        @daily_code = @branch_office.daily_codes.by_pos(params[:point_of_sale]).current
-        debugger
+        @daily_code = @branch_office.daily_codes.by_pos(params[:pint]).current
         if @daily_code.present?
           render json: @daily_code
         else
