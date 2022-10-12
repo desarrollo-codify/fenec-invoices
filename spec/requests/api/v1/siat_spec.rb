@@ -35,7 +35,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
     before { create(:cuis_code, branch_office: branch_office) }
 
     it 'returns http success' do
-      get api_v1_branch_office_siat_show_cuis_url(branch_office_id: branch_office.id)
+      get api_v1_branch_office_siat_show_cuis_url(branch_office_id: branch_office.id, point_of_sale: 0)
       expect(response).to have_http_status(:success)
     end
   end
