@@ -9,8 +9,13 @@ class DailyCode < ApplicationRecord
 
   belongs_to :branch_office
 
-  scope :current, -> { where('end_date >= ?', DateTime.now) }
+  scope :active, -> { where('end_date >= ?', DateTime.now) }
   scope :by_date, ->(date) { where('? BETWEEN effective_date AND end_date ', date.to_datetime) }
+  scope :by_pos, ->(point_of_sale) { where(point_of_sale: point_of_sale) }
+
+  def self.current
+    active.last
+  end
 
   private
 

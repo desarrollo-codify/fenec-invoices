@@ -14,7 +14,7 @@ module Api
 
       # GET /api/v1/branch_offices/:branch_office_id/current
       def current
-        @cuis_code = @branch_office.cuis_codes.where(point_of_sale: params[:point_of_sale]).current
+        @cuis_code = @branch_office.cuis_codes.by_pos(params[:point_of_sale]).current
         if @cuis_code.present?
           render json: @cuis_code
         else
