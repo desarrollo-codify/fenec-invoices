@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateContingencyLogs < ActiveRecord::Migration[7.0]
   def change
     create_table :contingency_logs do |t|

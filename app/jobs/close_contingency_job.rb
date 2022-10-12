@@ -3,6 +3,7 @@
 class CloseContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
+  require 'invoice_status'
 
   def perform(contingency)
     contingency.close!
@@ -166,29 +167,23 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
-    if response.success?
-      data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
-      status_code = data[:codigo_estado]
-      description = data[:codigo_descripcion]
-      contingency.update(status: description)
-      # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
-      debugger
-      if status_code == '904'
-        debugger
-        errors_list = data[:mensajes_list]
-        errors_list.each do |error|
-          number = error[:numero_archivo]
-          code = error[:codigo]
-          description = error[:descripcion]
-          @pending_invoices[number.to_i].invoice_logs.create(code: code, description: description)
-          @pending_invoices[number.to_i].update(process_status: 'OBSERVADA')
-          debugger
-        end
+    return unless response.success?
+
+    data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
+    status_code = data[:codigo_estado]
+    description = data[:codigo_descripcion]
+    contingency.update(status: description)
+    # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
+    if status_code == '904'
+      errors_list = data[:mensajes_list]
+      errors_list.each do |error|
+        code = error[:codigo]
+        description = error[:descripcion]
+        contingency.contingency_logs.create(code: code, description: description)
       end
-      @pending_invoices.where(process_status: nil).update_all(process_status: 'ENVIADA', sent_at: DateTime.now) unless status_code == '902'
-      debugger
-    else
-      'Communication error'
+    end
+    @pending_invoices.each do |invoice|
+      InvoiceStatus.status(invoice)
     end
   end
 

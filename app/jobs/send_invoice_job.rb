@@ -42,8 +42,6 @@ class SendInvoiceJob < ApplicationJob
     }
     response = client.call(:recepcion_factura, message: body)
     data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-    p data
-
     update_invoice(invoice) if data[:codigo_estado] == '908'
   end
 
@@ -64,6 +62,6 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def update_invoice(invoice)
-    invoice.update(sent_at: DateTime.now)
+    invoice.update(sent_at: DateTime.now, process_status: 'VALIDA')
   end
 end

@@ -1,17 +1,10 @@
-class InvoiceStatusJob < ApplicationJob
-  queue_as :default
+# frozen_string_literal: true
 
-  def perform(invoices)
-    invoices.each do |invoice|
-      debugger
-      send_contingency(invoice)
-    end
-  end
-
-  def send_contingency(invoice)
+class InvoiceStatus
+  def self.status(invoice)
     branch_office = invoice.branch_office
-    cufd_code = branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current.code
-    cuis_code = branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current.code
+    cufd_code = branch_office.daily_codes.by_pos(invoice.point_of_sale).current.code
+    cuis_code = branch_office.cuis_codes.by_pos(invoice.point_of_sale).current.code
 
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
@@ -31,6 +24,7 @@ class InvoiceStatusJob < ApplicationJob
         nit: branch_office.company.nit.to_i,
         codigoDocumentoSector: invoice.document_sector_code,
         codigoEmision: 1,
+        codigoModalidad: 2,
         cufd: cufd_code,
         cuis: cuis_code,
         tipoFacturaDocumento: 1,
@@ -38,15 +32,13 @@ class InvoiceStatusJob < ApplicationJob
       }
     }
     response = client.call(:verificacion_estado_factura, message: body)
-    debugger
     return unless response.success?
 
     data = response.to_array(:verificacion_estado_factura_response, :respuesta_servicio_facturacion).first
 
     description = data[:codigo_descripcion]
     code = data[:codigo_estado]
-
-    invoice.update(process_status: description)
+    invoice.update(process_status: description, sent_at: DateTime.now)
     invoice.invoice_logs.create(code: code, description: description)
   end
 end

@@ -65,7 +65,6 @@ class Invoice < ApplicationRecord
     self.business_nit ||= '0'
   end
 
-    
   def discount_cannot_be_greater_or_equal_than_subtotal
     errors.add(:discount, 'Descuento no puede ser mayor al subtotal.') if discount && subtotal && discount >= subtotal
   end
