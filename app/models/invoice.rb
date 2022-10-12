@@ -35,7 +35,9 @@ class Invoice < ApplicationRecord
 
   belongs_to :branch_office
   belongs_to :invoice_status
+  belongs_to :contingency, optional: true
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
+  has_many :invoice_logs, dependent: :destroy
   has_one :cancellation_reason
   has_and_belongs_to_many :payment_methods
   accepts_nested_attributes_for :invoice_details, reject_if: :all_blank
@@ -47,18 +49,6 @@ class Invoice < ApplicationRecord
   scope :by_point_of_sale, ->(pos) { where(point_of_sale: pos) }
 
   after_initialize :default_values
-
-  def validate!
-    # - valid CUIS?
-    # - valid CUFD?
-    # - Are there economic activities for the branch office?
-    # - Is there a product for each invoice detail?
-    # - Are there document types?
-    # - Are there measurements?
-    # - Are there invoice statuses?
-    # - Are there payment methods?
-    # - Are there legends for the economic activity?
-  end
 
   private
 
@@ -75,6 +65,7 @@ class Invoice < ApplicationRecord
     self.business_nit ||= '0'
   end
 
+    
   def discount_cannot_be_greater_or_equal_than_subtotal
     errors.add(:discount, 'Descuento no puede ser mayor al subtotal.') if discount && subtotal && discount >= subtotal
   end

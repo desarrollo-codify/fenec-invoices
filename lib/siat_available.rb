@@ -19,7 +19,7 @@ class SiatAvailable
     else
       data = { return: 'Communication error' }
     end
-    data == '926'
+    data == '927'
   rescue StandardError => e
     if e.message.include?('TCP connection') && invoice.branch_office.contingencies.pending.none? && contingency == true
       create_contingency(invoice, 1)

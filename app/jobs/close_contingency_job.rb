@@ -13,24 +13,23 @@ class CloseContingencyJob < ApplicationJob
                else
                  contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: false)
                end
-    pending_invoices = invoices.by_cufd(contingency.cufd_code)
+    @pending_invoices = invoices.by_cufd(contingency.cufd_code)
 
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes
-                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+                              .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
     current_cufd = contingency.point_of_sale.branch_office.daily_codes
-                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+                              .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
 
-    return if pending_invoices.empty?
+    return if @pending_invoices.empty?
 
-    event_cufd = pending_invoices.first.cufd_code
+    event_cufd = @pending_invoices.first.cufd_code
     send_contingency(contingency, event_cufd, current_cuis, current_cufd)
-    send_package(pending_invoices, contingency, current_cuis, current_cufd)
-    pending_invoices.each do |invoice|
-      invoice.update(sent_at: DateTime.now)
+    send_package(@pending_invoices, contingency, current_cuis, current_cufd)
+    @pending_invoices.each do |invoice|
       filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
       File.delete(filename)
     end
-    reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
+    reception_validation(@pending_invoices, contingency, current_cuis, current_cufd)
 
     SendCancelInvoicesJob.perform_later(contingency)
   end
@@ -130,7 +129,6 @@ class CloseContingencyJob < ApplicationJob
 
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
-
       code = data[:codigo_recepcion]
       contingency.update(reception_code: code)
     else
@@ -168,11 +166,27 @@ class CloseContingencyJob < ApplicationJob
       }
     }
     response = client.call(:validacion_recepcion_paquete_factura, message: body)
-
     if response.success?
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
+      status_code = data[:codigo_estado]
       description = data[:codigo_descripcion]
       contingency.update(status: description)
+      # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
+      debugger
+      if status_code == '904'
+        debugger
+        errors_list = data[:mensajes_list]
+        errors_list.each do |error|
+          number = error[:numero_archivo]
+          code = error[:codigo]
+          description = error[:descripcion]
+          @pending_invoices[number.to_i].invoice_logs.create(code: code, description: description)
+          @pending_invoices[number.to_i].update(process_status: 'OBSERVADA')
+          debugger
+        end
+      end
+      @pending_invoices.where(process_status: nil).update_all(process_status: 'ENVIADA', sent_at: DateTime.now) unless status_code == '902'
+      debugger
     else
       'Communication error'
     end

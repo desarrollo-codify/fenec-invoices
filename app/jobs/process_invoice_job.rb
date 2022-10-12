@@ -21,7 +21,7 @@ class ProcessInvoiceJob < ApplicationJob
     end
     process_pending_data(invoice, point_of_sale, is_siat_available, economic_activity)
     generate_invoice_documents(invoice)
-    send_mail(invoice)
+    # send_mail(invoice)
 
     return if invoice.is_manual
 
