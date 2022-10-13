@@ -1,7 +1,15 @@
 # frozen_string_literal: true
 
-class InvoiceStatus
-  def self.status(invoice)
+class InvoiceStatusJob < ApplicationJob
+  queue_as :default
+
+  def perform(invoices)
+    invoices.each do |invoice|
+      send_invoice(invoice)
+    end
+  end
+
+  def send_invoice(invoice)
     branch_office = invoice.branch_office
     cufd_code = branch_office.daily_codes.by_pos(invoice.point_of_sale).current.code
     cuis_code = branch_office.cuis_codes.by_pos(invoice.point_of_sale).current.code

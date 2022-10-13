@@ -230,4 +230,16 @@ FactoryBot.define do
   factory :page_size do
     description { 'Roll' }
   end
+
+  factory :invoice_log do
+    code { 123 }
+    description { 'ABC' }
+    invoice factory: :invoice
+  end
+
+  factory :contingency_log do
+    code { 123 }
+    description { 'ABC' }
+    contingency factory: :contingency
+  end
 end
