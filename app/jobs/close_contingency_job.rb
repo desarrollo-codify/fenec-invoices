@@ -10,11 +10,12 @@ class CloseContingencyJob < ApplicationJob
 
     @pending_invoices = invoices.by_cufd(contingency.cufd_code)
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes
-    .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
+                              .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
     current_cufd = contingency.point_of_sale.branch_office.daily_codes
-    .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
-    
+                              .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
+
     return if @pending_invoices.empty?
+
     @pending_invoices.update_all(contingency_id: contingency.id)
     event_cufd = @pending_invoices.first.cufd_code
     send_contingency(contingency, event_cufd, current_cuis, current_cufd) unless contingency.event_reception_code.present?
@@ -189,13 +190,13 @@ class CloseContingencyJob < ApplicationJob
   def find_invoices(contingency)
     invoices = contingency.invoices
     return invoices if invoices.present?
+
     point_of_sale = contingency.point_of_sale.code
     if contingency.manual_type?
-      invoices = contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: true)
+      contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: true)
     else
-      invoices = contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: false)
+      contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: false)
     end
-    invoices
   end
 
   BLOCKSIZE_TO_READ = 1024 * 1000
