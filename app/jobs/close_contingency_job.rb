@@ -6,31 +6,22 @@ class CloseContingencyJob < ApplicationJob
 
   def perform(contingency)
     contingency.close!
+    invoices = find_invoices(contingency)
 
-    point_of_sale = contingency.point_of_sale.code
-    invoices = if contingency.manual_type?
-                 contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: true)
-               else
-                 contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: false)
-               end
-    pending_invoices = invoices.by_cufd(contingency.cufd_code)
-
+    @pending_invoices = invoices.by_cufd(contingency.cufd_code)
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes
-                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+                              .by_pos(@pending_invoices.last.point_of_sale).current.code
     current_cufd = contingency.point_of_sale.branch_office.daily_codes
-                              .where(point_of_sale: pending_invoices.last.point_of_sale).current.code
+                              .by_pos(@pending_invoices.last.point_of_sale).current.code
 
-    return if pending_invoices.empty?
+    return if @pending_invoices.empty?
 
-    event_cufd = pending_invoices.first.cufd_code
-    send_contingency(contingency, event_cufd, current_cuis, current_cufd)
-    send_package(pending_invoices, contingency, current_cuis, current_cufd)
-    pending_invoices.each do |invoice|
-      invoice.update(sent_at: DateTime.now)
-      filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
-      File.delete(filename)
-    end
-    reception_validation(pending_invoices, contingency, current_cuis, current_cufd)
+    @pending_invoices.update_all(contingency_id: contingency.id)
+    event_cufd = @pending_invoices.first.cufd_code
+    send_contingency(contingency, event_cufd, current_cuis, current_cufd) unless contingency.event_reception_code.present?
+    send_package(@pending_invoices, contingency, current_cuis, current_cufd) unless contingency.reception_code.present?
+    delete_files(@pending_invoices)
+    reception_validation(@pending_invoices, contingency, current_cuis, current_cufd)
 
     SendCancelInvoicesJob.perform_later(contingency)
   end
@@ -130,7 +121,6 @@ class CloseContingencyJob < ApplicationJob
 
     if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
-
       code = data[:codigo_recepcion]
       contingency.update(reception_code: code)
     else
@@ -167,18 +157,47 @@ class CloseContingencyJob < ApplicationJob
         codigoRecepcion: contingency.reception_code
       }
     }
-    response = client.call(:validacion_recepcion_paquete_factura, message: body)
+    sleep 10
 
-    if response.success?
-      data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
-      description = data[:codigo_descripcion]
-      contingency.update(status: description)
-    else
-      'Communication error'
+    response = client.call(:validacion_recepcion_paquete_factura, message: body)
+    return unless response.success?
+
+    data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
+    status_code = data[:codigo_estado]
+    description = data[:codigo_descripcion]
+    contingency.update(status: description)
+    # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
+    if status_code == '904'
+      errors_list = data[:mensajes_list]
+      errors_list.each do |error|
+        code = error[:codigo]
+        description = error[:descripcion]
+        contingency.contingency_logs.create(code: code, description: description)
+      end
     end
+    InvoiceStatusJob.perform_now(@pending_invoices)
   end
 
   private
+
+  def delete_files(invoices)
+    invoices.each do |invoice|
+      filename = "#{Rails.root}/tmp/invoices/#{invoice.cuf}.xml"
+      FileUtils.rm_f(filename)
+    end
+  end
+
+  def find_invoices(contingency)
+    invoices = contingency.invoices
+    return invoices if invoices.present?
+
+    point_of_sale = contingency.point_of_sale.code
+    if contingency.manual_type?
+      contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: true)
+    else
+      contingency.point_of_sale.branch_office.invoices.by_point_of_sale(point_of_sale).where(is_manual: false)
+    end
+  end
 
   BLOCKSIZE_TO_READ = 1024 * 1000
 
