@@ -8,6 +8,8 @@ module Api
       require 'invoice_xml'
       require 'siat_available'
       require 'verify_nit'
+      require 'process_invoice'
+
       Time.zone = 'La Paz'
 
       # GET /api/v1/invoices
@@ -100,7 +102,7 @@ module Api
 
         if @invoice.save
           point_of_sale = @branch_office.point_of_sales.find_by(code: @invoice.point_of_sale)
-          ProcessInvoiceJob.perform_later(@invoice, point_of_sale, @economic_activity)
+          ProcessInvoice.process(@invoice, point_of_sale, @economic_activity)
 
           render json: @invoice.as_json(only: %i[id total]), status: :created
         else
