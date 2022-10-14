@@ -7,10 +7,10 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :trackable, :validatable
   include DeviseTokenAuth::Concerns::User
 
-  enum role: %i[user admin super_admin]
+  enum role: %i[super_admin admin operator]
   after_initialize :set_default_role, if: :new_record?
 
   def set_default_role
-    self.role ||= :user
+    self.role ||= :operator
   end
 end
