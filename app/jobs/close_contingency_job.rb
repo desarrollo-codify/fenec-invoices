@@ -10,9 +10,9 @@ class CloseContingencyJob < ApplicationJob
 
     @pending_invoices = invoices.by_cufd(contingency.cufd_code)
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes
-                              .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
+                              .by_pos(@pending_invoices.last.point_of_sale).current.code
     current_cufd = contingency.point_of_sale.branch_office.daily_codes
-                              .where(point_of_sale: @pending_invoices.last.point_of_sale).current.code
+                              .by_pos(@pending_invoices.last.point_of_sale).current.code
 
     return if @pending_invoices.empty?
 
