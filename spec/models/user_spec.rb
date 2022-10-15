@@ -8,7 +8,7 @@ RSpec.describe User, type: :model do
       let(:user) { described_class.new }
 
       it 'has default values' do
-        expect(user.role).to eq('user')
+        expect(user.role).to eq('operator')
       end
     end
   end
