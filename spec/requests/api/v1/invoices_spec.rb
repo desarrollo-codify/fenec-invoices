@@ -125,7 +125,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
       allow_any_instance_of(InvoiceStatusJob).to receive(:send_siat).and_return(response)
     end
 
-    it 'verify status the requested api_v1_invoice' do
+    it 'verifies the invoice status at the Siat platform' do
       expect do
         post verify_status_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
       end.to change(invoice.invoice_logs, :count).by(1)
