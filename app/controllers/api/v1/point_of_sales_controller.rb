@@ -47,7 +47,7 @@ module Api
         transaction = PointOfSale.destroy(@point_of_sale)
         if transaction
           @point_of_sale.destroy
-          render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}."
+          render json: "Se ha eliminado correctamente el punto de venta #{@point_of_sale.code}.", status: :no_content
         else
           render json: 'No se ha podido eliminar el punto de venta, verifique sus datos e intente nuevamente.',
                  status: :unprocessable_entity

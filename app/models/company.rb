@@ -15,6 +15,7 @@ class Company < ApplicationRecord
   has_many :economic_activities, dependent: :destroy
   has_many :invoices, through: :branch_offices
   has_one :company_setting, dependent: :destroy
+  has_many :users
 
   after_initialize :default_values
   after_create :add_branch_office_and_pos

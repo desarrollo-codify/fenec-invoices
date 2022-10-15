@@ -27,5 +27,17 @@ RSpec.describe Api::V1::InvoicesController, type: :routing do
     it 'routes to #destroy' do
       expect(delete: '/api/v1/invoices/1').to route_to('api/v1/invoices#destroy', id: '1')
     end
+
+    it 'routes to #resend' do
+      expect(post: '/api/v1/invoices/1/resend').to route_to('api/v1/invoices#resend', id: '1')
+    end
+
+    it 'routes to #cancel' do
+      expect(post: '/api/v1/invoices/1/cancel').to route_to('api/v1/invoices#cancel', id: '1')
+    end
+
+    it 'routes to #verify_status' do
+      expect(post: '/api/v1/invoices/1/verify_status').to route_to('api/v1/invoices#verify_status', id: '1')
+    end
   end
 end

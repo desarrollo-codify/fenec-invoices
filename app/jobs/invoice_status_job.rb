@@ -14,6 +14,17 @@ class InvoiceStatusJob < ApplicationJob
     cufd_code = branch_office.daily_codes.by_pos(invoice.point_of_sale).current.code
     cuis_code = branch_office.cuis_codes.by_pos(invoice.point_of_sale).current.code
 
+    data = send_siat(branch_office, invoice, cufd_code, cuis_code)
+
+    return unless data.present?
+
+    description = data[:codigo_descripcion]
+    code = data[:codigo_estado]
+    invoice.update(process_status: description, sent_at: DateTime.now)
+    invoice.invoice_logs.create(code: code, description: description)
+  end
+
+  def send_siat(branch_office, invoice, cufd_code, cuis_code)
     client = Savon.client(
       wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
       headers: {
@@ -40,13 +51,9 @@ class InvoiceStatusJob < ApplicationJob
       }
     }
     response = client.call(:verificacion_estado_factura, message: body)
+
     return unless response.success?
 
-    data = response.to_array(:verificacion_estado_factura_response, :respuesta_servicio_facturacion).first
-
-    description = data[:codigo_descripcion]
-    code = data[:codigo_estado]
-    invoice.update(process_status: description, sent_at: DateTime.now)
-    invoice.invoice_logs.create(code: code, description: description)
+    response.to_array(:verificacion_estado_factura_response, :respuesta_servicio_facturacion).first
   end
 end
