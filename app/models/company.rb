@@ -16,6 +16,9 @@ class Company < ApplicationRecord
   has_many :invoices, through: :branch_offices
   has_one :company_setting, dependent: :destroy
 
+  after_initialize :default_values
+  after_create :add_branch_office_and_pos
+
   def bulk_load_economic_activities(activities)
     economic_activities.upsert_all(activities, unique_by: %i[company_id code])
   end
@@ -23,6 +26,10 @@ class Company < ApplicationRecord
   private
 
   def default_values
-    self.page_size_id = 1
+    self.page_size_id ||= 1
+  end
+
+  def add_branch_office_and_pos
+    branch_offices.create(name: 'Casa Matriz', number: 0, city: 'Santa Cruz')
   end
 end

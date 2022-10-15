@@ -11,13 +11,14 @@ module Api
       # GET /companies
       def index
         @companies = Company.all
-
         render json: @companies.map { |company|
-                       next unless company.logo.attached?
-
-                       company.as_json.merge(
-                         logo: url_for(company.logo)
-                       )
+                       if company.logo.attached?
+                         company.as_json.merge(
+                           logo: url_for(company.logo)
+                         )
+                       else
+                         company.as_json
+                       end
                      }
       end
 
