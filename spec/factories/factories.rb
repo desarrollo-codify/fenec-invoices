@@ -24,7 +24,7 @@ FactoryBot.define do
   end
 
   factory :document_type do
-    code { '12345' }
+    code { 1 }
     description { 'Abc' }
   end
 
@@ -72,7 +72,7 @@ FactoryBot.define do
   end
 
   factory :invoice_status do
-    description { 'ABC' }
+    description { 'Vigente' }
   end
 
   factory :payment_channel do
@@ -103,6 +103,7 @@ FactoryBot.define do
     total { 1 }
     amount_payable { 1 }
     document_sector_code { 1 }
+    point_of_sale { 0 }
     legend { 'legend' }
     user { 'jperez' }
     branch_office factory: :branch_office
@@ -171,6 +172,9 @@ FactoryBot.define do
     domain { 'example.com' }
     user_name { 'example@example.com' }
     password { 'passwords' }
+    api_key { '123456' }
+    system_code { '2' }
+    company factory: :company
   end
 
   factory :significative_event do
@@ -225,5 +229,27 @@ FactoryBot.define do
 
   factory :page_size do
     description { 'Roll' }
+  end
+
+  factory :invoice_log do
+    code { 123 }
+    description { 'ABC' }
+    invoice factory: :invoice
+  end
+
+  factory :contingency_log do
+    code { 123 }
+    description { 'ABC' }
+    contingency factory: :contingency
+  end
+
+  factory :user do
+    full_name { 'Juan Perez' }
+    username { 'jperez' }
+    role { 2 }
+    email { 'jperez@example.com' }
+    password { 'abc123.' }
+    password_confirmation { 'abc123.' }
+    company factory: :company
   end
 end

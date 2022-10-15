@@ -8,9 +8,14 @@ class CuisCode < ApplicationRecord
 
   belongs_to :branch_office
 
-  scope :current, -> { where('expiration_date >= ?', DateTime.now).last }
-
   after_initialize :default_values
+
+  scope :active, -> { where('expiration_date >= ?', DateTime.now) }
+  scope :by_pos, ->(point_of_sale) { where(point_of_sale: point_of_sale) }
+
+  def self.current
+    active.last
+  end
 
   def increment!
     self.current_number += 1

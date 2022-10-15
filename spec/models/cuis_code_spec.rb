@@ -78,4 +78,16 @@ RSpec.describe CuisCode, type: :model do
       end
     end
   end
+
+  describe 'current scope' do
+    before { create(:cuis_code, branch_office: branch_office) }
+    context 'with include or not cuis code current' do
+      let(:not_current) { create(:cuis_code, code: 'ABC123', expiration_date: DateTime.now - 1.hour, branch_office: branch_office) }
+
+      it 'Includes cuis codes current' do
+        expect(branch_office.cuis_codes.current.code).to eq('ABC')
+        expect(CuisCode.current).to_not eq(not_current)
+      end
+    end
+  end
 end

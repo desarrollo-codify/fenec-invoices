@@ -24,7 +24,6 @@ module Api
             codigoSucursal: @branch_office.number
           }
         }
-
         response = client.call(:cuis, message: body)
         if response.success?
           data = response.to_array(:cuis_response, :respuesta_cuis).first
@@ -85,7 +84,7 @@ module Api
       end
 
       def show_cufd
-        @daily_code = @branch_office.daily_codes.where(point_of_sale: params[:point_of_sale]).current
+        @daily_code = @branch_office.daily_codes.by_pos(params[:point_of_sale]).current
         if @daily_code.present?
           render json: @daily_code
         else
@@ -570,11 +569,11 @@ module Api
       end
 
       def set_cuis_code
-        @cuis_code = @branch_office.cuis_codes.where('point_of_sale = ?', params[:point_of_sale]).current
+        @cuis_code = @branch_office.cuis_codes.by_pos(params[:point_of_sale]).current
       end
 
       def set_cuis_code_default
-        @cuis_code = @branch_office.cuis_codes.where(point_of_sale: 0).current
+        @cuis_code = @branch_office.cuis_codes.by_pos(0).current
       end
 
       def siat_body

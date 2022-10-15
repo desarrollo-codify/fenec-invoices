@@ -5,6 +5,8 @@ class Contingency < ApplicationRecord
 
   belongs_to :point_of_sale
   belongs_to :significative_event
+  has_many :invoices
+  has_many :contingency_logs, dependent: :destroy
 
   scope :pending, -> { where(end_date: nil) }
   scope :manual, -> { where('significative_event_id >= 5') }

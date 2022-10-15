@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'siat_available'
 
 RSpec.describe '/api/v1/invoices', type: :request do
   let(:invalid_attributes) do
@@ -64,6 +65,70 @@ RSpec.describe '/api/v1/invoices', type: :request do
       expect do
         delete api_v1_invoice_url(invoice), headers: valid_headers, as: :json
       end.to change(Invoice, :count).by(-1)
+    end
+  end
+
+  describe 'POST /cancel' do
+    let(:invoice) { create(:invoice) }
+
+    before(:each) do
+      create(:cancellation_reason, code: 2)
+      create(:invoice_status, description: 'Anulado')
+    end
+
+    it 'destroys the requested api_v1_invoice' do
+      post cancel_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
+      expect(invoice.invoice_status_id).to eq(2)
+    end
+  end
+
+  describe 'POST /resend' do
+    let(:branch_office) { create(:branch_office) }
+    before { create(:cuis_code, branch_office: branch_office) }
+    before { create(:daily_code, branch_office: branch_office) }
+    let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+    before { create(:legend, economic_activity: economic_activity) }
+    before { create(:measurement) }
+    before { create(:product, company: branch_office.company) }
+    before { create(:invoice_status) }
+    before { create(:client, company: branch_office.company) }
+    before { create(:company_setting, company: branch_office.company) }
+    let(:invoice) { create(:invoice, branch_office: branch_office, client_code: '00001') }
+
+    xml_path = "#{Rails.root}/public/tmp/mails/abc.xml"
+    pdf_path = "#{Rails.root}/public/tmp/mails/abc.pdf"
+    File.write(xml_path, 'hola')
+    File.write(pdf_path, '')
+
+    it 'resend the requested api_v1_invoice' do
+      post resend_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe 'POST /verify_status' do
+    let(:branch_office) { create(:branch_office) }
+    before { create(:cuis_code, branch_office: branch_office) }
+    before { create(:daily_code, branch_office: branch_office) }
+    let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+    before { create(:legend, economic_activity: economic_activity) }
+    before { create(:measurement) }
+    before { create(:product, company: branch_office.company) }
+    before { create(:invoice_status) }
+    before { create(:client, company: branch_office.company) }
+    before { create(:company_setting, company: branch_office.company) }
+    let(:invoice) { create(:invoice, branch_office: branch_office, client_code: '00001') }
+
+    response = { codigo_descripcion: 'VALIDA', codigo_estado: '908', transaccion: true }
+
+    before(:each) do
+      allow_any_instance_of(InvoiceStatusJob).to receive(:send_siat).and_return(response)
+    end
+
+    it 'verifies the invoice status at the Siat platform' do
+      expect do
+        post verify_status_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
+      end.to change(invoice.invoice_logs, :count).by(1)
     end
   end
 end

@@ -5,18 +5,20 @@ module Api
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
-      before_action :set_company, only: %i[show update destroy update_settings]
+      before_action :set_company, only: %i[show update destroy]
+      before_action :set_parent_company, only: %i[update_settings]
 
       # GET /companies
       def index
         @companies = Company.all
-
         render json: @companies.map { |company|
-                       next unless company.logo.attached?
-
-                       company.as_json.merge(
-                         logo: url_for(company.logo)
-                       )
+                       if company.logo.attached?
+                         company.as_json.merge(
+                           logo: url_for(company.logo)
+                         )
+                       else
+                         company.as_json
+                       end
                      }
       end
 
@@ -75,6 +77,8 @@ module Api
       def update_settings
         @settings = @company.company_setting
         @settings.update(setting_params)
+
+        render json: @settings, status: :ok
       end
 
       private
@@ -82,6 +86,10 @@ module Api
       # Use callbacks to share common setup or constraints between actions.
       def set_company
         @company = Company.find(params[:id])
+      end
+
+      def set_parent_company
+        @company = Company.find(params[:company_id])
       end
 
       # Only allow a list of trusted parameters through.

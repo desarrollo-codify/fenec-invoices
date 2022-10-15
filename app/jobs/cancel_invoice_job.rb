@@ -7,7 +7,7 @@ class CancelInvoiceJob < ApplicationJob
   def perform(invoice, reason)
     return unless SiatAvailable.available(invoice, false)
 
-    send_to_siat(invoice, reason)
+    invoice.update(invoice_status_id: 2, cancel_sent_at: true) if send_to_siat(invoice, reason)
     @invoice = invoice
     client_code = @invoice.client_code
     @company = invoice.branch_office.company
@@ -60,6 +60,6 @@ class CancelInvoiceJob < ApplicationJob
     data = response.to_array(:anulacion_factura_response, :respuesta_servicio_facturacion).first
     puts data
 
-    invoice.update(invoice_status_id: 2, cancel_sent_at: true) if response.success?
+    response.success?
   end
 end

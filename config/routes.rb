@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :users, shallow: true
       resources :companies do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
@@ -71,6 +72,7 @@ Rails.application.routes.draw do
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member
         post :resend, on: :member
+        post :verify_status, on: :member
       end
       resources :contingency_codes, only: %i[show update destroy]
       resources :clients, only: %i[update destroy]
