@@ -15,6 +15,7 @@ class Company < ApplicationRecord
   has_many :economic_activities, dependent: :destroy
   has_many :invoices, through: :branch_offices
   has_one :company_setting, dependent: :destroy
+  has_many :users
 
   def bulk_load_economic_activities(activities)
     economic_activities.upsert_all(activities, unique_by: %i[company_id code])

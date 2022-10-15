@@ -242,4 +242,14 @@ FactoryBot.define do
     description { 'ABC' }
     contingency factory: :contingency
   end
+
+  factory :user do
+    full_name { 'Juan Perez' }
+    username { 'jperez' }
+    role { 2 }
+    email { 'jperez@example.com' }
+    password { 'abc123.' }
+    password_confirmation { 'abc123.' }
+    company factory: :company
+  end
 end

@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :users, shallow: true
       resources :companies do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
