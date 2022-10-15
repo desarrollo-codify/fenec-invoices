@@ -72,6 +72,7 @@ Rails.application.routes.draw do
       resources :invoices, only: %i[show update destroy] do
         post :cancel, on: :member
         post :resend, on: :member
+        post :verify_status, on: :member
       end
       resources :contingency_codes, only: %i[show update destroy]
       resources :clients, only: %i[update destroy]
