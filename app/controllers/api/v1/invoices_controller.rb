@@ -128,11 +128,11 @@ module Api
           return render json: "La factura ya fue anulada el #{@invoice.cancellation_date}",
                         status: :unprocessable_entity
         end
+        return unless params[:reason].present?
+
         @reason = params[:reason]
         @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: @reason, invoice_status_id: 2)
-
-        CancelInvoiceJob.perform_later(@invoice, @reason) unless @invoice.sent_at.nil?
-
+        CancelInvoiceJob.perform_now(@invoice, @reason) unless @invoice.sent_at.nil?
         render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
       end
 
