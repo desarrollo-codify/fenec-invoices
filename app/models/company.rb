@@ -19,6 +19,7 @@ class Company < ApplicationRecord
 
   after_initialize :default_values
   after_create :add_branch_office_and_pos
+  after_create :add_company_setting
 
   def bulk_load_economic_activities(activities)
     economic_activities.upsert_all(activities, unique_by: %i[company_id code])
@@ -32,5 +33,10 @@ class Company < ApplicationRecord
 
   def add_branch_office_and_pos
     branch_offices.create(name: 'Casa Matriz', number: 0, city: 'Santa Cruz')
+  end
+
+  def add_company_setting
+    CompanySetting.create(address: 'set address...', port: 0, domain: 'domain...', user_name: 'user@domain.com', password: 'email account pwd...',
+      company_id: id)
   end
 end
