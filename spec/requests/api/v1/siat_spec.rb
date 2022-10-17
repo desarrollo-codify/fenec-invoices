@@ -6,7 +6,7 @@ require 'savon/mock/spec_helper'
 RSpec.describe 'Api::V1::Siat', type: :request do
   include Savon::SpecHelper
 
-  before(:all) { savon.mock!   }
+  before(:all) { savon.mock! }
   after(:all)  { savon.unmock! }
   # describe 'POST /generate_cuis' do
   #   let(:branch_office) { create(:branch_office) }

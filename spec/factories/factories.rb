@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+  factory :page_size do
+    description { 'Roll' }
+  end
+
   factory :company do
     name { 'Codify' }
     nit { '123' }
     address { 'Anywhere' }
+    page_size factory: :page_size
   end
 
   factory :branch_office do
@@ -227,10 +232,6 @@ FactoryBot.define do
     end
   end
 
-  factory :page_size do
-    description { 'Roll' }
-  end
-
   factory :invoice_log do
     code { 123 }
     description { 'ABC' }
@@ -250,6 +251,6 @@ FactoryBot.define do
     email { 'jperez@example.com' }
     password { 'abc123.' }
     password_confirmation { 'abc123.' }
-    company factory: :company
+    # company factory: :company
   end
 end

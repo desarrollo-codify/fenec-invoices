@@ -27,7 +27,7 @@ module Api
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
                                                                                 updated_at company_id] } },
-                                            branch_offices: { include: { point_of_sales: {only: %i[id name code]}}, 
+                                            branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
                                                               except: %i[created_at updated_at company_id] },
                                             company_setting: { except: %i[created_at
                                                                           updated_at company_id] },
