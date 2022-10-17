@@ -5,7 +5,7 @@ class VerifyNit
 
   def self.verify(nit, branch_office)
     result = true
-    if SiatAvailable.available(branch_office.invoices.last, false)
+    if SiatAvailable.available(branch_office.company.company_setting.api_key)
       cuis_code = branch_office.cuis_codes.where(point_of_sale: 0).current.code
 
       client = Savon.client(

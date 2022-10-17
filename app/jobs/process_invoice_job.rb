@@ -31,7 +31,7 @@ class ProcessInvoiceJob < ApplicationJob
   private
 
   def siat_available?(invoice)
-    SiatAvailable.available(invoice, true)
+    SiatAvailable.available(invoice.branch_office.company.company_setting.api_key)
   end
 
   def pending_contingency?(point_of_sale)

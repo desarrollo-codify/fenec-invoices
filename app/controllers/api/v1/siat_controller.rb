@@ -10,6 +10,7 @@ module Api
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
       before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]
+      before_action :set_siat_available, except: %i[show_cufd show_cuis verify_nit]
 
       def generate_cuis
         @company = @branch_office.company
@@ -488,7 +489,8 @@ module Api
       end
 
       def verify_nit
-        unless SiatAvailable.available(@invoice, false) && VerifyNit.verify(@invoice.business_nit, @branch_office)
+        unless SiatAvailable.available(@branch_office.company.company_setting.api_key) && VerifyNit.verify(@invoice.business_nit,
+                                                                                                           @branch_office)
           return render json: true
         end
 
@@ -554,6 +556,14 @@ module Api
       def set_branch_office
         @branch_office = BranchOffice.find(params[:branch_office_id])
         @company = @branch_office.company
+      end
+
+      def set_siat_available
+        data = SiatAvailable.available(@branch_office.company.company_setting.api_key)
+        return unless data
+
+        render json: 'La solicitud a SIAT no se pudo procesar, intente nuevamente en unos minutos.',
+               status: :precondition_failed
       end
 
       def siat_client(wsdl_name)

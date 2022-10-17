@@ -5,7 +5,7 @@ class CancelInvoiceJob < ApplicationJob
   require 'siat_available'
 
   def perform(invoice, reason)
-    return unless SiatAvailable.available(invoice, false)
+    return unless SiatAvailable.available(invoice.branch_office.company.company_setting.api_key)
 
     invoice.update(invoice_status_id: 2, cancel_sent_at: true) if send_to_siat(invoice, reason)
     @invoice = invoice
