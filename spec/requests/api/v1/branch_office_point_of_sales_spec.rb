@@ -31,7 +31,9 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/point_of_sales', type: 
   end
 
   describe 'POST /create' do
-    before { create(:branch_office) }
+    before do
+      create(:branch_office)
+    end
 
     context 'with valid parameters' do
       before(:each) do
