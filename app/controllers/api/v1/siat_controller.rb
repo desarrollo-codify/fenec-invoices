@@ -10,6 +10,7 @@ module Api
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
       before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]
+      before_action :set_siat_available, except: %i[show_cufd show_cuis verify_nit]
 
       def generate_cuis
         @company = @branch_office.company
@@ -554,6 +555,30 @@ module Api
       def set_branch_office
         @branch_office = BranchOffice.find(params[:branch_office_id])
         @company = @branch_office.company
+      end
+
+      def set_siat_available
+        client = Savon.client(
+          wsdl: ENV.fetch('siat_invoices'.to_s, nil),
+          headers: {
+            'apikey' => @branch_office.company.company_setting.api_key,
+            'SOAPAction' => ''
+          },
+          namespace: ENV.fetch('siat_namespace', nil),
+          convert_request_keys_to: :none
+        )
+
+        response = client.call(:verificar_comunicacion)
+        if response.success?
+          data = response.to_array(:verificar_comunicacion_response).first
+          data = data[:return]
+        else
+          data = { return: 'Communication error' }
+        end
+        unless data == '926'
+          render json: 'La solicitud a SIAT no se pudo procesar, intente nuevamente en unos minutos.',
+                 status: :internal_server_error
+        end
       end
 
       def siat_client(wsdl_name)
