@@ -11,13 +11,14 @@ module Api
       # GET /companies
       def index
         @companies = Company.all
-
         render json: @companies.map { |company|
-                       next unless company.logo.attached?
-
-                       company.as_json.merge(
-                         logo: url_for(company.logo)
-                       )
+                       if company.logo.attached?
+                         company.as_json.merge(
+                           logo: url_for(company.logo)
+                         )
+                       else
+                         company.as_json
+                       end
                      }
       end
 
@@ -26,7 +27,8 @@ module Api
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
                                                                                 updated_at company_id] } },
-                                            branch_offices: { except: %i[created_at updated_at] },
+                                            branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
+                                                              except: %i[created_at updated_at company_id] },
                                             company_setting: { except: %i[created_at
                                                                           updated_at company_id] },
                                             page_size: { only: %i[description] }])
