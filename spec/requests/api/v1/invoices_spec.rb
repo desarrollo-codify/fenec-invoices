@@ -69,16 +69,64 @@ RSpec.describe '/api/v1/invoices', type: :request do
   end
 
   describe 'POST /cancel' do
-    let(:invoice) { create(:invoice) }
+    context 'with Siat available' do
+      before(:each) do
+        create(:cancellation_reason, code: 2)
+        create(:invoice_status, description: 'Anulado')
+        allow(SiatAvailable).to receive(:available).and_return(true)
+        allow_any_instance_of(CancelInvoiceJob).to receive(:send_to_siat).and_return(true)
+      end
 
-    before(:each) do
-      create(:cancellation_reason, code: 2)
-      create(:invoice_status, description: 'Anulado')
+      let(:branch_office) { create(:branch_office) }
+      before { create(:cuis_code, branch_office: branch_office) }
+      before { create(:daily_code, branch_office: branch_office) }
+      let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+      before { create(:legend, economic_activity: economic_activity) }
+      before { create(:measurement) }
+      before { create(:product, company: branch_office.company) }
+      before { create(:invoice_status) }
+      before { create(:client, company: branch_office.company) }
+      before { create(:company_setting, company: branch_office.company) }
+      let(:invoice) do
+        create(:invoice, branch_office: branch_office, client_code: '00001', sent_at: '2022-10-17', invoice_status_id: 1)
+      end
+
+      it 'cancel invoices' do
+        post cancel_api_v1_invoice_url(invoice), params: { reason: 1 }, headers: valid_headers, as: :json
+        invoice_expect = Invoice.find(invoice.id)
+        expect(invoice_expect.cancel_sent_at).to be_truthy
+        expect(invoice_expect.invoice_status_id).to eq(2)
+      end
     end
 
-    it 'destroys the requested api_v1_invoice' do
-      post cancel_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
-      expect(invoice.invoice_status_id).to eq(2)
+    context 'with Siat is not available' do
+      before(:each) do
+        create(:cancellation_reason, code: 2)
+        create(:invoice_status, description: 'Anulado')
+        allow(SiatAvailable).to receive(:available).and_return(false)
+        allow_any_instance_of(CancelInvoiceJob).to receive(:send_to_siat).and_return(true)
+      end
+
+      let(:branch_office) { create(:branch_office) }
+      before { create(:cuis_code, branch_office: branch_office) }
+      before { create(:daily_code, branch_office: branch_office) }
+      let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
+      before { create(:legend, economic_activity: economic_activity) }
+      before { create(:measurement) }
+      before { create(:product, company: branch_office.company) }
+      before { create(:invoice_status) }
+      before { create(:client, company: branch_office.company) }
+      before { create(:company_setting, company: branch_office.company) }
+      let(:invoice) do
+        create(:invoice, branch_office: branch_office, client_code: '00001', sent_at: '2022-10-17', invoice_status_id: 1)
+      end
+
+      it 'cancel invoices' do
+        post cancel_api_v1_invoice_url(invoice), params: { reason: 1 }, headers: valid_headers, as: :json
+        invoice_expect = Invoice.find(invoice.id)
+        expect(invoice_expect.cancel_sent_at).to be(nil)
+        expect(invoice_expect.invoice_status_id).to eq(2)
+      end
     end
   end
 
