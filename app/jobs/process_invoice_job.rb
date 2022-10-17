@@ -21,11 +21,8 @@ class ProcessInvoiceJob < ApplicationJob
     end
     process_pending_data(invoice, point_of_sale, is_siat_available, economic_activity)
     generate_invoice_documents(invoice)
-    send_mail(invoice)
-
-    return if invoice.is_manual
-
-    sent_to_siat(invoice) if is_siat_available
+    sent_to_siat(invoice) if is_siat_available && !invoice.is_manual
+    send_mail(invoice) if invoice.process_status == 'VALIDA'
   end
 
   private
@@ -71,7 +68,7 @@ class ProcessInvoiceJob < ApplicationJob
   end
 
   def sent_to_siat(invoice)
-    SendInvoiceJob.perform_later(invoice)
+    SendInvoiceJob.perform_now(invoice)
   end
 
   def current_daily_code(branch_office, point_of_sale)
