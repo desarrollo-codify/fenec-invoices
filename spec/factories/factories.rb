@@ -199,7 +199,7 @@ FactoryBot.define do
   end
 
   factory :cancellation_reason do
-    code { '12345' }
+    code { '1' }
     description { 'Abc' }
   end
 

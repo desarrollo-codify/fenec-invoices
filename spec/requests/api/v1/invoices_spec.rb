@@ -71,7 +71,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
   describe 'POST /cancel' do
     context 'with Siat available' do
       before(:each) do
-        create(:cancellation_reason, code: 2)
+        create(:cancellation_reason, code: 1)
         create(:invoice_status, description: 'Anulado')
         allow(SiatAvailable).to receive(:available).and_return(true)
         allow_any_instance_of(CancelInvoiceJob).to receive(:send_to_siat).and_return(true)
