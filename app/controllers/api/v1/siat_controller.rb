@@ -561,8 +561,9 @@ module Api
       def set_siat_available
         data = SiatAvailable.available(@branch_office.company.company_setting.api_key)
         return unless data
+
         render json: 'La solicitud a SIAT no se pudo procesar, intente nuevamente en unos minutos.',
-                status: :precondition_failed
+               status: :precondition_failed
       end
 
       def siat_client(wsdl_name)
