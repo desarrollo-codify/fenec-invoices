@@ -88,7 +88,8 @@ module Api
 
         if @invoice.document_type == 5
           @invoice.exception_code = 1
-          if SiatAvailable.available(@invoice, false) && VerifyNit.verify(@invoice.business_nit, @branch_office)
+          if SiatAvailable.available(@branch_office.company.company_setting.api_key) && VerifyNit.verify(@invoice.business_nit,
+                                                                                                         @branch_office)
             @invoice.exception_code = nil
           end
         end

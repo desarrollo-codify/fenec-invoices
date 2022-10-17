@@ -489,7 +489,8 @@ module Api
       end
 
       def verify_nit
-        unless SiatAvailable.available(@invoice, false) && VerifyNit.verify(@invoice.business_nit, @branch_office)
+        unless SiatAvailable.available(@branch_office.company.company_setting.api_key) && VerifyNit.verify(@invoice.business_nit,
+                                                                                                           @branch_office)
           return render json: true
         end
 
@@ -558,27 +559,10 @@ module Api
       end
 
       def set_siat_available
-        client = Savon.client(
-          wsdl: ENV.fetch('siat_invoices'.to_s, nil),
-          headers: {
-            'apikey' => @branch_office.company.company_setting.api_key,
-            'SOAPAction' => ''
-          },
-          namespace: ENV.fetch('siat_namespace', nil),
-          convert_request_keys_to: :none
-        )
-
-        response = client.call(:verificar_comunicacion)
-        if response.success?
-          data = response.to_array(:verificar_comunicacion_response).first
-          data = data[:return]
-        else
-          data = { return: 'Communication error' }
-        end
-        unless data == '926'
-          render json: 'La solicitud a SIAT no se pudo procesar, intente nuevamente en unos minutos.',
-                 status: :internal_server_error
-        end
+        data = SiatAvailable.available(@branch_office.company.company_setting.api_key)
+        return unless data
+        render json: 'La solicitud a SIAT no se pudo procesar, intente nuevamente en unos minutos.',
+                status: :precondition_failed
       end
 
       def siat_client(wsdl_name)

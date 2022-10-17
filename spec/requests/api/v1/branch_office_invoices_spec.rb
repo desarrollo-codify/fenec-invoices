@@ -1267,6 +1267,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:invoice_status, description: 'Vigente') }
       before { create(:invoice_status, description: 'Anulada') }
       before { create(:measurement) }
+      before { create(:company_setting, company: branch_office.company) }
 
       it 'works' do
         post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
@@ -1293,6 +1294,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:invoice_status, description: 'Vigente') }
       before { create(:invoice_status, description: 'Anulada') }
       before { create(:measurement) }
+      before { create(:company_setting, company: branch_office.company) }
 
       context 'nit is invalid' do
         before(:each) do
