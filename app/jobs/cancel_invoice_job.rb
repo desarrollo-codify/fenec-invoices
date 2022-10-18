@@ -8,6 +8,8 @@ class CancelInvoiceJob < ApplicationJob
     return unless SiatAvailable.available(invoice.branch_office.company.company_setting.api_key)
 
     invoice.update(invoice_status_id: 2, cancel_sent_at: true) if send_to_siat(invoice, reason)
+    return unless invoice.cancel_sent_at
+
     @invoice = invoice
     client_code = @invoice.client_code
     @company = invoice.branch_office.company
@@ -58,8 +60,18 @@ class CancelInvoiceJob < ApplicationJob
     response = client.call(:anulacion_factura, message: body)
 
     data = response.to_array(:anulacion_factura_response, :respuesta_servicio_facturacion).first
-    puts data
 
-    response.success?
+    if data[:transaccion]
+      true
+    else
+      code = data[:mensajes_list][:codigo]
+      description = data[:mensajes_list][:descripcion]
+      invoice.invoice_logs.create(code: code, description: description)
+      false
+    end
+  rescue StandardError => e
+    invoice.invoice_logs.create(code: 900,
+                                description: "Se produjo un error al intentar anular la factura por el siguiente error: #{e}")
+    false
   end
 end

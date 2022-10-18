@@ -54,14 +54,18 @@ class CloseContingencyJob < ApplicationJob
         cufdEvento: contingency_cufd
       }
     }
-    response = client.call(:registro_evento_significativo, message: body)
+    begin
+      response = client.call(:registro_evento_significativo, message: body)
 
-    return unless response.success?
+      data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
 
-    data = response.to_array(:registro_evento_significativo_response, :respuesta_lista_eventos).first
-
-    code = data[:codigo_recepcion_evento_significativo]
-    contingency.update(event_reception_code: code)
+      code = data[:codigo_recepcion_evento_significativo]
+      contingency.update(event_reception_code: code)
+    rescue StandardError => e
+      contingency.contingency_logs.create(code: 1000,
+                                          description: "No se pudo registrar la contigencia en el SIAT por
+                                                        el siguiente mensaje de error: #{e}")
+    end
   end
 
   def send_package(invoices, contingency, current_cuis, current_cufd)
@@ -117,14 +121,16 @@ class CloseContingencyJob < ApplicationJob
         codigoEvento: contingency.event_reception_code
       }
     }
-    response = client.call(:recepcion_paquete_factura, message: body)
+    begin
+      response = client.call(:recepcion_paquete_factura, message: body)
 
-    if response.success?
       data = response.to_array(:recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       code = data[:codigo_recepcion]
       contingency.update(reception_code: code)
-    else
-      render json: 'La solicitud a SIAT obtuvo un error.'
+    rescue StandardError => e
+      contingency.contingency_logs.create(code: 1000,
+                                          description: "No se pudo enviar el paquete de facturas al SIAT
+                                                        por el siguiente mensaje de error: #{e}")
     end
   end
 
@@ -159,23 +165,28 @@ class CloseContingencyJob < ApplicationJob
     }
     sleep 10
 
-    response = client.call(:validacion_recepcion_paquete_factura, message: body)
-    return unless response.success?
+    begin
+      response = client.call(:validacion_recepcion_paquete_factura, message: body)
 
-    data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
-    status_code = data[:codigo_estado]
-    description = data[:codigo_descripcion]
-    contingency.update(status: description)
-    # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
-    if status_code == '904'
-      errors_list = data[:mensajes_list]
-      errors_list.each do |error|
-        code = error[:codigo]
-        description = error[:descripcion]
-        contingency.contingency_logs.create(code: code, description: description)
+      data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
+      status_code = data[:codigo_estado]
+      description = data[:codigo_descripcion]
+      contingency.update(status: description)
+      # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
+      if status_code == '904'
+        errors_list = data[:mensajes_list]
+        errors_list.each do |error|
+          code = error[:codigo]
+          description = error[:descripcion]
+          contingency.contingency_logs.create(code: code, description: description)
+        end
       end
+      InvoiceStatusJob.perform_now(@pending_invoices)
+    rescue StandardError => e
+      contingency.contingency_logs.create(code: 1000,
+                                          description: "No se pudo verficar la recepción del paquete facturas
+                                                        enviado al SIAT por el siguiente mensaje de error: #{e}")
     end
-    InvoiceStatusJob.perform_now(@pending_invoices)
   end
 
   private
