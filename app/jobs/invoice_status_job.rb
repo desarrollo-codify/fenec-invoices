@@ -36,17 +36,17 @@ class InvoiceStatusJob < ApplicationJob
     )
     body = {
       SolicitudServicioVerificacionEstadoFactura: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoPuntoVenta: invoice.point_of_sale,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
         codigoDocumentoSector: invoice.document_sector_code,
         codigoEmision: 1,
-        codigoModalidad: 2,
+        codigoModalidad: branch_office.company.modality_id,
         cufd: cufd_code,
         cuis: cuis_code,
-        tipoFacturaDocumento: 1,
+        tipoFacturaDocumento: branch_office.company.invoice_types.first.code,
         cuf: invoice.cuf
       }
     }

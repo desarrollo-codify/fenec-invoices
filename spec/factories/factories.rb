@@ -253,4 +253,22 @@ FactoryBot.define do
     password_confirmation { 'abc123.' }
     # company factory: :company
   end
+
+  factory :environment_type do
+    description { 'Abc' }
+  end
+
+  factory :modality do
+    description { 'Abc' }
+  end
+
+  factory :document_sector_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :invoice_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
 end
