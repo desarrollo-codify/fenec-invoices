@@ -16,8 +16,8 @@ class PointOfSale
 
     body = {
       SolicitudRegistroPuntoVenta: {
-        codigoAmbiente: 2,
-        codigoModalidad: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
+        codigoModalidad: branch_office.company.modality_id,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         codigoTipoPuntoVenta: point_of_sale.pos_type_id,
@@ -55,7 +55,7 @@ class PointOfSale
 
     body = {
       SolicitudCierrePuntoVenta: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         cuis: cuis_code.code,

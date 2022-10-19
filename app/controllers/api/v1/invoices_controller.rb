@@ -88,7 +88,8 @@ module Api
 
         if @invoice.document_type == 5
           @invoice.exception_code = 1
-          if SiatAvailable.available(@invoice, false) && VerifyNit.verify(@invoice.business_nit, @branch_office)
+          if SiatAvailable.available(@branch_office.company.company_setting.api_key) && VerifyNit.verify(@invoice.business_nit,
+                                                                                                         @branch_office)
             @invoice.exception_code = nil
           end
         end
@@ -128,12 +129,17 @@ module Api
           return render json: "La factura ya fue anulada el #{@invoice.cancellation_date}",
                         status: :unprocessable_entity
         end
+        return unless params[:reason].present?
+
         @reason = params[:reason]
         @invoice.update(cancellation_date: DateTime.now, cancellation_reason_id: @reason, invoice_status_id: 2)
+        CancelInvoiceJob.perform_now(@invoice, @reason) unless @invoice.sent_at.nil?
 
-        CancelInvoiceJob.perform_later(@invoice, @reason) unless @invoice.sent_at.nil?
-
-        render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
+        if @invoice.cancel_sent_at
+          render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
+        else
+          render json: 'Se ha producido un error al anular la factura, verifique el log.', status: :not_found
+        end
       end
 
       def resend

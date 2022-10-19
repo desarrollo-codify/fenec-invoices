@@ -16,9 +16,15 @@ class Company < ApplicationRecord
   has_many :invoices, through: :branch_offices
   has_one :company_setting, dependent: :destroy
   has_many :users
+  belongs_to :environment_type, optional: true
+  belongs_to :modality, optional: true
+  has_and_belongs_to_many :invoice_types, optional: true
+  has_and_belongs_to_many :document_sector_types, optional: true
+  has_and_belongs_to_many :measurements, optional: true
 
-  after_initialize :default_values
+  after_initialize :default_values, if: :new_record?
   after_create :add_branch_office_and_pos
+  after_create :add_company_setting
 
   def bulk_load_economic_activities(activities)
     economic_activities.upsert_all(activities, unique_by: %i[company_id code])
@@ -27,10 +33,15 @@ class Company < ApplicationRecord
   private
 
   def default_values
-    self.page_size_id ||= 1
+    self.page_size_id ||= 1 unless Rails.env.test?
   end
 
   def add_branch_office_and_pos
     branch_offices.create(name: 'Casa Matriz', number: 0, city: 'Santa Cruz')
+  end
+
+  def add_company_setting
+    CompanySetting.create(address: 'set address...', port: 0, domain: 'domain...', user_name: 'user@domain.com',
+                          password: 'email account pwd...', company_id: id)
   end
 end

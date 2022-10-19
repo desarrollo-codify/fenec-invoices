@@ -108,10 +108,10 @@ RSpec.describe Company, type: :model do
     it { expect(subject).to have_many(:branch_offices).dependent(:destroy) }
 
     context 'when deleting a company' do
-      let(:company) { create(:company) }
-      before { create(:branch_office, company: company) }
+      before { create(:company) }
 
       it 'destroys the branch office' do
+        company = Company.first
         expect { company.destroy }.to change { BranchOffice.count }.by(-1)
       end
     end
@@ -173,11 +173,10 @@ RSpec.describe Company, type: :model do
     it { expect(subject).to have_one(:company_setting).dependent(:destroy) }
 
     context 'when deleting a company' do
-      let(:company) { create(:company) }
-      before { create(:company_setting, company: company) }
+      before { create(:company) }
 
-      it 'destroys the branch office' do
-        expect { company.destroy }.to change { CompanySetting.count }.by(-1)
+      it 'destroys the company setting' do
+        expect { Company.last.destroy }.to change { CompanySetting.count }.by(-1)
       end
     end
   end

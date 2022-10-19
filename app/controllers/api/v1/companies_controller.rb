@@ -5,7 +5,7 @@ module Api
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
-      before_action :set_company, only: %i[show update destroy]
+      before_action :set_company, only: %i[show update destroy cuis_codes]
       before_action :set_parent_company, only: %i[update_settings]
 
       # GET /companies
@@ -27,7 +27,8 @@ module Api
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
                                                                                 updated_at company_id] } },
-                                            branch_offices: { except: %i[created_at updated_at] },
+                                            branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
+                                                              except: %i[created_at updated_at company_id] },
                                             company_setting: { except: %i[created_at
                                                                           updated_at company_id] },
                                             page_size: { only: %i[description] }])
@@ -75,10 +76,44 @@ module Api
 
       # POST /companies/1/settings
       def update_settings
-        @settings = @company.company_setting
-        @settings.update(setting_params)
+        settings = @company.company_setting
+        settings.update(setting_params)
 
-        render json: @settings, status: :ok
+        render json: settings, status: :ok
+      end
+
+      # GET /companies/1/cuis_codes
+      def cuis_codes
+        response = []
+        @company.branch_offices.each do |branch_office|
+          branch_office_record = {
+            id: branch_office.id,
+            name: branch_office.name,
+            number: branch_office.number,
+            codes: []
+          }
+
+          branch_office.point_of_sales.each do |pos|
+            cuis_code = branch_office.cuis_codes.by_pos(pos.code).active.last
+            branch_office_record[:codes] << {
+              type: 'cuis',
+              point_of_sale: pos.code,
+              code: cuis_code.present? ? cuis_code.code : '',
+              end_date: cuis_code.present? ? cuis_code.expiration_date : nil,
+              current_number: cuis_code.present? ? cuis_code.current_number : 0
+            }
+            cufd_code = branch_office.daily_codes.by_pos(pos.code).active.last
+            branch_office_record[:codes] << {
+              type: 'cufd',
+              point_of_sale: pos.code,
+              code: cufd_code.present? ? cufd_code.code : '',
+              end_date: cufd_code.present? ? cufd_code.end_date : nil,
+              current_number: 0
+            }
+          end
+          response << branch_office_record
+        end
+        render json: response, status: :ok
       end
 
       private

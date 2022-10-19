@@ -5,7 +5,7 @@ class VerifyNit
 
   def self.verify(nit, branch_office)
     result = true
-    if SiatAvailable.available(branch_office.invoices.last, false)
+    if SiatAvailable.available(branch_office.company.company_setting.api_key)
       cuis_code = branch_office.cuis_codes.where(point_of_sale: 0).current.code
 
       client = Savon.client(
@@ -19,9 +19,9 @@ class VerifyNit
       )
       body = {
         SolicitudVerificarNit: {
-          codigoAmbiente: 2,
+          codigoAmbiente: branch_office.company.environment_type_id,
           codigoSistema: branch_office.company.company_setting.system_code,
-          codigoModalidad: 2,
+          codigoModalidad: branch_office.company.modality_id,
           nit: branch_office.company.nit.to_i,
           cuis: cuis_code,
           codigoSucursal: branch_office.number,
