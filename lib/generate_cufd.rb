@@ -17,11 +17,11 @@ class GenerateCufd
     )
     body = {
       SolicitudCufd: {
-        codigoAmbiente: 2,
+        codigoAmbiente: company.environment_type_id,
         codigoPuntoVenta: point_of_sale.code,
         codigoSistema: company.company_setting.system_code,
         nit: company.nit.to_i,
-        codigoModalidad: 2,
+        codigoModalidad: company.modality_id,
         cuis: cuis_code,
         codigoSucursal: branch_office.number
       }

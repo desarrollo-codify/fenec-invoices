@@ -100,7 +100,7 @@ module Api
               point_of_sale: pos.code,
               code: cuis_code.present? ? cuis_code.code : '',
               end_date: cuis_code.present? ? cuis_code.expiration_date : nil,
-              current_number: cuis_code.present? ? cuis_code.current_number : 0,
+              current_number: cuis_code.present? ? cuis_code.current_number : 0
             }
             cufd_code = branch_office.daily_codes.by_pos(pos.code).active.last
             branch_office_record[:codes] << {
@@ -108,7 +108,7 @@ module Api
               point_of_sale: pos.code,
               code: cufd_code.present? ? cufd_code.code : '',
               end_date: cufd_code.present? ? cufd_code.end_date : nil,
-              current_number: 0,
+              current_number: 0
             }
           end
           response << branch_office_record

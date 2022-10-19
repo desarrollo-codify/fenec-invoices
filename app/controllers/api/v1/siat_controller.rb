@@ -17,11 +17,11 @@ module Api
         client = siat_client('cuis_wsdl')
         body = {
           SolicitudCuis: {
-            codigoAmbiente: 2,
+            codigoAmbiente: @company.environment_type_id,
             codigoPuntoVenta: params[:point_of_sale],
             codigoSistema: @company.company_setting.system_code,
             nit: @company.nit.to_i,
-            codigoModalidad: 2,
+            codigoModalidad: @company.modality_id,
             codigoSucursal: @branch_office.number
           }
         }
@@ -61,11 +61,11 @@ module Api
         client = siat_client('cuis_wsdl')
         body = {
           SolicitudCufd: {
-            codigoAmbiente: 2,
+            codigoAmbiente: @company.environment_type_id,
             codigoPuntoVenta: params[:point_of_sale],
             codigoSistema: @company.company_setting.system_code,
             nit: @company.nit.to_i,
-            codigoModalidad: 2,
+            codigoModalidad: @company.modality_id,
             cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
           }
@@ -590,9 +590,9 @@ module Api
         client = siat_client('cuis_wsdl')
         body = {
           SolicitudVerificarNit: {
-            codigoAmbiente: 2,
+            codigoAmbiente: @branch_office.company.environment_type_id,
             codigoSistema: @branch_office.company.company_setting.system_code,
-            codigoModalidad: 2,
+            codigoModalidad: @branch_office.company.modality_id,
             nit: @branch_office.company.nit.to_i,
             cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number,
@@ -622,7 +622,7 @@ module Api
         client = siat_client('siat_operations')
         body = {
           SolicitudConsultaPuntoVenta: {
-            codigoAmbiente: 2,
+            codigoAmbiente: @company.environment_type_id,
             codigoSistema: @branch_office.company.company_setting.system_code,
             codigoSucursal: @branch_office.number,
             cuis: @cuis_code.code,
@@ -695,10 +695,10 @@ module Api
       def siat_body
         {
           SolicitudSincronizacion: {
-            codigoAmbiente: 2,
+            codigoAmbiente: @company.environment_type_id,
             codigoSistema: @branch_office.company.company_setting.system_code,
             nit: @branch_office.company.nit.to_i,
-            cuis: '123', # @cuis_code.code,
+            cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
           }
         }
