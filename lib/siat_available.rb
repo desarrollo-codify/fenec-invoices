@@ -20,5 +20,7 @@ class SiatAvailable
       data = { return: 'Communication error' }
     end
     data == '926'
+  rescue StandardError
+    false
   end
 end

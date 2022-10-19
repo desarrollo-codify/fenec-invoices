@@ -40,9 +40,14 @@ class SendInvoiceJob < ApplicationJob
         hashArchivo: file_hash(base64_file)
       }
     }
-    response = client.call(:recepcion_factura, message: body)
-    data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-    update_invoice(invoice) if data[:codigo_estado] == '908'
+    begin
+      response = client.call(:recepcion_factura, message: body)
+      data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
+      update_invoice(invoice) if data[:codigo_estado] == '908'
+    rescue StandardError => e
+      invoice.invoice_logs.create(code: '1000',
+                                  description: "No se pudo enviar la factura al SIAT debido al siguiente error #{e}")
+    end
   end
 
   private

@@ -50,10 +50,12 @@ class InvoiceStatusJob < ApplicationJob
         cuf: invoice.cuf
       }
     }
-    response = client.call(:verificacion_estado_factura, message: body)
+    begin
+      response = client.call(:verificacion_estado_factura, message: body)
 
-    return unless response.success?
-
-    response.to_array(:verificacion_estado_factura_response, :respuesta_servicio_facturacion).first
+      response.to_array(:verificacion_estado_factura_response, :respuesta_servicio_facturacion).first
+    rescue StandardError
+      nil
+    end
   end
 end
