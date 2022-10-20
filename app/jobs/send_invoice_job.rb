@@ -2,19 +2,11 @@
 
 class SendInvoiceJob < ApplicationJob
   queue_as :default
+  require 'siat_client'
 
   def perform(invoice)
-    wsdl = if invoice.branch_office.company.environment_type_id == 2 ? 'pilot_siat_sales_invoice_service_wsdl' : 'siat_sales_invoice_service_wsdl'
-
-    client = Savon.client(
-      wsdl: ENV.fetch(wsdl, nil),
-      headers: {
-        'apikey' => invoice.branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', invoice.branch_office.company)
 
     filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     zipped_filename = "#{filename}.gz"
