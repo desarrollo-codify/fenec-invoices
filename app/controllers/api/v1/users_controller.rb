@@ -53,7 +53,7 @@ module Api
       end
 
       def update_user_params
-        params.require(:user).permit(:full_name, :username, :role)
+        params.require(:user).permit(:full_name, :username, :role, :company_id)
       end
     end
   end
