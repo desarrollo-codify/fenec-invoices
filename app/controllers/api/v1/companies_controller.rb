@@ -29,8 +29,7 @@ module Api
                                                                                 updated_at company_id] } },
                                             branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
                                                               except: %i[created_at updated_at company_id] },
-                                            company_setting: { except: %i[created_at
-                                                                          updated_at company_id] },
+                                            company_setting: { except: %i[created_at updated_at] },
                                             page_size: { only: %i[description] }])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
