@@ -8,7 +8,7 @@ module Api
 
       # GET /api/v1/companies/:company_id/products
       def index
-        @products = @company.products
+        @products = @company.products.order(:primary_code)
         render json: @products
       end
 
