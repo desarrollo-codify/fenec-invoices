@@ -253,4 +253,14 @@ FactoryBot.define do
     password_confirmation { 'abc123.' }
     # company factory: :company
   end
+
+  factory :country do
+    code { 123 }
+    description { 'ABC' }
+  end
+
+  factory :currency_type do
+    code { 123 }
+    description { 'ABC' }
+  end
 end
