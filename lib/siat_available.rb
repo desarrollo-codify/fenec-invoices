@@ -3,7 +3,7 @@
 class SiatAvailable
   def self.available(api_key)
     client = Savon.client(
-      wsdl: ENV.fetch('siat_invoices'.to_s, nil),
+      wsdl: ENV.fetch('siat_computarized_invoice_service_wsdl'.to_s, nil),
       headers: {
         'apikey' => api_key,
         'SOAPAction' => ''
