@@ -74,6 +74,7 @@ Rails.application.routes.draw do
         post :cancel, on: :member
         post :resend, on: :member
         post :verify_status, on: :member
+        get :logs, on: :member
       end
       resources :contingency_codes, only: %i[show update destroy]
       resources :clients, only: %i[update destroy]

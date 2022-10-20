@@ -12,9 +12,9 @@ class VerifyNit
       client = SiatClient.client('siat_codes_invoices_wsdl', branch_office.company)
       body = {
         SolicitudVerificarNit: {
-          codigoAmbiente: 2,
+          codigoAmbiente: branch_office.company.environment_type_id,
           codigoSistema: branch_office.company.company_setting.system_code,
-          codigoModalidad: 2,
+          codigoModalidad: branch_office.company.modality_id,
           nit: branch_office.company.nit.to_i,
           cuis: cuis_code,
           codigoSucursal: branch_office.number,

@@ -35,17 +35,17 @@ class CancelInvoiceJob < ApplicationJob
 
     body = {
       SolicitudServicioAnulacionFactura: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoPuntoVenta: invoice.point_of_sale,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: 1,
+        codigoDocumentoSector: branch_office.company.document_sector_types.first.code,
         codigoEmision: 1,
-        codigoModalidad: 2,
+        codigoModalidad: branch_office.company.modality_id,
         cufd: daily_code.code,
         cuis: cuis_code.code,
-        tipoFacturaDocumento: 1,
+        tipoFacturaDocumento: branch_office.company.invoice_types.first.code,
         codigoMotivo: reason,
         cuf: invoice.cuf
       }
