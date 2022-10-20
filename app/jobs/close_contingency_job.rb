@@ -3,6 +3,7 @@
 class CloseContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
+  require 'siat_client'
 
   def perform(contingency)
     contingency.close!
@@ -29,15 +30,8 @@ class CloseContingencyJob < ApplicationJob
   def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)
     branch_office = contingency.point_of_sale.branch_office
 
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_operations'.to_s, nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
+    
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: branch_office.company.environment_type_id,
@@ -88,15 +82,7 @@ class CloseContingencyJob < ApplicationJob
     company = branch_office.company
     economic_activities = company.economic_activities
 
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
-      headers: {
-        'apikey' => company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', company)
 
     cafc = contingency.manual_type? ? economic_activities.first.contingency_codes.available.last.code : nil
 
@@ -137,15 +123,7 @@ class CloseContingencyJob < ApplicationJob
   def reception_validation(_invoices, contingency, current_cuis, current_cufd)
     branch_office = contingency.point_of_sale.branch_office
 
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', branch_office.company)
 
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {

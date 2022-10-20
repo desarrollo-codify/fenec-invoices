@@ -4,7 +4,7 @@ class SiatTestsController < ApplicationController
   before_action :set_company, only: %i[sync_codes cufd_codes]
 
   def sync_codes
-    client = siat_client('products_wsdl')
+    client = siat_client('siat_sync_invoice_wsdl')
 
     pos = params[:point_of_sale]
     body = {
@@ -32,7 +32,7 @@ class SiatTestsController < ApplicationController
   def cufd_codes
     (1..100).each do |i|
       pos = params[:point_of_sale]
-      client = siat_client('cuis_wsdl')
+      client = siat_client('siat_codes_invoices_wsdl')
       body = {
         SolicitudCufd: {
           codigoAmbiente: 2,
@@ -123,9 +123,10 @@ class SiatTestsController < ApplicationController
       branch_office = invoice.branch_office
       daily_code = branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current
       cuis_code = branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current
+      wsdl = branch_office.company.environment_type_id == 2 ? 'pilot_siat_sales_invoice_service_wsdl' : 'siat_sales_invoice_service_wsdl'
 
       client = Savon.client(
-        wsdl: ENV.fetch('siat_pilot_invoices', nil),
+        wsdl: ENV.fetch(wsdl, nil),
         headers: {
           'apikey' => branch_office.company.company_setting.api_key,
           'SOAPAction' => ''
@@ -196,7 +197,7 @@ class SiatTestsController < ApplicationController
 
   def send_to_siat(invoice)
     client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices', nil),
+      wsdl: ENV.fetch('siat_sales_invoice_service_wsdl', nil),
       headers: {
         'apikey' => invoice.branch_office.company.company_setting.api_key,
         'SOAPAction' => ''

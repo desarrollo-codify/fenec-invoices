@@ -1,18 +1,14 @@
 # frozen_string_literal: true
 
 class PointOfSale
+  require 'siat_client'
+
   def self.add(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_operations', nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    wsdl = branch_office.company.environment_type_id == 2 ? 'pilot_siat_operations_invoice_wsdl' : 'siat_operations_invoice_wsdl'
+    
+    client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
 
     body = {
       SolicitudRegistroPuntoVenta: {
@@ -43,15 +39,9 @@ class PointOfSale
   def self.destroy(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_operations', nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    wsdl = branch_office.company.environment_type_id == 2 ? 'pilot_siat_operations_invoice_wsdl' : 'siat_operations_invoice_wsdl'
+
+    client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
 
     body = {
       SolicitudCierrePuntoVenta: {
