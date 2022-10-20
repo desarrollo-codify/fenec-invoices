@@ -7,9 +7,10 @@ class VerifyNit
     result = true
     if SiatAvailable.available(branch_office.company.company_setting.api_key)
       cuis_code = branch_office.cuis_codes.where(point_of_sale: 0).current.code
+      wsdl = if branch_office.company.environment_type_id == 2 ? 'pilot_siat_codes_invoices_wsdl' : 'siat_codes_invoices_wsdl'
 
       client = Savon.client(
-        wsdl: ENV.fetch('cuis_wsdl'.to_s, nil),
+        wsdl: ENV.fetch(wsdl, nil),
         headers: {
           'apikey' => branch_office.company.company_setting.api_key,
           'SOAPAction' => ''

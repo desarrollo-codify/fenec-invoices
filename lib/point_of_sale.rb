@@ -4,8 +4,10 @@ class PointOfSale
   def self.add(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
+    wsdl = if branch_office.company.environment_type_id == 2 ? 'pilot_siat_operations_invoice_wsdl' : 'siat_operations_invoice_wsdl'
+    
     client = Savon.client(
-      wsdl: ENV.fetch('siat_operations', nil),
+      wsdl: ENV.fetch(wsdl, nil),
       headers: {
         'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
@@ -43,8 +45,10 @@ class PointOfSale
   def self.destroy(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
+    wsdl = if branch_office.company.environment_type_id == 2 ? 'pilot_siat_operations_invoice_wsdl' : 'siat_operations_invoice_wsdl'
+
     client = Savon.client(
-      wsdl: ENV.fetch('siat_operations', nil),
+      wsdl: ENV.fetch(wsdl, nil),
       headers: {
         'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''

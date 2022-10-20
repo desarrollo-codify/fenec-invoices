@@ -14,7 +14,7 @@ module Api
 
       def generate_cuis
         @company = @branch_office.company
-        client = siat_client('cuis_wsdl')
+        client = siat_client('siat_codes_invoices_wsdl')
         body = {
           SolicitudCuis: {
             codigoAmbiente: 2,
@@ -58,7 +58,7 @@ module Api
         end
 
         @company = @branch_office.company
-        client = siat_client('cuis_wsdl')
+        client = siat_client('siat_codes_invoices_wsdl')
         body = {
           SolicitudCufd: {
             codigoAmbiente: 2,
@@ -99,7 +99,7 @@ module Api
       end
 
       def product_codes
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
         company = @branch_office.company
 
         response = client.call(:sincronizar_lista_productos_servicios, message: siat_body)
@@ -132,7 +132,7 @@ module Api
       end
 
       def economic_activities
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_actividades, message: siat_body)
 
@@ -157,7 +157,7 @@ module Api
       end
 
       def document_types
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipo_documento_identidad, message: siat_body)
 
@@ -183,7 +183,7 @@ module Api
       end
 
       def payment_methods
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipo_metodo_pago, message: siat_body)
 
@@ -209,7 +209,7 @@ module Api
       end
 
       def legends
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_lista_leyendas_factura, message: siat_body)
         response_transaction = response.to_array(:sincronizar_lista_leyendas_factura_response,
@@ -240,7 +240,7 @@ module Api
       end
 
       def measurements
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_unidad_medida, message: siat_body)
 
@@ -267,7 +267,7 @@ module Api
       end
 
       def significative_events
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_eventos_significativos, message: siat_body)
 
@@ -296,7 +296,7 @@ module Api
       def verify_communication
         @company = Company.first
 
-        client = siat_client('siat_invoices')
+        client = siat_client('siat_computarized_invoice_service_wsdl')
 
         response = client.call(:verificar_comunicacion)
 
@@ -308,7 +308,7 @@ module Api
       end
 
       def pos_types
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipo_punto_venta, message: siat_body)
 
@@ -335,7 +335,7 @@ module Api
       end
 
       def cancellation_reasons
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_motivo_anulacion, message: siat_body)
 
@@ -362,7 +362,7 @@ module Api
       end
 
       def document_sectors
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_lista_actividades_documento_sector, message: siat_body)
 
@@ -399,7 +399,7 @@ module Api
       end
 
       def countries
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_pais_origen, message: siat_body)
 
@@ -425,7 +425,7 @@ module Api
       end
 
       def issuance_types
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipo_emision, message: siat_body)
 
@@ -452,7 +452,7 @@ module Api
       end
 
       def room_types
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipo_habitacion, message: siat_body)
 
@@ -479,7 +479,7 @@ module Api
       end
 
       def currency_types
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipo_moneda, message: siat_body)
 
@@ -505,7 +505,7 @@ module Api
       end
 
       def invoice_types
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipos_factura, message: siat_body)
 
@@ -532,7 +532,7 @@ module Api
       end
 
       def service_messages
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_lista_mensajes_servicios, message: siat_body)
 
@@ -559,7 +559,7 @@ module Api
       end
 
       def document_sector_types
-        client = siat_client('products_wsdl')
+        client = siat_client('siat_sync_invoice_wsdl')
 
         response = client.call(:sincronizar_parametrica_tipo_documento_sector, message: siat_body)
 
@@ -587,7 +587,7 @@ module Api
 
       def verify_nit
         nit = params[:nit]
-        client = siat_client('cuis_wsdl')
+        client = siat_client('siat_codes_invoices_wsdl')
         body = {
           SolicitudVerificarNit: {
             codigoAmbiente: 2,
@@ -619,7 +619,7 @@ module Api
       end
 
       def point_of_sales
-        client = siat_client('siat_operations')
+        client = siat_client('siat_operations_invoice_wsdl')
         body = {
           SolicitudConsultaPuntoVenta: {
             codigoAmbiente: 2,
@@ -673,6 +673,7 @@ module Api
       end
 
       def siat_client(wsdl_name)
+        wsdl_name = "pilot_#{wsdl_name}" if @company.environment_type_id == 2
         Savon.client(
           wsdl: ENV.fetch(wsdl_name.to_s, nil),
           headers: {

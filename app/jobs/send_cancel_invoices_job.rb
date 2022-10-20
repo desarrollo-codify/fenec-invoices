@@ -32,9 +32,10 @@ class SendCancelInvoicesJob < ApplicationJob
     branch_office = invoice.branch_office
     daily_code = branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current
     cuis_code = branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current
+    wsdl = if branch_office.company.environment_type_id == 2 ? 'pilot_siat_sales_invoice_service_wsdl' : 'siat_sales_invoice_service_wsdl'
 
     client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices', nil),
+      wsdl: ENV.fetch(wsdl, nil),
       headers: {
         'apikey' => branch_office.company.company_setting.api_key,
         'SOAPAction' => ''

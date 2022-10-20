@@ -5,9 +5,10 @@ class GenerateCufd
     branch_office = point_of_sale.branch_office
     company = branch_office.company
     cuis_code = branch_office.cuis_codes.where(point_of_sale: point_of_sale.code).current.code
+    wsdl = if company.environment_type_id == 2 ? 'pilot_siat_codes_invoices_wsdl' : 'siat_codes_invoices_wsdl'
 
     client = Savon.client(
-      wsdl: ENV.fetch('cuis_wsdl'.to_s, nil),
+      wsdl: ENV.fetch(wsdl, nil),
       headers: {
         'apikey' => company.company_setting.api_key,
         'SOAPAction' => ''

@@ -4,8 +4,10 @@ class SendInvoiceJob < ApplicationJob
   queue_as :default
 
   def perform(invoice)
+    wsdl = if invoice.branch_office.company.environment_type_id == 2 ? 'pilot_siat_sales_invoice_service_wsdl' : 'siat_sales_invoice_service_wsdl'
+
     client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices', nil),
+      wsdl: ENV.fetch(wsdl, nil),
       headers: {
         'apikey' => invoice.branch_office.company.company_setting.api_key,
         'SOAPAction' => ''
