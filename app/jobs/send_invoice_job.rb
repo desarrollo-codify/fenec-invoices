@@ -5,7 +5,6 @@ class SendInvoiceJob < ApplicationJob
   require 'siat_client'
 
   def perform(invoice)
-    
     client = SiatClient.client('siat_sales_invoice_service_wsdl', invoice.branch_office.company)
 
     filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
@@ -23,7 +22,7 @@ class SendInvoiceJob < ApplicationJob
         codigoSistema: invoice.branch_office.company.company_setting.system_code,
         codigoSucursal: invoice.branch_office.number,
         nit: invoice.branch_office.company.nit.to_i,
-        codigoDocumentoSector: invoice.branch_office.company.document_types.first.code,
+        codigoDocumentoSector: invoice.branch_office.company.document_sector_types.first.code,
         codigoEmision: 1,
         codigoModalidad: invoice.branch_office.company.modality_id,
         cufd: invoice.cufd_code,
