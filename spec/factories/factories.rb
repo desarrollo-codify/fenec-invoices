@@ -234,7 +234,7 @@ FactoryBot.define do
 
   factory :invoice_log do
     code { 123 }
-    description { 'ABC' }
+    description { 'Error code.' }
     invoice factory: :invoice
   end
 

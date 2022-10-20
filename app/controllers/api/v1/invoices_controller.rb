@@ -3,7 +3,7 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
-      before_action :set_invoice, only: %i[show update destroy cancel resend verify_status]
+      before_action :set_invoice, only: %i[show update destroy cancel resend verify_status logs]
       before_action :set_branch_office, only: %i[index create generate pending]
       require 'invoice_xml'
       require 'siat_available'
@@ -163,6 +163,12 @@ module Api
         InvoiceStatusJob.perform_now(invoice)
 
         render json: @invoice.invoice_logs.last, status: :ok
+      end
+
+      def logs
+        @logs = @invoice.invoice_logs.order(id: :desc)
+
+        render json: @logs.as_json(except: %i[updated_at])
       end
 
       private
