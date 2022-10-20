@@ -699,7 +699,7 @@ module Api
             codigoAmbiente: 2,
             codigoSistema: @branch_office.company.company_setting.system_code,
             nit: @branch_office.company.nit.to_i,
-            cuis: '123', # @cuis_code.code,
+            cuis: @cuis_code.code,
             codigoSucursal: @branch_office.number
           }
         }
