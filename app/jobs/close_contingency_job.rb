@@ -148,7 +148,6 @@ class CloseContingencyJob < ApplicationJob
 
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       status_code = data[:codigo_estado]
-      description = data[:codigo_descripcion]
       contingency.update(status: description)
       # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
       if status_code == '904'
