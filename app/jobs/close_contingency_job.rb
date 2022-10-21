@@ -93,7 +93,7 @@ class CloseContingencyJob < ApplicationJob
         codigoSistema: company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: branch_office.company.document_types.first.code,
+        codigoDocumentoSector: branch_office.company.document_sector_types.first.code,
         codigoEmision: 2, # TODO: Refactor
         codigoModalidad: branch_office.company.modality_id,
         cufd: current_cufd,
@@ -132,7 +132,7 @@ class CloseContingencyJob < ApplicationJob
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: branch_office.company.document_types.first.code,
+        codigoDocumentoSector: branch_office.company.document_sector_types.first.code,
         codigoEmision: 2,
         codigoModalidad: branch_office.company.modality_id,
         cufd: current_cufd,

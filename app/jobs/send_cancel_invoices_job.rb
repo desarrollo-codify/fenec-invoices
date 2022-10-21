@@ -43,7 +43,7 @@ class SendCancelInvoicesJob < ApplicationJob
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: branch_office.company.document_types.first.code,
+        codigoDocumentoSector: branch_office.company.document_sector_types.first.code,
         codigoEmision: 1,
         codigoModalidad: branch_office.company.modality_id,
         cufd: daily_code.code,
