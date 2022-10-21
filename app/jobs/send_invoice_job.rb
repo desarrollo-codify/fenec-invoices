@@ -5,7 +5,6 @@ class SendInvoiceJob < ApplicationJob
   require 'siat_client'
 
   def perform(invoice)
-    
     client = SiatClient.client('siat_sales_invoice_service_wsdl', invoice.branch_office.company)
 
     filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"

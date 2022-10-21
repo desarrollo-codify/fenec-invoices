@@ -31,7 +31,7 @@ class CloseContingencyJob < ApplicationJob
     branch_office = contingency.point_of_sale.branch_office
 
     client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
-    
+
     body = {
       SolicitudEventoSignificativo: {
         codigoAmbiente: branch_office.company.environment_type_id,
