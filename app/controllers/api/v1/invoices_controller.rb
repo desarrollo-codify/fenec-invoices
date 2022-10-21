@@ -41,7 +41,6 @@ module Api
         @errors = []
         validate!(@invoice)
         return render json: @errors, status: :unprocessable_entity if @errors.any?
-
         @company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
@@ -80,7 +79,8 @@ module Api
         end
 
         @invoice.invoice_details.each do |detail|
-          detail.total = detail.subtotal - detail.discount
+          detail.discount = detail.discount.round(2)
+          detail.total = detail.subtotal - detail.discount.round(2)
           detail.product = @company.products.find_by(primary_code: detail.product_code)
           detail.description = detail.product.description
           detail.sin_code = detail.product.sin_code
