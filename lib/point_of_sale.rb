@@ -6,8 +6,7 @@ class PointOfSale
   def self.add(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
-    wsdl = branch_office.company.environment_type_id == 2 ? 'pilot_siat_operations_invoice_wsdl' : 'siat_operations_invoice_wsdl'
-    
+
     client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
 
     body = {
@@ -39,7 +38,6 @@ class PointOfSale
   def self.destroy(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
-    wsdl = branch_office.company.environment_type_id == 2 ? 'pilot_siat_operations_invoice_wsdl' : 'siat_operations_invoice_wsdl'
 
     client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
 

@@ -26,7 +26,6 @@ class InvoiceStatusJob < ApplicationJob
   end
 
   def send_siat(branch_office, invoice, cufd_code, cuis_code)
-    
     client = SiatClient.client('siat_sales_invoice_service_wsdl', branch_office.company)
     body = {
       SolicitudServicioVerificacionEstadoFactura: {
