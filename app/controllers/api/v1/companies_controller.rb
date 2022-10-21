@@ -5,7 +5,7 @@ module Api
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
-      before_action :set_company, only: %i[show update destroy cuis_codes]
+      before_action :set_company, only: %i[update destroy cuis_codes]
       before_action :set_parent_company, only: %i[update_settings]
 
       # GET /companies
@@ -24,6 +24,8 @@ module Api
 
       # GET /companies/1
       def show
+        @company = Company.includes(:economic_activities, :company_setting, :page_size, branch_offices: :point_of_sales)
+                          .find(params[:id])
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
                                                                                 updated_at company_id] } },

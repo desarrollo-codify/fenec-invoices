@@ -14,8 +14,8 @@ module Api
         render json: @contingencies.as_json(include: [
                                               { significative_event: { except: %i[created_at updated_at] } },
                                               {
-                                                point_of_sale: { include: { point_of_sales: { only: %i[id name code] } },
-                                                                 except: %i[created_at updated_at] }
+                                                point_of_sale: { include: { branch_office: { only: %i[id name code] } },
+                                                              except: %i[created_at updated_at company_id] }
                                               }
                                             ])
       end
