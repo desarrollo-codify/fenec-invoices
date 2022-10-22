@@ -15,6 +15,9 @@ Rails.application.routes.draw do
       resources :companies do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
+        post :add_invoice_types, on: :member
+        post :add_document_sector_types, on: :member
+        post :add_measurements, on: :member
         resources :products, shallow: true do
           post :homologate, on: :collection
         end
