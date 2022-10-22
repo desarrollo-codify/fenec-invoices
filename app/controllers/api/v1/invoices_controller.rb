@@ -3,7 +3,7 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
-      before_action :set_invoice, only: %i[show update destroy cancel resend verify_status]
+      before_action :set_invoice, only: %i[show update destroy cancel resend verify_status logs]
       before_action :set_branch_office, only: %i[index create generate pending]
       require 'invoice_xml'
       require 'siat_available'
@@ -41,7 +41,6 @@ module Api
         @errors = []
         validate!(@invoice)
         return render json: @errors, status: :unprocessable_entity if @errors.any?
-
         @company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
@@ -80,7 +79,8 @@ module Api
         end
 
         @invoice.invoice_details.each do |detail|
-          detail.total = detail.subtotal - detail.discount
+          detail.discount = detail.discount.round(2)
+          detail.total = detail.subtotal - detail.discount.round(2)
           detail.product = @company.products.find_by(primary_code: detail.product_code)
           detail.description = detail.product.description
           detail.sin_code = detail.product.sin_code
@@ -163,6 +163,12 @@ module Api
         InvoiceStatusJob.perform_now(invoice)
 
         render json: @invoice.invoice_logs.last, status: :ok
+      end
+
+      def logs
+        @logs = @invoice.invoice_logs.order(id: :desc)
+
+        render json: @logs.as_json(except: %i[updated_at])
       end
 
       private

@@ -2,17 +2,10 @@
 
 class SendInvoiceJob < ApplicationJob
   queue_as :default
+  require 'siat_client'
 
   def perform(invoice)
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices', nil),
-      headers: {
-        'apikey' => invoice.branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', invoice.branch_office.company)
 
     filename = "#{Rails.root}/public/tmp/mails/#{invoice.cuf}.xml"
     zipped_filename = "#{filename}.gz"
@@ -29,7 +22,7 @@ class SendInvoiceJob < ApplicationJob
         codigoSistema: invoice.branch_office.company.company_setting.system_code,
         codigoSucursal: invoice.branch_office.number,
         nit: invoice.branch_office.company.nit.to_i,
-        codigoDocumentoSector: invoice.branch_office.company.document_types.first.code,
+        codigoDocumentoSector: invoice.branch_office.company.document_sector_types.first.code,
         codigoEmision: 1,
         codigoModalidad: invoice.branch_office.company.modality_id,
         cufd: invoice.cufd_code,
@@ -43,7 +36,16 @@ class SendInvoiceJob < ApplicationJob
     begin
       response = client.call(:recepcion_factura, message: body)
       data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
-      update_invoice(invoice) if data[:codigo_estado] == '908'
+      status_code = data[:codigo_estado]
+      if status_code == '904' || status_code == '902'
+        error = data[:mensajes_list]
+        code = error[:codigo]
+        description = error[:descripcion]
+        invoice.invoice_logs.create(code: code, description: description)
+        update_invoice(invoice, false)
+      else
+        update_invoice(invoice, true)
+      end
     rescue StandardError => e
       invoice.invoice_logs.create(code: '1000',
                                   description: "No se pudo enviar la factura al SIAT debido al siguiente error #{e}")
@@ -66,7 +68,7 @@ class SendInvoiceJob < ApplicationJob
     Digest::SHA2.hexdigest(file)
   end
 
-  def update_invoice(invoice)
-    invoice.update(sent_at: DateTime.now, process_status: 'VALIDA')
+  def update_invoice(invoice, status)
+    status ? invoice.update(sent_at: DateTime.now, process_status: 'VALIDA') : invoice.update(sent_at: DateTime.now, process_status: 'RECHAZADA')
   end
 end

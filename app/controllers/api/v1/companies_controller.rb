@@ -24,13 +24,14 @@ module Api
 
       # GET /companies/1
       def show
+        @company = Company.includes(:economic_activities, :company_setting, :page_size, branch_offices: :point_of_sales)
+                          .find(params[:id])
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
                                                                                 updated_at company_id] } },
                                             branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
                                                               except: %i[created_at updated_at company_id] },
-                                            company_setting: { except: %i[created_at
-                                                                          updated_at company_id] },
+                                            company_setting: { except: %i[created_at updated_at] },
                                             page_size: { only: %i[description] }])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
