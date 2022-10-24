@@ -15,7 +15,7 @@ module Api
                                               { significative_event: { except: %i[created_at updated_at] } },
                                               {
                                                 point_of_sale: { include: { branch_office: { only: %i[id name code] } },
-                                                              except: %i[created_at updated_at company_id] }
+                                                                 except: %i[created_at updated_at company_id] }
                                               }
                                             ])
       end

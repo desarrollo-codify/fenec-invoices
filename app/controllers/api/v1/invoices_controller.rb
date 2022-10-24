@@ -41,6 +41,7 @@ module Api
         @errors = []
         validate!(@invoice)
         return render json: @errors, status: :unprocessable_entity if @errors.any?
+
         @company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
