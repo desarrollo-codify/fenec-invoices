@@ -117,6 +117,17 @@ module Api
         render json: response, status: :ok
       end
 
+      def contingencies
+        @contingencies = Contingency.includes(:significative_event, point_of_sale: :branch_office).joins(point_of_sale: :branch_office).where('branch_offices.company_id = ?', 1)    
+        render json: @contingencies.as_json(include: [
+          { significative_event: { except: %i[created_at updated_at] } },
+          {
+            point_of_sale: { include: { branch_office: { only: %i[id name code] } },
+                          except: %i[created_at updated_at company_id] }
+          }
+        ])
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.

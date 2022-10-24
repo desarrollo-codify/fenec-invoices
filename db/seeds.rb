@@ -16,14 +16,37 @@ BranchOffice.create(name: 'CASA MATRIZ', number: 0, city: 'Santa Cruz', company_
   phone: '77766655')
 InvoiceStatus.create(description: 'VIGENTE')
 InvoiceStatus.create(description: 'ANULADA')
+
 DocumentType.create(description: 'Carnet de Identidad')
+
 Client.create(code: '00001', name: 'Juan Perez', nit: '123456', email: 'carlos.gutierrez@codify.com.bo', company_id: company.id, document_type_id: 1)
 Client.create(code: '00002', name: 'Napoleon Bonaparte', nit: '8888887777', email: 'roger.vaca@codify.com.bo', company_id: 1, document_type_id: 1)
+
 CompanySetting.create(address: 'codify.com.bo', port: 465, domain: 'codify.com.bo', user_name: 'carlos.gutierrez@codify.com.bo', 
   password: 'Revocatongo33.', company_id: 1)
+
 Product.create(primary_code: '001', description: 'Configuración de servidor', price: 250, company_id: 1)
 Product.create(primary_code: '002', description: 'Hosting standard por 1 año', price: 850, company_id: 1)
 Product.create(primary_code: '003', description: 'Servicio por implementación de correos', price: 300, company_id: 1)
 Product.create(primary_code: '004', description: 'Soporte informatico mensual', price: 350, company_id: 1)
 Product.create(primary_code: '005', description: 'Arreglos de impresoras', price: 150, company_id: 1)
 Product.create(primary_code: '006', description: 'Desarrollo de aplicación móvil', price: 10000, company_id: 1)
+
+Currency.create(description: 'Bolivianos', abbreviation: 'Bs')
+Currency.create(description: 'Dolares', abbreviation: 'Sus')
+
+TransactionType.create(description: 'Ingreso')
+TransactionType.create(description: 'Egreso')
+TransactionType.create(description: 'Traspaso')
+
+AccountType.create(description: "ACTIVO")
+AccountType.create(description: "PASIVO")
+AccountType.create(description: "PATRIMONIO")
+AccountType.create(description: "INGRESOS")
+AccountType.create(description: "EGRESOS")
+
+AccountLevel.create(description: 'Grupo', initial: 'G')
+AccountLevel.create(description: 'Rubro', initial: 'R')
+AccountLevel.create(description: 'Titulo', initial: 'T')
+AccountLevel.create(description: 'Cuenta', initial: 'C')
+AccountLevel.create(description: 'Subcuenta', initial: 'S')
