@@ -320,17 +320,17 @@ module Api
       end
 
       def validate_company_requirements(company)
-        return if company.modality_id.present?
+        unless company.modality_id.present?
+          @errors << 'No se ha definido el tipo de modalidad en la empresa. Favor solicitar al administrador del Sistema.'
+        end
 
-        @errors << 'No se ha definido el tipo de modalidad en la empresa. Favor solicitar al administrador del Sistema.'
+        unless company.environment_type_id.present?
+          @errors << 'No se ha definido el ambiente de la empresa. Favor solicitar al administrador del Sistema.'
+        end
 
-        return if company.environment_type_id.present?
-
-        @errors << 'No se ha definido el ambiente de la empresa. Favor solicitar al administrador del Sistema.'
-
-        return if company.invoice_types.present?
-
-        @errors << 'No se ha definido el tipo de facturación de la empresa. Favor solicitar al administrador del Sistema.'
+        unless company.invoice_types.present?
+          @errors << 'No se ha definido el tipo de facturación de la empresa. Favor solicitar al administrador del Sistema.'
+        end
 
         return if company.environment_type_id.present?
 
