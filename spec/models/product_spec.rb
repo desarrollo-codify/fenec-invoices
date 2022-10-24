@@ -59,14 +59,6 @@ RSpec.describe Product, type: :model do
       end
     end
 
-    context 'with special characters' do
-      let(:product) { build(:product, description: '%^&') }
-
-      it 'is not valid' do
-        expect(product).to_not be_valid
-      end
-    end
-
     context 'with allowed characters' do
       let(:product) { build(:product, description: 'áü .-_') }
 
