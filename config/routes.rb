@@ -11,6 +11,8 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :environment_types, only: %i[index]
+      resources :modalities, only: %i[index]
       resources :users, shallow: true
       resources :companies do
         resources :delegated_tokens, shallow: true
