@@ -37,7 +37,7 @@ class SendInvoiceJob < ApplicationJob
       response = client.call(:recepcion_factura, message: body)
       data = response.to_array(:recepcion_factura_response, :respuesta_servicio_facturacion).first
       status_code = data[:codigo_estado]
-      if status_code == '904' || status_code == '902'
+      if %w[904 902].include?(status_code)
         error = data[:mensajes_list]
         code = error[:codigo]
         description = error[:descripcion]
@@ -69,6 +69,12 @@ class SendInvoiceJob < ApplicationJob
   end
 
   def update_invoice(invoice, status)
-    status ? invoice.update(sent_at: DateTime.now, process_status: 'VALIDA') : invoice.update(sent_at: DateTime.now, process_status: 'RECHAZADA')
+    if status
+      invoice.update(sent_at: DateTime.now,
+                     process_status: 'VALIDA')
+    else
+      invoice.update(sent_at: DateTime.now,
+                     process_status: 'RECHAZADA')
+    end
   end
 end
