@@ -16,6 +16,11 @@ class Company < ApplicationRecord
   has_many :invoices, through: :branch_offices
   has_one :company_setting, dependent: :destroy
   has_many :users
+  belongs_to :environment_type, optional: true
+  belongs_to :modality, optional: true
+  has_and_belongs_to_many :invoice_types, optional: true
+  has_and_belongs_to_many :document_sector_types, optional: true
+  has_and_belongs_to_many :measurements, optional: true
 
   after_initialize :default_values, if: :new_record?
   after_create :add_branch_office_and_pos

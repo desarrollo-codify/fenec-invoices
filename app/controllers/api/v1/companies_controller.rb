@@ -5,7 +5,7 @@ module Api
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
-      before_action :set_company, only: %i[show update destroy cuis_codes]
+      before_action :set_company, except: %i[index update_settings logo create]
       before_action :set_parent_company, only: %i[update_settings]
 
       # GET /companies
@@ -24,13 +24,14 @@ module Api
 
       # GET /companies/1
       def show
+        @company = Company.includes(:economic_activities, :company_setting, :page_size, branch_offices: :point_of_sales)
+                          .find(params[:id])
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
                                                                                 updated_at company_id] } },
                                             branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
                                                               except: %i[created_at updated_at company_id] },
-                                            company_setting: { except: %i[created_at
-                                                                          updated_at company_id] },
+                                            company_setting: { except: %i[created_at updated_at] },
                                             page_size: { only: %i[description] }])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
@@ -100,7 +101,7 @@ module Api
               point_of_sale: pos.code,
               code: cuis_code.present? ? cuis_code.code : '',
               end_date: cuis_code.present? ? cuis_code.expiration_date : nil,
-              current_number: cuis_code.present? ? cuis_code.current_number : 0,
+              current_number: cuis_code.present? ? cuis_code.current_number : 0
             }
             cufd_code = branch_office.daily_codes.by_pos(pos.code).active.last
             branch_office_record[:codes] << {
@@ -108,12 +109,57 @@ module Api
               point_of_sale: pos.code,
               code: cufd_code.present? ? cufd_code.code : '',
               end_date: cufd_code.present? ? cufd_code.end_date : nil,
-              current_number: 0,
+              current_number: 0
             }
           end
           response << branch_office_record
         end
         render json: response, status: :ok
+      end
+
+      # POST /companies/1/add_invoice_type
+      def add_invoice_types
+        invoice_type_ids = invoice_types_company_params[:invoice_type_ids]
+        invoice_types = InvoiceType.find(invoice_type_ids)
+        @company.invoice_types << invoice_types
+
+        render json: @company.invoice_types
+      end
+
+      # POST /companies/1/add_document_sector
+      def add_document_sector_types
+        document_sector_type_ids = document_sector_type_company_params[:document_sector_type_ids]
+        document_sector_types = DocumentSectorType.find(document_sector_type_ids)
+        @company.document_sector_types << document_sector_types
+
+        render json: @company.document_sector_types
+      end
+
+      # POST /companies/1/add_measurement
+      def add_measurements
+        measurement_ids = measurements_company_params[:measurements_ids]
+        measurements = Measurement.find(measurement_ids)
+        @company.measurements << measurements
+
+        render json: @company.measurements
+      end
+
+      def remove_invoice_type
+        @company.invoice_types.delete(params[:invoice_type_id])
+
+        render json: @company.invoice_types
+      end
+
+      def remove_document_sector_type
+        @company.document_sector_types.delete(params[:document_sector_type_id])
+
+        render json: @company.document_sector_types
+      end
+
+      def remove_measurements
+        @company.measurements.delete(params[:measurement_id])
+
+        render json: @company.measurements
       end
 
       private
@@ -129,11 +175,23 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def company_params
-        params.require(:company).permit(:name, :nit, :address, :phone, :logo, :page_size_id)
+        params.require(:company).permit(:name, :nit, :address, :phone, :logo, :page_size_id, :environment_type_id, :modality_id)
       end
 
       def setting_params
         params.require(:company_setting).permit(:address, :port, :domain, :user_name, :password)
+      end
+
+      def invoice_types_company_params
+        params.require(:invoice_types).permit(invoice_type_ids: [])
+      end
+
+      def document_sector_type_company_params
+        params.require(:document_sector_types).permit(document_sector_type_ids: [])
+      end
+
+      def measurements_company_params
+        params.require(:measurements).permit(measurements_ids: [])
       end
 
       def super_admin_only

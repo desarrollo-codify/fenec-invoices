@@ -2,6 +2,7 @@
 
 class InvoiceStatusJob < ApplicationJob
   queue_as :default
+  require 'siat_available'
 
   def perform(invoices)
     invoices.each do |invoice|
@@ -25,28 +26,20 @@ class InvoiceStatusJob < ApplicationJob
   end
 
   def send_siat(branch_office, invoice, cufd_code, cuis_code)
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', branch_office.company)
     body = {
       SolicitudServicioVerificacionEstadoFactura: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoPuntoVenta: invoice.point_of_sale,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
         codigoDocumentoSector: invoice.document_sector_code,
         codigoEmision: 1,
-        codigoModalidad: 2,
+        codigoModalidad: branch_office.company.modality_id,
         cufd: cufd_code,
         cuis: cuis_code,
-        tipoFacturaDocumento: 1,
+        tipoFacturaDocumento: branch_office.company.invoice_types.first.code,
         cuf: invoice.cuf
       }
     }

@@ -3,6 +3,7 @@
 class CloseContingencyJob < ApplicationJob
   queue_as :default
   require 'rubygems/package'
+  require 'siat_client'
 
   def perform(contingency)
     contingency.close!
@@ -29,18 +30,11 @@ class CloseContingencyJob < ApplicationJob
   def send_contingency(contingency, contingency_cufd, current_cuis, current_cufd)
     branch_office = contingency.point_of_sale.branch_office
 
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_operations'.to_s, nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
+
     body = {
       SolicitudEventoSignificativo: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: branch_office.company.company_setting.system_code,
         nit: branch_office.company.nit.to_i,
@@ -88,32 +82,24 @@ class CloseContingencyJob < ApplicationJob
     company = branch_office.company
     economic_activities = company.economic_activities
 
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
-      headers: {
-        'apikey' => company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', company)
 
     cafc = contingency.manual_type? ? economic_activities.first.contingency_codes.available.last.code : nil
 
     body = {
       SolicitudServicioRecepcionPaquete: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: 1,
-        codigoEmision: 2,
-        codigoModalidad: 2,
+        codigoDocumentoSector: branch_office.company.document_sector_types.first.code,
+        codigoEmision: 2, # TODO: Refactor
+        codigoModalidad: branch_office.company.modality_id,
         cufd: current_cufd,
         cuis: current_cuis,
         cafc: cafc,
-        tipoFacturaDocumento: 1,
+        tipoFacturaDocumento: branch_office.company.invoice_types.first.code,
         archivo: base64_file,
         fechaEnvio: DateTime.now.strftime('%Y-%m-%dT%H:%M:%S.%L'),
         hashArchivo: hash,
@@ -137,29 +123,21 @@ class CloseContingencyJob < ApplicationJob
   def reception_validation(_invoices, contingency, current_cuis, current_cufd)
     branch_office = contingency.point_of_sale.branch_office
 
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices'.to_s, nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', branch_office.company)
 
     body = {
       SolicitudServicioValidacionRecepcionPaquete: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoPuntoVenta: contingency.point_of_sale.code,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: 1,
+        codigoDocumentoSector: branch_office.company.document_sector_types.first.code,
         codigoEmision: 2,
-        codigoModalidad: 2,
+        codigoModalidad: branch_office.company.modality_id,
         cufd: current_cufd,
         cuis: current_cuis,
-        tipoFacturaDocumento: 1,
+        tipoFacturaDocumento: branch_office.company.invoice_types.first.code,
         codigoRecepcion: contingency.reception_code
       }
     }
@@ -170,7 +148,6 @@ class CloseContingencyJob < ApplicationJob
 
       data = response.to_array(:validacion_recepcion_paquete_factura_response, :respuesta_servicio_facturacion).first
       status_code = data[:codigo_estado]
-      description = data[:codigo_descripcion]
       contingency.update(status: description)
       # 901 Pendiente, 902 Rechazada, 904 Observada, 908 Validado
       if status_code == '904'

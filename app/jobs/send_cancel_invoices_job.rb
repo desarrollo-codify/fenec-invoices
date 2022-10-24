@@ -2,6 +2,7 @@
 
 class SendCancelInvoicesJob < ApplicationJob
   queue_as :default
+  require 'siat_client'
 
   def perform(contingency)
     # TODO: refactor this and filter by branch office or company or point_of_sale
@@ -33,29 +34,21 @@ class SendCancelInvoicesJob < ApplicationJob
     daily_code = branch_office.daily_codes.where(point_of_sale: invoice.point_of_sale).current
     cuis_code = branch_office.cuis_codes.where(point_of_sale: invoice.point_of_sale).current
 
-    client = Savon.client(
-      wsdl: ENV.fetch('siat_pilot_invoices', nil),
-      headers: {
-        'apikey' => branch_office.company.company_setting.api_key,
-        'SOAPAction' => ''
-      },
-      namespace: ENV.fetch('siat_namespace', nil),
-      convert_request_keys_to: :none
-    )
+    client = SiatClient.client('siat_sales_invoice_service_wsdl', branch_office.company)
 
     body = {
       SolicitudServicioAnulacionFactura: {
-        codigoAmbiente: 2,
+        codigoAmbiente: branch_office.company.environment_type_id,
         codigoPuntoVenta: invoice.point_of_sale,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
         nit: branch_office.company.nit.to_i,
-        codigoDocumentoSector: 1,
+        codigoDocumentoSector: branch_office.company.document_sector_types.first.code,
         codigoEmision: 1,
-        codigoModalidad: 2,
+        codigoModalidad: branch_office.company.modality_id,
         cufd: daily_code.code,
         cuis: cuis_code.code,
-        tipoFacturaDocumento: 1,
+        tipoFacturaDocumento: branch_office.company.invoice_types.first.code,
         codigoMotivo: reason,
         cuf: invoice.cuf
       }

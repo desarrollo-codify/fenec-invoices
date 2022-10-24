@@ -179,4 +179,14 @@ RSpec.describe '/api/v1/invoices', type: :request do
       end.to change(invoice.invoice_logs, :count).by(1)
     end
   end
+
+  describe 'GET /logs' do
+    let(:invoice) { create(:invoice) }
+    let(:invoice_log) { create(:invoice_log) }
+
+    it 'renders a successful response' do
+      get logs_api_v1_invoice_url(invoice), as: :json
+      expect(response).to be_successful
+    end
+  end
 end

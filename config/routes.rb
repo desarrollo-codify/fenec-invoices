@@ -11,10 +11,18 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :environment_types, only: %i[index]
+      resources :modalities, only: %i[index]
       resources :users, shallow: true
       resources :companies do
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
+        post :add_invoice_types, on: :member
+        post :add_document_sector_types, on: :member
+        post :add_measurements, on: :member
+        post :remove_invoice_type, on: :member
+        post :remove_document_sector_type, on: :member
+        post :remove_measurements, on: :member
         resources :products, shallow: true do
           post :homologate, on: :collection
         end
@@ -74,6 +82,7 @@ Rails.application.routes.draw do
         post :cancel, on: :member
         post :resend, on: :member
         post :verify_status, on: :member
+        get :logs, on: :member
       end
       resources :contingency_codes, only: %i[show update destroy]
       resources :clients, only: %i[update destroy]

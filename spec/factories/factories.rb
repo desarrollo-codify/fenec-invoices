@@ -234,7 +234,7 @@ FactoryBot.define do
 
   factory :invoice_log do
     code { 123 }
-    description { 'ABC' }
+    description { 'Error code.' }
     invoice factory: :invoice
   end
 
@@ -261,6 +261,24 @@ FactoryBot.define do
 
   factory :currency_type do
     code { 123 }
+    description { 'ABC' }
+  end
+
+  factory :environment_type do
+    description { 'Abc' }
+  end
+
+  factory :modality do
+    description { 'Abc' }
+  end
+
+  factory :document_sector_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :invoice_type do
+    code { '123abc' }
     description { 'ABC' }
   end
 end

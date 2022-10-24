@@ -2,26 +2,19 @@
 
 class VerifyNit
   require 'siat_available'
+  require 'siat_client'
 
   def self.verify(nit, branch_office)
     result = true
     if SiatAvailable.available(branch_office.company.company_setting.api_key)
       cuis_code = branch_office.cuis_codes.where(point_of_sale: 0).current.code
 
-      client = Savon.client(
-        wsdl: ENV.fetch('cuis_wsdl'.to_s, nil),
-        headers: {
-          'apikey' => branch_office.company.company_setting.api_key,
-          'SOAPAction' => ''
-        },
-        namespace: ENV.fetch('siat_namespace', nil),
-        convert_request_keys_to: :none
-      )
+      client = SiatClient.client('siat_codes_invoices_wsdl', branch_office.company)
       body = {
         SolicitudVerificarNit: {
-          codigoAmbiente: 2,
+          codigoAmbiente: branch_office.company.environment_type_id,
           codigoSistema: branch_office.company.company_setting.system_code,
-          codigoModalidad: 2,
+          codigoModalidad: branch_office.company.modality_id,
           nit: branch_office.company.nit.to_i,
           cuis: cuis_code,
           codigoSucursal: branch_office.number,
