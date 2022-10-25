@@ -281,4 +281,19 @@ FactoryBot.define do
     code { '123abc' }
     description { 'ABC' }
   end
+
+  factory :issuance_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :room_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :service_message do
+    code { '123abc' }
+    description { 'ABC' }
+  end
 end
