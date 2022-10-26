@@ -27,3 +27,10 @@ Product.create(primary_code: '003', description: 'Servicio por implementación d
 Product.create(primary_code: '004', description: 'Soporte informatico mensual', price: 350, company_id: 1)
 Product.create(primary_code: '005', description: 'Arreglos de impresoras', price: 150, company_id: 1)
 Product.create(primary_code: '006', description: 'Desarrollo de aplicación móvil', price: 10000, company_id: 1)
+
+EnvironmentType.create(description: 'Producción')
+EnvironmentType.create(description: 'Pruebas y Piloto')
+
+Modality.create(description: 'Electrónica en Línea')
+Modality.create(description: 'Computarizada en Línea')
+
