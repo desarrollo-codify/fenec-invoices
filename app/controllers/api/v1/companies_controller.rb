@@ -24,7 +24,7 @@ module Api
 
       # GET /companies/1
       def show
-        @company = Company.includes(:economic_activities, :company_setting, :page_size, branch_offices: :point_of_sales)
+        @company = Company.includes(:economic_activities, :company_setting, :page_size, :invoice_types, :measurements, :modality, :environment_type, :document_sector_types, branch_offices: :point_of_sales)
                           .find(params[:id])
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
@@ -32,7 +32,12 @@ module Api
                                             branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
                                                               except: %i[created_at updated_at company_id] },
                                             company_setting: { except: %i[created_at updated_at] },
-                                            page_size: { only: %i[description] }])
+                                            page_size: { only: %i[description] },
+                                            invoice_types: { only: %i[description]},
+                                            document_sector_types: { only: %i[description]},
+                                            measurements: { only: %i[description]},
+                                            modality: { only: %i[description]},
+                                            environment_type: { only: %i[description]}])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
         render json: result
