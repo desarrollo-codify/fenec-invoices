@@ -50,3 +50,13 @@ AccountLevel.create(description: 'Rubro', initial: 'R')
 AccountLevel.create(description: 'Titulo', initial: 'T')
 AccountLevel.create(description: 'Cuenta', initial: 'C')
 AccountLevel.create(description: 'Subcuenta', initial: 'S')
+
+ProductType.create(description: 'Eau de Toilette')
+ProductType.create(description: 'Parfum')
+
+ProductCategory.create(description: 'Perfumes y colonias')
+ProductCategory.create(description: 'Maquillaje')
+ProductCategory.create(description: 'Cremas')
+
+ProductStatus.create(description: 'Activo')
+ProductStatus.create(description: 'Borrador')
