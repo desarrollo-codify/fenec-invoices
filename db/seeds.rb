@@ -53,10 +53,10 @@ AccountLevel.create(description: 'Subcuenta', initial: 'S')
 
 ProductType.create(description: 'Eau de Toilette')
 ProductType.create(description: 'Parfum')
+ProductType.create(description: 'After Shave')
 
 ProductCategory.create(description: 'Perfumes y colonias')
-ProductCategory.create(description: 'Maquillaje')
-ProductCategory.create(description: 'Cremas')
+ProductCategory.create(description: 'Cosméticos')
 
 ProductStatus.create(description: 'Activo')
 ProductStatus.create(description: 'Borrador')

@@ -13,8 +13,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :users, shallow: true
       resources :companies do
-      resources :accounting_transactions, shallow: true
-      resources :accounts, shallow: true do
+        resources :accounting_transactions, shallow: true
+        resources :accounts, shallow: true do
           post :import, on: :collection
         end
         resources :cycles, shallow: true
@@ -22,6 +22,7 @@ Rails.application.routes.draw do
         resources :branch_offices, only: %i[index create]
         resources :products, shallow: true do
           post :homologate, on: :collection
+          post :import, on: :collection
         end
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
@@ -106,6 +107,9 @@ Rails.application.routes.draw do
 
       get 'accounting/currencies'
       get 'accounting/transaction_types'
+
+      resources :product_types
+      resources :brands
     end
   end
 end

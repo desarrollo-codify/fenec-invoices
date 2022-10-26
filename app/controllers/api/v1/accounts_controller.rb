@@ -41,7 +41,7 @@ class Api::V1::AccountsController < ApplicationController
     @account.destroy
   end
 
-  # DELETE /api/v1/companies/1/accounts/import
+  # POST /api/v1/companies/1/accounts/import
   def import 
     if import_params[:csv].content_type.include?('csv')
       csv_text = File.read(import_params[:csv].tempfile)
