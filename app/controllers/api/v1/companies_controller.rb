@@ -34,9 +34,9 @@ module Api
                                                               except: %i[created_at updated_at company_id] },
                                             company_setting: { except: %i[created_at updated_at] },
                                             page_size: { only: %i[description] },
-                                            invoice_types: { only: %i[description] },
-                                            document_sector_types: { only: %i[description] },
-                                            measurements: { only: %i[description] },
+                                            invoice_types: { only: %i[id description] },
+                                            document_sector_types: { only: %i[id description] },
+                                            measurements: { only: %i[id description] },
                                             modality: { only: %i[description] },
                                             environment_type: { only: %i[description] }])
 
