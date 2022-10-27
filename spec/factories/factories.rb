@@ -254,6 +254,16 @@ FactoryBot.define do
     # company factory: :company
   end
 
+  factory :country do
+    code { 123 }
+    description { 'ABC' }
+  end
+
+  factory :currency_type do
+    code { 123 }
+    description { 'ABC' }
+  end
+
   factory :environment_type do
     description { 'Abc' }
   end
@@ -268,6 +278,21 @@ FactoryBot.define do
   end
 
   factory :invoice_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :issuance_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :room_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :service_message do
     code { '123abc' }
     description { 'ABC' }
   end
