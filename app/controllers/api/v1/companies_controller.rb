@@ -125,7 +125,7 @@ module Api
 
       # POST /companies/1/add_invoice_type
       def add_invoice_types
-        invoice_type_ids = invoice_types_company_params[:invoice_type_ids]
+        invoice_type_ids = params[:invoice_type_ids]
         invoice_types = InvoiceType.find(invoice_type_ids)
         @company.invoice_types << invoice_types
 
@@ -134,7 +134,7 @@ module Api
 
       # POST /companies/1/add_document_sector
       def add_document_sector_types
-        document_sector_type_ids = document_sector_type_company_params[:document_sector_type_ids]
+        document_sector_type_ids = params[:document_sector_type_ids]
         document_sector_types = DocumentSectorType.find(document_sector_type_ids)
         @company.document_sector_types << document_sector_types
 
@@ -143,7 +143,7 @@ module Api
 
       # POST /companies/1/add_measurement
       def add_measurements
-        measurement_ids = measurements_company_params[:measurements_ids]
+        measurement_ids = params[:measurements_ids]
         measurements = Measurement.find(measurement_ids)
         @company.measurements << measurements
 
@@ -186,18 +186,6 @@ module Api
 
       def setting_params
         params.require(:company_setting).permit(:address, :port, :domain, :user_name, :password)
-      end
-
-      def invoice_types_company_params
-        params.require(:invoice_types).permit(invoice_type_ids: [])
-      end
-
-      def document_sector_type_company_params
-        params.require(:document_sector_types).permit(document_sector_type_ids: [])
-      end
-
-      def measurements_company_params
-        params.require(:measurements).permit(measurements_ids: [])
       end
 
       def super_admin_only
