@@ -7,6 +7,7 @@ module Api
       require 'siat_available'
       require 'verify_nit'
       require 'siat_client'
+      require 'client_call'
 
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
@@ -14,20 +15,9 @@ module Api
       before_action :set_siat_available, except: %i[show_cufd show_cuis verify_nit verify_communication]
 
       def generate_cuis
-        @company = @branch_office.company
-        client = SiatClient.client('siat_codes_invoices_wsdl', @company)
-        body = {
-          SolicitudCuis: {
-            codigoAmbiente: @company.environment_type_id,
-            codigoPuntoVenta: params[:point_of_sale],
-            codigoSistema: @company.company_setting.system_code,
-            nit: @company.nit.to_i,
-            codigoModalidad: @company.modality_id,
-            codigoSucursal: @branch_office.number
-          }
-        }
-        response = client.call(:cuis, message: body)
-        data = response.to_array(:cuis_response, :respuesta_cuis).first
+        point_of_sale = params[:point_of_sale]
+
+        data = ClientCall.cuis(@branch_office, point_of_sale)
 
         if !data[:transaccion] && data[:mensajes_list][:codigo] != '980'
           return render json: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}"
@@ -58,22 +48,9 @@ module Api
           return
         end
 
-        @company = @branch_office.company
-        client = SiatClient.client('siat_codes_invoices_wsdl', @company)
-        body = {
-          SolicitudCufd: {
-            codigoAmbiente: @company.environment_type_id,
-            codigoPuntoVenta: params[:point_of_sale],
-            codigoSistema: @company.company_setting.system_code,
-            nit: @company.nit.to_i,
-            codigoModalidad: @company.modality_id,
-            cuis: @cuis_code.code,
-            codigoSucursal: @branch_office.number
-          }
-        }
+        point_of_sale = params[:point_of_sale]
 
-        response = client.call(:cufd, message: body)
-        data = response.to_array(:cufd_response, :respuesta_cufd).first
+        data = ClientCall.cufd(@branch_office, point_of_sale, @cuis_code)
 
         unless data[:transaccion]
           return render json: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}"
@@ -99,51 +76,11 @@ module Api
         end
       end
 
-      def product_codes
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
-        company = @branch_office.company
-
-        response = client.call(:sincronizar_lista_productos_servicios, message: siat_body)
-        response_transaction = response.to_array(:sincronizar_lista_productos_servicios_response, :respuesta_lista_productos).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_lista_productos_servicios_response, :respuesta_lista_productos, :lista_codigos)
-        response_data = data.map do |a|
-          a.values_at :codigo_actividad, :codigo_producto, :descripcion_producto
-        end
-        products = response_data.map { |attrs| { activity_code: attrs[0], code: attrs[1], description: attrs[2] } }
-
-        company = @branch_office.company
-        activity_codes = products.pluck(:activity_code).uniq
-        activity_codes.each do |activity_code|
-          economic_activity = company.economic_activities.find_by(code: activity_code.to_i)
-          activity_products = products.select { |l| l[:activity_code] == activity_code }
-          activity_products_data = activity_products.uniq { |p| p[:code] }.map do |a|
-            a.values_at :code, :description
-          end
-          products_select = activity_products_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
-          economic_activity.bulk_load_product_codes(products_select)
-        end
-        render json: data
-      rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
-      end
-
       def economic_activities
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.economic_activities(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_actividades, message: siat_body)
+        return render json: data if data.instance_of?(String)
 
-        response_transaction = response.to_array(:sincronizar_actividades_response, :respuesta_lista_actividades).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_actividades_response, :respuesta_lista_actividades, :lista_actividades)
         response_data = data.map do |a|
           a.values_at :codigo_caeb, :descripcion,
                       :tipo_actividad
@@ -157,20 +94,36 @@ module Api
         render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
       end
 
-      def document_types
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+      def product_codes
+        data = ClientCall.product_codes(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipo_documento_identidad, message: siat_body)
+        return render json: data if data.instance_of?(String)
 
-        response_transaction = response.to_array(:sincronizar_parametrica_tipo_documento_identidad_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
+        response_data = data.map do |a|
+          a.values_at :codigo_actividad, :codigo_producto, :descripcion_producto
         end
+        products = response_data.map { |attrs| { activity_code: attrs[0], code: attrs[1], description: attrs[2] } }
 
-        data = response.to_array(:sincronizar_parametrica_tipo_documento_identidad_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        activity_codes = products.pluck(:activity_code).uniq
+        activity_codes.each do |activity_code|
+          economic_activity = @company.economic_activities.find_by(code: activity_code.to_i)
+          activity_products = products.select { |l| l[:activity_code] == activity_code }
+          activity_products_data = activity_products.uniq { |p| p[:code] }.map do |a|
+            a.values_at :code, :description
+          end
+          products_select = activity_products_data.map { |attrs| { code: attrs[0], description: attrs[1] } }
+          economic_activity.bulk_load_product_codes(products_select)
+        end
+        render json: data
+      rescue StandardError => e
+        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+      end
+
+      def document_types
+        data = ClientCall.document_types(@branch_office, siat_body)
+
+        return render json: data if data.instance_of?(String)
+
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
         end
@@ -184,19 +137,10 @@ module Api
       end
 
       def payment_methods
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.payment_methods(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipo_metodo_pago, message: siat_body)
+        return render json: data if data.instance_of?(String)
 
-        response_transaction = response.to_array(:sincronizar_parametrica_tipo_metodo_pago_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_tipo_metodo_pago_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
         end
@@ -210,18 +154,10 @@ module Api
       end
 
       def legends
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.legends(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_lista_leyendas_factura, message: siat_body)
-        response_transaction = response.to_array(:sincronizar_lista_leyendas_factura_response,
-                                                 :respuesta_lista_parametricas_leyendas).first
+        return render json: data if data.instance_of?(String)
 
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_lista_leyendas_factura_response, :respuesta_lista_parametricas_leyendas,
-                                 :lista_leyendas)
         response_data = data.map do |a|
           a.values_at :codigo_actividad, :descripcion_leyenda
         end
@@ -241,19 +177,9 @@ module Api
       end
 
       def measurements
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.measurements(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_unidad_medida, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_unidad_medida_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_unidad_medida_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -268,19 +194,9 @@ module Api
       end
 
       def significative_events
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.significative_events(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_eventos_significativos, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_eventos_significativos_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_eventos_significativos_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -309,19 +225,9 @@ module Api
       end
 
       def pos_types
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.pos_types(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipo_punto_venta, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_tipo_punto_venta_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_tipo_punto_venta_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -336,19 +242,9 @@ module Api
       end
 
       def cancellation_reasons
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.cancellation_reasons(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_motivo_anulacion, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_motivo_anulacion_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_motivo_anulacion_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -363,20 +259,10 @@ module Api
       end
 
       def document_sectors
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.document_sectors(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_lista_actividades_documento_sector, message: siat_body)
+        return render json: data if data.instance_of?(String)
 
-        response_transaction = response.to_array(:sincronizar_lista_actividades_documento_sector_response,
-                                                 :respuesta_lista_actividades_documento_sector).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_lista_actividades_documento_sector_response,
-                                 :respuesta_lista_actividades_documento_sector,
-                                 :lista_actividades_documento_sector)
         response_data = data.map do |a|
           a.values_at :codigo_actividad, :codigo_documento_sector, :tipo_documento_sector
         end
@@ -400,18 +286,9 @@ module Api
       end
 
       def countries
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.countries(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_pais_origen, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_pais_origen_response, :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_pais_origen_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -426,19 +303,9 @@ module Api
       end
 
       def issuance_types
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.issuance_types(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipo_emision, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_tipo_emision_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_tipo_emision_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -453,19 +320,9 @@ module Api
       end
 
       def room_types
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.room_types(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipo_habitacion, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_tipo_habitacion_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_tipo_habitacion_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -480,18 +337,9 @@ module Api
       end
 
       def currency_types
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.currency_types(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipo_moneda, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_tipo_moneda_response, :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_tipo_moneda_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -506,19 +354,9 @@ module Api
       end
 
       def invoice_types
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.invoice_types(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipos_factura, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_tipos_factura_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_tipos_factura_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -533,19 +371,9 @@ module Api
       end
 
       def service_messages
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.service_messages(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_lista_mensajes_servicios, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_lista_mensajes_servicios_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_lista_mensajes_servicios_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion
@@ -560,19 +388,9 @@ module Api
       end
 
       def document_sector_types
-        client = SiatClient.client('siat_sync_invoice_wsdl', @company)
+        data = ClientCall.document_sector_types(@branch_office, siat_body)
 
-        response = client.call(:sincronizar_parametrica_tipo_documento_sector, message: siat_body)
-
-        response_transaction = response.to_array(:sincronizar_parametrica_tipo_documento_sector_response,
-                                                 :respuesta_lista_parametricas).first
-
-        unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
-        end
-
-        data = response.to_array(:sincronizar_parametrica_tipo_documento_sector_response, :respuesta_lista_parametricas,
-                                 :lista_codigos)
+        return render json: data if data.instance_of?(String)
 
         response_data = data.map do |a|
           a.values_at :codigo_clasificador, :descripcion

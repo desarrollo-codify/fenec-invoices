@@ -1184,6 +1184,24 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     }
   end
 
+  let(:invoice_types) do
+    {
+      invoice_type_ids: [1]
+    }
+  end
+
+  let(:document_sector_types) do
+    {
+      document_sector_type_ids: [1]
+    }
+  end
+
+  let(:measurements) do
+    {
+      measurements_ids: [1]
+    }
+  end
+
   let(:valid_headers) do
     {}
   end
@@ -1199,7 +1217,19 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
   end
 
   describe 'POST /create' do
-    let(:branch_office) { create(:branch_office) }
+    before { create(:invoice_type) }
+    before { create(:document_sector_type) }
+    before { create(:environment_type) }
+    before { create(:modality) }
+    before { create(:company, environment_type_id: 1, modality_id: 1) }
+
+    before(:each) do
+      @company = Company.first
+      post add_invoice_types_api_v1_company_url(@company), params: { invoice_types: invoice_types }, as: :json
+      post add_document_sector_types_api_v1_company_url(@company), params: { document_sector_types: document_sector_types }, as: :json
+    end
+
+    let(:branch_office) { create(:branch_office, company: @company) }
 
     context 'with valid parameters' do
       before { create(:cuis_code, branch_office: branch_office) }
