@@ -15,6 +15,11 @@ Rails.application.routes.draw do
       resources :modalities, only: %i[index]
       resources :users, shallow: true
       resources :companies do
+        resources :accounting_transactions, shallow: true
+        resources :accounts, shallow: true do
+          post :import, on: :collection
+        end
+        resources :cycles, shallow: true
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
         post :add_invoice_types, on: :member
@@ -25,11 +30,13 @@ Rails.application.routes.draw do
         post :remove_measurements, on: :member
         resources :products, shallow: true do
           post :homologate, on: :collection
+          post :import, on: :collection
         end
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
         get :cuis_codes, on: :member
+        get :contingencies, on: :member
         put '/settings', to: 'companies#update_settings'
       end
       get '/branch_offices/:branch_office_id/daily_codes/current', to: 'daily_codes#current'
@@ -105,6 +112,12 @@ Rails.application.routes.draw do
       get 'global_settings/service_messages'
       get 'global_settings/document_sector_types'
       get 'global_settings/product_codes'
+
+      get 'accounting/currencies'
+      get 'accounting/transaction_types'
+
+      resources :product_types
+      resources :brands
     end
   end
 end

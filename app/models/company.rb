@@ -14,6 +14,7 @@ class Company < ApplicationRecord
   has_many :delegated_tokens, dependent: :destroy
   has_many :economic_activities, dependent: :destroy
   has_many :invoices, through: :branch_offices
+  has_many :accounting_transactions, dependent: :destroy
   has_one :company_setting, dependent: :destroy
   has_many :users
   belongs_to :environment_type, optional: true
