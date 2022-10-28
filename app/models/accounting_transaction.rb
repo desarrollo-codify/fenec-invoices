@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AccountingTransaction < ApplicationRecord
   belongs_to :currency
   belongs_to :cycle

@@ -12,21 +12,21 @@ module Api
       def index
         @products = @company.products.includes(:brand, :product_type, :variants).order(:primary_code)
         render json: @products.as_json(except: %i[created_at updated_at],
-          include: [
-            { brand: { only: :description } },
-            { product_type: { only: :description } },
-            { variants: { except: %i[created_at updated_at] } }
-          ])
+                                       include: [
+                                         { brand: { only: :description } },
+                                         { product_type: { only: :description } },
+                                         { variants: { except: %i[created_at updated_at] } }
+                                       ])
       end
 
       # GET /api/v1/products/1
       def show
         render json: @product.as_json(except: %i[created_at updated_at],
-          include: [
-            { brand: { only: :description } },
-            { product_type: { only: :description } },
-            { variants: { except: %i[created_at updated_at] } }
-          ])
+                                      include: [
+                                        { brand: { only: :description } },
+                                        { product_type: { only: :description } },
+                                        { variants: { except: %i[created_at updated_at] } }
+                                      ])
       end
 
       # POST /api/v1/companies/:company_id/products
@@ -64,33 +64,33 @@ module Api
         end
       end
 
-      #POST /api/v1/companies/1/products/import
+      # POST /api/v1/companies/1/products/import
       def import
         if import_params[:csv].content_type.include?('csv')
           csv_text = File.read(import_params[:csv].tempfile)
-          csv = CSV.parse(csv_text, headers: true, col_sep: ";", encoding: 'iso-8859-1')
-          
+          csv = CSV.parse(csv_text, headers: true, col_sep: ';', encoding: 'iso-8859-1')
+
           count = 0
-          
+
           csv.each do |row|
             brand_name, code, title, type, variant = row
-            unless brand_name[1].empty?
-              brand = Brand.find_or_create_by(description: brand_name[1])
-              product_type = ProductType.find_or_create_by(description: type[1])
+            next if brand_name[1].empty?
 
-              product = @company.products.find_or_create_by(description: title[1]) do |p|
-                p.title = title[1]
-                p.primary_code = code[1]
-                p.price = 0
-                p.brand_id = brand.id
-                p.product_type_id = product_type.id
-              end
+            brand = Brand.find_or_create_by(description: brand_name[1])
+            product_type = ProductType.find_or_create_by(description: type[1])
 
-              product.variants.create!(sku: code[1], price: 0, compare_price: 0, cost: 0, title: variant[1]) if product.persisted?
+            product = @company.products.find_or_create_by(description: title[1]) do |p|
+              p.title = title[1]
+              p.primary_code = code[1]
+              p.price = 0
+              p.brand_id = brand.id
+              p.product_type_id = product_type.id
             end
+
+            product.variants.create!(sku: code[1], price: 0, compare_price: 0, cost: 0, title: variant[1]) if product.persisted?
           end
         end
-    
+
         render json: count
       end
 
