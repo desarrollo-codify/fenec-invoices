@@ -6,4 +6,9 @@ class Product < ApplicationRecord
   validates :description, presence: true
 
   belongs_to :company
+  belongs_to :product_type, optional: true
+  belongs_to :product_category, optional: true
+  belongs_to :product_status, optional: true
+  belongs_to :brand, optional: true
+  has_many :variants, dependent: :destroy
 end
