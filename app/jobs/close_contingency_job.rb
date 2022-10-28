@@ -10,12 +10,17 @@ class CloseContingencyJob < ApplicationJob
     invoices = find_invoices(contingency)
 
     @pending_invoices = invoices.by_cufd(contingency.cufd_code)
+
+    if @pending_invoices.empty?
+      contingency.contingency_logs.create(code: 1100,
+        description: "No se existen facturas asociadas a esta contingencia.")
+      return contingency.update(status: 'VALIDADA')
+    end
+
     current_cuis = contingency.point_of_sale.branch_office.cuis_codes
                               .by_pos(@pending_invoices.last.point_of_sale).current.code
     current_cufd = contingency.point_of_sale.branch_office.daily_codes
                               .by_pos(@pending_invoices.last.point_of_sale).current.code
-
-    return if @pending_invoices.empty?
 
     @pending_invoices.update_all(contingency_id: contingency.id)
     event_cufd = @pending_invoices.first.cufd_code
