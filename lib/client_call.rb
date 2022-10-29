@@ -18,7 +18,6 @@ class ClientCall
       }
     }
     response = client.call(:cuis, message: body)
-
     response.to_array(:cuis_response, :respuesta_cuis).first
   end
 
