@@ -13,7 +13,7 @@ class CloseContingencyJob < ApplicationJob
 
     if @pending_invoices.empty?
       contingency.contingency_logs.create(code: 1100,
-        description: "No se existen facturas asociadas a esta contingencia.")
+                                          description: 'No se existen facturas asociadas a esta contingencia.')
       return contingency.update(status: 'VALIDADA')
     end
 
