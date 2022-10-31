@@ -56,3 +56,4 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
       end
     end
   end
+end
