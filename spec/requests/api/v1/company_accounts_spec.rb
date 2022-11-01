@@ -15,10 +15,14 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
     {}
   end
 
+  let(:cycle) { create(:cycle) }
+  let(:account_type) { create(:account_type) }
+  let(:company) { create(:company) }
+
   describe 'GET /index' do
     it 'renders a successful response' do
-      Account.create! valid_attributes
-      get api_v1_accounts_url, headers: valid_headers, as: :json
+      create(:account, company: company, cycle: cycle, account_type: account_type)
+      get api_v1_company_accounts_url(company_id: company.id), headers: valid_headers, as: :json
       expect(response).to be_successful
     end
   end
