@@ -296,4 +296,28 @@ FactoryBot.define do
     code { '123abc' }
     description { 'ABC' }
   end
+
+  factory :account_type do
+    description { 'Activo' }
+  end
+
+  factory :account_level do
+    description { 'Grupo' }
+  end
+
+  factory :cycle do
+    year { 2022 }
+    status { 'Abierta' }
+    start_date { '2022-01-01' }
+    end_date { '2022-12-31' }
+  end
+  
+  factory :account do
+    number { '1.1.1' }
+    description { 'Cuenta 1' }
+    company factory: :company
+    cycle factory: :cycle
+    account_type factory: :account_type
+    account_level factory: :account_level
+  end
 end
