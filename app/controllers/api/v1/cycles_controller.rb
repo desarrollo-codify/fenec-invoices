@@ -47,6 +47,7 @@ module Api
         @cycle = @company.cycles.current
 
         return render json: 'No existen una Gestión abierta para esta empresa.', status: :unprocessable_entity unless @cycle.present?
+
         render json: @cycle
       end
 

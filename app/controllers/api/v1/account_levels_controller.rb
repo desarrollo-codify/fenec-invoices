@@ -1,7 +1,13 @@
-class Api::V1::AccountLevelsController < ApplicationController
-  def index
-    @account_levels = AccountLevel.all
+# frozen_string_literal: true
 
-    render json: @account_levels
+module Api
+  module V1
+    class AccountLevelsController < ApplicationController
+      def index
+        @account_levels = AccountLevel.all
+
+        render json: @account_levels
+      end
+    end
   end
 end
