@@ -22,7 +22,7 @@ module Api
 
       # POST /api/v1/companies/1/accounts
       def create
-        @account = Account.new(account_params)
+        @account = @company.accounts.build(account_params)
 
         if @account.save
           render json: @account, status: :created, location: @account
@@ -88,7 +88,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def account_params
-        params.fetch(:account, {})
+        params.require(:account).permit(:number, :description, :amount, :percentage, :cycle_id, :account_level_id, :account_type_id)
       end
 
       def import_params
