@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         post :add_invoice_types, on: :member
         post :add_document_sector_types, on: :member
         post :add_measurements, on: :member
+        post :mail_test, on: :member
         post :remove_invoice_type, on: :member
         post :remove_document_sector_type, on: :member
         post :remove_measurements, on: :member
