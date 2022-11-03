@@ -16,6 +16,8 @@ class Company < ApplicationRecord
   has_many :invoices, through: :branch_offices
   has_many :accounting_transactions, dependent: :destroy
   has_one :company_setting, dependent: :destroy
+  has_many :cycles
+  has_many :accounts
   has_many :users
   belongs_to :environment_type, optional: true
   belongs_to :modality, optional: true
