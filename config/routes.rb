@@ -118,6 +118,8 @@ Rails.application.routes.draw do
 
       resources :product_types
       resources :brands
+      resources :account_levels, only: %i[index]
+      resources :account_types, only: %i[index]
     end
   end
 end
