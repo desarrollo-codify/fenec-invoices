@@ -27,5 +27,9 @@ RSpec.describe Api::V1::AccountsController, type: :routing do
     it 'routes to #destroy' do
       expect(delete: '/api/v1/accounts/1').to route_to('api/v1/accounts#destroy', id: '1')
     end
+
+    it 'routes to #import' do
+      expect(post: '/api/v1/companies/1/accounts/import').to route_to('api/v1/products#import', company_id: '1')
+    end
   end
 end

@@ -11,8 +11,6 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :account_types, only: %i[index]
-      resources :account_levels, only: %i[index]
       resources :environment_types, only: %i[index]
       resources :modalities, only: %i[index]
       resources :users, shallow: true
