@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MailTestMailer < ApplicationMailer
   def send_mail
     @email = params[:email]

@@ -205,4 +205,13 @@ RSpec.describe '/api/v1/companies', type: :request do
       end.to change(company.measurements, :count).by(-1)
     end
   end
+
+  describe 'POST /confirm_mail' do
+    let(:company) { create(:company) }
+
+    it 'update mail verification' do
+      post confirm_mail_api_v1_company_url(company), params: {}, headers: valid_headers, as: :json
+      expect(company.company_setting.mail_verification).to be_truthy
+    end
+  end
 end

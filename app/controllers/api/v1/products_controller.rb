@@ -102,8 +102,10 @@ module Api
             count += 1 if product.persisted?
           end
         end
-        response =  "Se han importado #{count} de #{count_total} productos. Estos productos no se pudieron crear: #{errors}" unless count == count_total
-        response =  "Se han importado #{count} productos." if count == count_total
+        unless count == count_total
+          response = "Se han importado #{count} de #{count_total} productos. Estos productos no se pudieron crear: #{errors}"
+        end
+        response = "Se han importado #{count} productos." if count == count_total
         render json: response
       end
 
