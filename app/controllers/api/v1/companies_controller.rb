@@ -181,6 +181,13 @@ module Api
         render json: @company.measurements
       end
 
+      def mail_test
+        return render json: 'No se ha configurado ningun correo para la empresa.', status: :unprocessable_entity unless @company.company_setting.present?
+        MailTestMailer.with(email: params[:email], company: @company).send_mail.deliver_now
+
+        render json: "Verifique si se recibio un correo de prueba en la direccion #{params[:email]}. Si recibio el correo presione RECIBIDO."
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
