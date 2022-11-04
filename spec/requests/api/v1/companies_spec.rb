@@ -19,24 +19,6 @@ RSpec.describe '/api/v1/companies', type: :request do
     }
   end
 
-  let(:invoice_types) do
-    {
-      invoice_type_ids: [1, 2]
-    }
-  end
-
-  let(:document_sector_types) do
-    {
-      document_sector_type_ids: [1, 2]
-    }
-  end
-
-  let(:measurements) do
-    {
-      measurements_ids: [1, 2]
-    }
-  end
-
   let(:valid_headers) do
     {}
   end
@@ -140,7 +122,7 @@ RSpec.describe '/api/v1/companies', type: :request do
     it 'add invoice types company' do
       company = create(:company)
       expect do
-        post add_invoice_types_api_v1_company_url(company), params: { invoice_types: invoice_types }, headers: valid_headers, as: :json
+        post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: valid_headers, as: :json
       end.to change(company.invoice_types, :count).by(2)
     end
   end
@@ -152,7 +134,7 @@ RSpec.describe '/api/v1/companies', type: :request do
     it 'add document sector types company' do
       company = create(:company)
       expect do
-        post add_document_sector_types_api_v1_company_url(company), params: { document_sector_types: document_sector_types },
+        post add_document_sector_types_api_v1_company_url(company), params: { document_sector_type_ids: [1, 2] },
                                                                     headers: valid_headers, as: :json
       end.to change(company.document_sector_types, :count).by(2)
     end
@@ -165,7 +147,7 @@ RSpec.describe '/api/v1/companies', type: :request do
     it 'add measurements company' do
       company = create(:company)
       expect do
-        post add_measurements_api_v1_company_url(company), params: { measurements: measurements }, headers: valid_headers, as: :json
+        post add_measurements_api_v1_company_url(company), params: { measurements_ids: [1, 2] }, headers: valid_headers, as: :json
       end.to change(company.measurements, :count).by(2)
     end
   end
@@ -176,20 +158,7 @@ RSpec.describe '/api/v1/companies', type: :request do
 
     it 'add invoice types company' do
       company = create(:company)
-      post add_invoice_types_api_v1_company_url(company), params: { invoice_types: invoice_types }, headers: valid_headers, as: :json
-      expect do
-        post remove_invoice_type_api_v1_company_url(company), params: { invoice_type_id: 2 }, headers: valid_headers, as: :json
-      end.to change(company.invoice_types, :count).by(-1)
-    end
-  end
-
-  describe 'POST /remove_document_sector_type' do
-    before { create(:invoice_type) }
-    before { create(:invoice_type, code: 'def456') }
-
-    it 'add invoice types company' do
-      company = create(:company)
-      post add_invoice_types_api_v1_company_url(company), params: { invoice_types: invoice_types }, headers: valid_headers, as: :json
+      post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: valid_headers, as: :json
       expect do
         post remove_invoice_type_api_v1_company_url(company), params: { invoice_type_id: 2 }, headers: valid_headers, as: :json
       end.to change(company.invoice_types, :count).by(-1)
@@ -197,12 +166,25 @@ RSpec.describe '/api/v1/companies', type: :request do
   end
 
   describe 'POST /remove_invoice_type' do
+    before { create(:invoice_type) }
+    before { create(:invoice_type, code: 'def456') }
+
+    it 'remove invoice types the company' do
+      company = create(:company)
+      post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: valid_headers, as: :json
+      expect do
+        post remove_invoice_type_api_v1_company_url(company), params: { invoice_type_id: 2 }, headers: valid_headers, as: :json
+      end.to change(company.invoice_types, :count).by(-1)
+    end
+  end
+
+  describe 'POST /remove_document_sector_type' do
     before { create(:document_sector_type) }
     before { create(:document_sector_type, code: 'def456') }
 
-    it 'add invoice types company' do
+    it 'remove document sector types the company' do
       company = create(:company)
-      post add_document_sector_types_api_v1_company_url(company), params: { document_sector_types: document_sector_types },
+      post add_document_sector_types_api_v1_company_url(company), params: { document_sector_type_ids: [1, 2] },
                                                                   headers: valid_headers, as: :json
       expect do
         post remove_document_sector_type_api_v1_company_url(company), params: { document_sector_type_id: 2 }, headers: valid_headers,
@@ -215,9 +197,9 @@ RSpec.describe '/api/v1/companies', type: :request do
     before { create(:measurement) }
     before { create(:measurement, description: 'def456') }
 
-    it 'add invoice types company' do
+    it 'remove measurement the company' do
       company = create(:company)
-      post add_measurements_api_v1_company_url(company), params: { measurements: measurements }, headers: valid_headers, as: :json
+      post add_measurements_api_v1_company_url(company), params: { measurements_ids: [1, 2] }, headers: valid_headers, as: :json
       expect do
         post remove_measurements_api_v1_company_url(company), params: { measurement_id: 2 }, headers: valid_headers, as: :json
       end.to change(company.measurements, :count).by(-1)

@@ -4,6 +4,7 @@ module Api
   module V1
     class CyclesController < ApplicationController
       before_action :set_cycle, only: %i[show update destroy]
+      before_action :set_company, only: %i[current]
 
       # GET /api/v1/cycles
       def index
@@ -42,11 +43,23 @@ module Api
         @cycle.destroy
       end
 
+      def current
+        @cycle = @company.cycles.current
+
+        return render json: 'No existen una Gestión abierta para esta empresa.', status: :unprocessable_entity unless @cycle.present?
+
+        render json: @cycle
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
       def set_cycle
         @cycle = Cycle.find(params[:id])
+      end
+
+      def set_company
+        @company = Company.find(params[:company_id])
       end
 
       # Only allow a list of trusted parameters through.

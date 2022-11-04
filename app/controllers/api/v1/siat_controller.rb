@@ -18,7 +18,7 @@ module Api
         point_of_sale = params[:point_of_sale]
 
         data = ClientCall.cuis(@branch_office, point_of_sale)
-        
+
         if !data[:transaccion] && data[:mensajes_list][:codigo] != '980'
           return render json: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}"
         end

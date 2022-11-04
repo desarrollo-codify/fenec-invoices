@@ -311,7 +311,7 @@ FactoryBot.define do
     start_date { '2022-01-01' }
     end_date { '2022-12-31' }
   end
-  
+
   factory :account do
     number { '1.1.1' }
     description { 'Cuenta 1' }

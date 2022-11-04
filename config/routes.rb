@@ -11,6 +11,8 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :account_types, only: %i[index]
+      resources :account_levels, only: %i[index]
       resources :environment_types, only: %i[index]
       resources :modalities, only: %i[index]
       resources :users, shallow: true
@@ -19,7 +21,9 @@ Rails.application.routes.draw do
         resources :accounts, shallow: true do
           post :import, on: :collection
         end
-        resources :cycles, shallow: true
+        resources :cycles, shallow: true do
+          get :current, on: :collection
+        end
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
         post :add_invoice_types, on: :member
@@ -119,6 +123,8 @@ Rails.application.routes.draw do
 
       resources :product_types
       resources :brands
+      resources :account_levels, only: %i[index]
+      resources :account_types, only: %i[index]
     end
   end
 end
