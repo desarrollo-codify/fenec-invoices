@@ -18,11 +18,16 @@ class AccountingTransaction < ApplicationRecord
   private
 
   def has_at_least_two_entries
-    errors.add(:entries, 'Se deben agregar un mínimo de dos asientos.') unless entries.count >= 2
+    errors.add(:entries, 'Se deben agregar un mínimo de dos asientos.') unless entries.length >= 2
   end
 
   def debit_and_credit_equal_sum
-    errors.add(:entries, 'La suma de debito y credito debe ser igual.') unless entries.sum(:debit_bs) == entries.sum(:credit_bs)
-    errors.add(:entries, 'La suma de debito y credito debe ser igual.') unless entries.sum(:debit_sus) == entries.sum(:credit_sus)
+    sum_debit = 0
+    sum_credit = 0
+    entries.each do |entry|
+      sum_debit += entry.debit_bs if entry.debit_bs.present?
+      sum_credit += entry.credit_bs if entry.credit_bs.present?
+    end
+    errors.add(:entries, 'La suma de debito y credito debe ser igual.') unless sum_debit == sum_credit
   end
 end

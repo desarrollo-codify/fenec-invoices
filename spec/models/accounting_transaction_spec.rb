@@ -29,6 +29,12 @@ RSpec.describe AccountingTransaction, type: :model do
       accounting_transaction.entries.build(credit_bs: 10, account: account)
       expect(accounting_transaction).to be_valid
     end
+
+    it 'is not valid for entries' do
+      accounting_transaction.entries.build(debit_bs: 10, account: account)
+      accounting_transaction.entries.build(credit_bs: 9, account: account)
+      expect(accounting_transaction).to_not be_valid
+    end
   end
 
   describe 'date attribute' do
@@ -38,8 +44,8 @@ RSpec.describe AccountingTransaction, type: :model do
       let(:accounting_transaction) { build(:accounting_transaction, date: nil, company: company, currency: currency, cycle: cycle, transaction_type: transaction_type) }
 
       it 'is invalid' do
-        accounting_transaction.entries.(debit_bs: 10, account: account)
-        accounting_transaction.entries.(credit_bs: 10, account: account)
+        accounting_transaction.entries.build(debit_bs: 10, account: account)
+        accounting_transaction.entries.build(credit_bs: 10, account: account)
         expect(accounting_transaction).to_not be_valid
         accounting_transaction.date = ''
         expect(accounting_transaction).to_not be_valid
@@ -54,8 +60,8 @@ RSpec.describe AccountingTransaction, type: :model do
       let(:accounting_transaction) { build(:accounting_transaction, gloss: nil, company: company, currency: currency, cycle: cycle, transaction_type: transaction_type) }
 
       it 'is invalid' do
-        accounting_transaction.entries.(debit_bs: 10, account: account)
-        accounting_transaction.entries.(credit_bs: 10, account: account)
+        accounting_transaction.entries.build(debit_bs: 10, account: account)
+        accounting_transaction.entries.build(credit_bs: 10, account: account)
         expect(accounting_transaction).to_not be_valid
         accounting_transaction.gloss = ''
         expect(accounting_transaction).to_not be_valid
