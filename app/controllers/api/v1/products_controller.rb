@@ -68,30 +68,45 @@ module Api
       def import
         if import_params[:csv].content_type.include?('csv')
           csv_text = File.read(import_params[:csv].tempfile)
-          csv = CSV.parse(csv_text, headers: true, col_sep: ';', encoding: 'iso-8859-1')
+          csv = CSV.parse(csv_text, headers: true, col_sep: ',', encoding: 'iso-8859-1')
 
           count = 0
+          count_total = 0
+          errors = []
 
           csv.each do |row|
-            brand_name, code, title, type, variant = row
+            brand_name, code, title, type, variant, price, measure, category_name = row
             next if brand_name[1].empty?
 
-            brand = Brand.find_or_create_by(description: brand_name[1])
-            product_type = ProductType.find_or_create_by(description: type[1])
+            brand = Brand.find_or_create_by(description: brand_name[1]) if brand_name[1].present?
+            product_type = ProductType.find_or_create_by(description: type[1]) if type[1].present?
+            measurement = Measurement.find_by(description: measure[1]) if measure[1].present?
+            category = ProductCategory.find_or_create_by(description: category_name[1]) if category_name[1].present?
 
             product = @company.products.find_or_create_by(description: title[1]) do |p|
               p.title = title[1]
               p.primary_code = code[1]
-              p.price = 0
-              p.brand_id = brand.id
-              p.product_type_id = product_type.id
+              p.price = price[1].present? ? price[1] : 0
+              p.brand_id = brand.id if brand.present?
+              p.product_type_id = product_type.id if product_type.present?
+              p.measurement_id = measurement.id if measurement.present?
+              p.category_id = category.id if category.present?
             end
-
+            unless product.valid?
+              errors << "El producto #{count}, con el titulo '#{title[1]}' no se pudo crear por: #{product.errors.full_messages}"
+              count_total += 1
+              next
+            end
             product.variants.create!(sku: code[1], price: 0, compare_price: 0, cost: 0, title: variant[1]) if product.persisted?
+            count_total += 1
+            count += 1 if product.persisted?
           end
         end
-
-        render json: count
+        unless count == count_total
+          response = "Se han importado #{count} de #{count_total} productos. Estos productos no se pudieron crear: #{errors}"
+        end
+        response = "Se han importado #{count} productos." if count == count_total
+        render json: response
       end
 
       private
@@ -107,7 +122,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def product_params
-        params.require(:product).permit(:primary_code, :description, :sin_code, :price)
+        params.require(:product).permit(:primary_code, :description, :sin_code, :price, :measurement_id)
       end
 
       def homologate_product_params

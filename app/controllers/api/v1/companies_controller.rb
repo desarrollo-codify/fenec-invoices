@@ -85,8 +85,9 @@ module Api
       def update_settings
         settings = @company.company_setting
         settings.update(setting_params)
+        settings.update(mail_verification: false)
 
-        render json: settings, status: :ok
+        render json: settings
       end
 
       # GET /companies/1/cuis_codes
@@ -179,6 +180,25 @@ module Api
         @company.measurements.delete(params[:measurement_id])
 
         render json: @company.measurements
+      end
+
+      def mail_test
+        unless @company.company_setting.present?
+          return render json: 'No se ha configurado ningun correo para la empresa.',
+                        status: :unprocessable_entity
+        end
+
+        MailTestMailer.with(email: params[:email], company: @company).send_mail.deliver_now
+
+        render json: "Verifique si se recibio un correo de prueba en la direccion #{params[:email]}. Si recibio el correo
+                      presione RECIBIDO."
+      end
+
+      def confirm_mail
+        @company.company_setting.update(mail_verification: true)
+        @company.save
+
+        render json: 'Se ha confirmado que la configuración del correo es correcta.'
       end
 
       private

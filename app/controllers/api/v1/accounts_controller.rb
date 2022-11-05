@@ -12,6 +12,8 @@ module Api
       def index
         @accounts = Account.all
 
+        return render json: 'No existe ninguna cuenta en la empresa.', status: :unprocessable_entity unless @accounts.present?
+
         render json: @accounts
       end
 
@@ -22,10 +24,10 @@ module Api
 
       # POST /api/v1/companies/1/accounts
       def create
-        @account = Account.new(account_params)
+        @account = @company.accounts.build(account_params)
 
         if @account.save
-          render json: @account, status: :created, location: @account
+          render json: @account, status: :created
         else
           render json: @account.errors, status: :unprocessable_entity
         end
@@ -33,7 +35,7 @@ module Api
 
       # PATCH/PUT /api/v1/accounts/1
       def update
-        if @account.update(account_params)
+        if @account.update(update_account_params)
           render json: @account
         else
           render json: @account.errors, status: :unprocessable_entity
@@ -88,7 +90,11 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def account_params
-        params.fetch(:account, {})
+        params.require(:account).permit(:number, :description, :amount, :percentage, :cycle_id, :account_level_id, :account_type_id)
+      end
+
+      def update_account_params
+        params.require(:account).permit(:number, :description, :amount, :percentage, :account_level_id, :account_type_id)
       end
 
       def import_params

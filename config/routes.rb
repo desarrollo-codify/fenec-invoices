@@ -19,12 +19,16 @@ Rails.application.routes.draw do
         resources :accounts, shallow: true do
           post :import, on: :collection
         end
-        resources :cycles, shallow: true
+        resources :cycles, shallow: true do
+          get :current, on: :collection
+        end
         resources :delegated_tokens, shallow: true
         resources :branch_offices, only: %i[index create]
         post :add_invoice_types, on: :member
         post :add_document_sector_types, on: :member
         post :add_measurements, on: :member
+        post :mail_test, on: :member
+        post :confirm_mail, on: :member
         post :remove_invoice_type, on: :member
         post :remove_document_sector_type, on: :member
         post :remove_measurements, on: :member
@@ -118,6 +122,8 @@ Rails.application.routes.draw do
 
       resources :product_types
       resources :brands
+      resources :account_levels, only: %i[index]
+      resources :account_types, only: %i[index]
     end
   end
 end
