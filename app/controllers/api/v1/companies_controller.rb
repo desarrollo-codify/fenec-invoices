@@ -188,17 +188,16 @@ module Api
                         status: :unprocessable_entity
         end
 
-        MailTestMailer.with(email: params[:email], company: @company).send_mail.deliver_now
+        MailTestMailer.with(email: params[:email], company: @company).send_mail.deliver_later
 
-        render json: "Verifique si se recibio un correo de prueba en la direccion #{params[:email]}. Si recibio el correo
-                      presione RECIBIDO."
+        render json: { message: "Si recibió un correo de prueba en la dirección #{params[:email]}, presione el botón de confirmación." }
       end
 
       def confirm_mail
         @company.company_setting.update(mail_verification: true)
         @company.save
 
-        render json: 'Se ha confirmado que la configuración del correo es correcta.'
+        render json: { message: 'Se ha confirmado que la configuración del correo es correcta.' }
       end
 
       private
