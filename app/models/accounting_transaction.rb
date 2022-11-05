@@ -5,7 +5,7 @@ class AccountingTransaction < ApplicationRecord
   validates :gloss, presence: true
 
   validate :has_at_least_two_entries
-  validate :debit_and_credit_equal_sum
+  validate :debit_and_credit_must_be_equal_and_greater_than_zero
 
   belongs_to :currency
   belongs_to :cycle
@@ -21,13 +21,11 @@ class AccountingTransaction < ApplicationRecord
     errors.add(:entries, 'Se deben agregar un mínimo de dos asientos.') unless entries.length >= 2
   end
 
-  def debit_and_credit_equal_sum
-    sum_debit = 0
-    sum_credit = 0
-    entries.each do |entry|
-      sum_debit += entry.debit_bs if entry.debit_bs.present?
-      sum_credit += entry.credit_bs if entry.credit_bs.present?
-    end
+  def debit_and_credit_must_be_equal_and_greater_than_zero
+    sum_debit = entries.inject(0) { |total, entry| total + entry.debit_bs }
+    sum_credit = entries.inject(0) { |total, entry| total + entry.credit_bs }
     errors.add(:entries, 'La suma de debito y credito debe ser igual.') unless sum_debit == sum_credit
+    errors.add(:entries, 'El monto en debito debe ser mayor a 0.') unless sum_debit.positive?
+    errors.add(:entries, 'El monto en credito debe ser mayor a 0.') unless sum_credit.positive?
   end
 end
