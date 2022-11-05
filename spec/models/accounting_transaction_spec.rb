@@ -38,10 +38,26 @@ RSpec.describe AccountingTransaction, type: :model do
       let(:accounting_transaction) { build(:accounting_transaction, date: nil, company: company, currency: currency, cycle: cycle, transaction_type: transaction_type) }
 
       it 'is invalid' do
-        accounting_transaction.entries.after_create(debit_bs: 10, account: account)
-        accounting_transaction.entries.after_create(credit_bs: 10, account: account)
+        accounting_transaction.entries.(debit_bs: 10, account: account)
+        accounting_transaction.entries.(credit_bs: 10, account: account)
         expect(accounting_transaction).to_not be_valid
         accounting_transaction.date = ''
+        expect(accounting_transaction).to_not be_valid
+      end
+    end
+  end
+
+  describe 'gloss attribute' do
+    it { validate_presence_of(:gloss) }
+
+    context 'with nil or empty value' do
+      let(:accounting_transaction) { build(:accounting_transaction, gloss: nil, company: company, currency: currency, cycle: cycle, transaction_type: transaction_type) }
+
+      it 'is invalid' do
+        accounting_transaction.entries.(debit_bs: 10, account: account)
+        accounting_transaction.entries.(credit_bs: 10, account: account)
+        expect(accounting_transaction).to_not be_valid
+        accounting_transaction.gloss = ''
         expect(accounting_transaction).to_not be_valid
       end
     end
