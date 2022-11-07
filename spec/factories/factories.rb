@@ -310,6 +310,7 @@ FactoryBot.define do
     status { 'Abierta' }
     start_date { '2022-01-01' }
     end_date { '2022-12-31' }
+    company factory: :company
   end
 
   factory :account do
@@ -319,5 +320,31 @@ FactoryBot.define do
     cycle factory: :cycle
     account_type factory: :account_type
     account_level factory: :account_level
+  end
+
+  factory :currency do
+    description { 'Bolivianos' }
+    abbreviation { 'Bs' }
+  end
+
+  factory :transaction_type do
+    description { 'Ingreso' }
+  end
+
+  factory :entry do
+    debit_bs { 10 }
+    credit_bs { 0 }
+    accounting_transaction factory: :accounting_transaction
+    account factory: :account
+    company factory: :company
+  end
+
+  factory :accounting_transaction do
+    date { '2022-01-01' }
+    gloss { 'asdf' }
+    currency factory: :currency
+    cycle factory: :cycle
+    transaction_type factory: :transaction_type
+    company factory: :company
   end
 end
