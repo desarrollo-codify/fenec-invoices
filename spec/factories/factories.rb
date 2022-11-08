@@ -26,6 +26,7 @@ FactoryBot.define do
     description { 'Abc' }
     sin_code { '123' }
     company factory: :company
+    measurement factory: :measurement
   end
 
   factory :document_type do
@@ -345,6 +346,12 @@ FactoryBot.define do
     currency factory: :currency
     cycle factory: :cycle
     transaction_type factory: :transaction_type
+    company factory: :company
+  end
+
+  factory :exchange_rate do
+    date { '2022-01-01' }
+    rate { 1 }
     company factory: :company
   end
 end

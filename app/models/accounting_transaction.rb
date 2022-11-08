@@ -4,7 +4,7 @@ class AccountingTransaction < ApplicationRecord
   validates :date, presence: true
   validates :gloss, presence: true
 
-  validate :has_at_least_two_entries
+  validate :at_least_two_entries?
   validate :debit_and_credit_must_be_equal_and_greater_than_zero
 
   belongs_to :currency
@@ -17,7 +17,7 @@ class AccountingTransaction < ApplicationRecord
 
   private
 
-  def has_at_least_two_entries
+  def at_least_two_entries?
     errors.add(:entries, 'Se deben agregar un mínimo de dos asientos.') unless entries.length >= 2
   end
 

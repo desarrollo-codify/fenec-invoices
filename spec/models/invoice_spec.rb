@@ -420,8 +420,10 @@ RSpec.describe Invoice, type: :model do
     context 'when deleting an invoice' do
       let(:invoice) { create(:invoice, branch_office: branch_office) }
       let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
-      let(:product) { Product.create!(primary_code: 'ABC', description: 'ABC', company_id: company.id) }
       let(:measurement) { Measurement.create!(description: 'ABC') }
+      let(:product) do
+        Product.create!(primary_code: 'ABC', description: 'ABC', company_id: company.id, measurement_id: measurement.id)
+      end
 
       before { create(:invoice_detail, product: product, invoice: invoice) }
 

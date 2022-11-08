@@ -19,6 +19,7 @@ class Company < ApplicationRecord
   has_many :cycles
   has_many :accounts
   has_many :users
+  has_many :exchange_rates, dependent: :destroy
   belongs_to :environment_type, optional: true
   belongs_to :modality, optional: true
   has_and_belongs_to_many :invoice_types, optional: true

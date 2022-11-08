@@ -23,6 +23,7 @@ Rails.application.routes.draw do
           get :current, on: :collection
         end
         resources :delegated_tokens, shallow: true
+        resources :exchange_rates, shallow: true
         resources :branch_offices, only: %i[index create]
         post :add_invoice_types, on: :member
         post :add_document_sector_types, on: :member

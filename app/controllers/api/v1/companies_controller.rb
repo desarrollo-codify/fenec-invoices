@@ -190,7 +190,7 @@ module Api
 
         MailTestMailer.with(email: params[:email], company: @company).send_mail.deliver_later
 
-        render json: { message: "Si recibió un correo de prueba en la dirección #{params[:email]}, presione el botón de confirmación." }
+        render json: { message: "Si recibió un correo de prueba en #{params[:email]}, presione el botón de confirmación." }
       end
 
       def confirm_mail
