@@ -127,7 +127,7 @@ module Api
       def contingencies
         @contingencies = Contingency.includes(:significative_event, point_of_sale: :branch_office)
                                     .joins(point_of_sale: :branch_office)
-                                    .where('branch_offices.company_id = ?', 1)
+                                    .where('branch_offices.company_id = ?',  @company.id)
         render json: @contingencies.as_json(include: [
                                               { significative_event: { except: %i[created_at updated_at] } },
                                               {
@@ -135,6 +135,12 @@ module Api
                                                                  except: %i[created_at updated_at company_id] }
                                               }
                                             ])
+      end
+
+      def product_codes
+        @product_codes = @company.product_codes
+      
+        render json: @product_codes.as_json(except: %i[created_at updated_at])
       end
 
       def invoices

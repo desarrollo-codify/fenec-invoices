@@ -43,6 +43,7 @@ Rails.application.routes.draw do
         get :cuis_codes, on: :member
         get :contingencies, on: :member
         get :invoices, on: :member
+        get :product_codes, on: :member
         put '/settings', to: 'companies#update_settings'
       end
       get '/branch_offices/:branch_office_id/daily_codes/current', to: 'daily_codes#current'
