@@ -12,8 +12,6 @@ module Api
       def index
         @accounts = @company.accounts
 
-        return render json: 'No existe ninguna cuenta en la empresa.', status: :unprocessable_entity unless @accounts.present?
-
         render json: @accounts
       end
 
