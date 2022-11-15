@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         resources :delegated_tokens, shallow: true
         resources :exchange_rates, shallow: true
         resources :branch_offices, only: %i[index create]
+        resources :aromas, only: %i[index]
         post :add_invoice_types, on: :member
         post :add_document_sector_types, on: :member
         post :add_measurements, on: :member
@@ -99,6 +100,7 @@ Rails.application.routes.draw do
       end
       resources :contingency_codes, only: %i[show update destroy]
       resources :clients, only: %i[update destroy]
+      resources :aromas, only: %i[destroy]
 
       # siat controller
       post 'siat/bulk_products_update'
@@ -121,6 +123,8 @@ Rails.application.routes.draw do
 
       get 'accounting/currencies'
       get 'accounting/transaction_types'
+
+      post 'aromas/generate'
 
       resources :product_types
       resources :brands

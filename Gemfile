@@ -43,6 +43,8 @@ gem 'savon', '~> 2.12.0'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 gem 'zlib'
+gem 'shopify_api'
+gem 'activesupport'
 
 gem 'devise_token_auth'
 gem 'rack-cors'
