@@ -6,6 +6,7 @@ class PointOfSale
   def self.add(point_of_sale)
     branch_office = point_of_sale.branch_office
     cuis_code = branch_office.cuis_codes.current
+    pos_type = PosType.find(point_of_sale.pos_type_id)
 
     client = SiatClient.client('siat_operations_invoice_wsdl', branch_office.company)
 
@@ -15,7 +16,7 @@ class PointOfSale
         codigoModalidad: branch_office.company.modality_id,
         codigoSistema: branch_office.company.company_setting.system_code,
         codigoSucursal: branch_office.number,
-        codigoTipoPuntoVenta: point_of_sale.pos_type_id,
+        codigoTipoPuntoVenta: pos_type.code,
         cuis: cuis_code.code,
         descripcion: point_of_sale.description,
         nombrePuntoVenta: point_of_sale.name,

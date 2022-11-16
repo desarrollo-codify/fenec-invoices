@@ -5,7 +5,7 @@ module Api
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
-      before_action :set_company, only: %i[update destroy cuis_codes]
+      before_action :set_company, except: %i[index update_settings logo create]
       before_action :set_parent_company, only: %i[update_settings]
 
       # GET /companies
@@ -24,7 +24,8 @@ module Api
 
       # GET /companies/1
       def show
-        @company = Company.includes(:economic_activities, :company_setting, :page_size, branch_offices: :point_of_sales)
+        @company = Company.includes(:economic_activities, :company_setting, :page_size, :invoice_types, :measurements, :modality,
+                                    :environment_type, :document_sector_types, branch_offices: :point_of_sales)
                           .find(params[:id])
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
@@ -32,7 +33,12 @@ module Api
                                             branch_offices: { include: { point_of_sales: { only: %i[id name code] } },
                                                               except: %i[created_at updated_at company_id] },
                                             company_setting: { except: %i[created_at updated_at] },
-                                            page_size: { only: %i[description] }])
+                                            page_size: { only: %i[description] },
+                                            invoice_types: { only: %i[id description] },
+                                            document_sector_types: { only: %i[id description] },
+                                            measurements: { only: %i[id description] },
+                                            modality: { only: %i[description] },
+                                            environment_type: { only: %i[description] }])
 
         result = result.merge(logo: url_for(@company.logo)) if @company.logo&.attached?
         render json: result
@@ -79,8 +85,9 @@ module Api
       def update_settings
         settings = @company.company_setting
         settings.update(setting_params)
+        settings.update(mail_verification: false)
 
-        render json: settings, status: :ok
+        render json: settings
       end
 
       # GET /companies/1/cuis_codes
@@ -117,6 +124,100 @@ module Api
         render json: response, status: :ok
       end
 
+      def contingencies
+        @contingencies = Contingency.includes(:significative_event, point_of_sale: :branch_office)
+                                    .joins(point_of_sale: :branch_office)
+                                    .where('branch_offices.company_id = ?',  @company.id)
+        render json: @contingencies.as_json(include: [
+                                              { significative_event: { except: %i[created_at updated_at] } },
+                                              {
+                                                point_of_sale: { include: { branch_office: { only: %i[id name code] } },
+                                                                 except: %i[created_at updated_at company_id] }
+                                              }
+                                            ])
+      end
+
+      def product_codes
+        @product_codes = @company.product_codes.includes(:economic_activity).order(:description)
+      
+        render json: @product_codes.map { |product|
+          product.as_json(except: %i[created_at updated_at])
+            .merge(
+              economic_activity_code: product.economic_activity.code
+            )
+          }
+      end
+
+      def invoices
+        @invoices = @company.invoices.includes(:branch_office, :invoice_status, :invoice_details).descending
+        render json: @invoices.as_json(include: [{ branch_office: { only: %i[id number name] } },
+                                                 { invoice_status: { only: %i[id description] } },
+                                                 { invoice_details: { except: %i[created_at updated_at] } }])
+      end
+
+      # POST /companies/1/add_invoice_type
+      def add_invoice_types
+        invoice_type_ids = params[:invoice_type_ids]
+        invoice_types = InvoiceType.find(invoice_type_ids)
+        @company.invoice_types << invoice_types
+
+        render json: @company.invoice_types
+      end
+
+      # POST /companies/1/add_document_sector
+      def add_document_sector_types
+        document_sector_type_ids = params[:document_sector_type_ids]
+        document_sector_types = DocumentSectorType.find(document_sector_type_ids)
+        @company.document_sector_types << document_sector_types
+
+        render json: @company.document_sector_types
+      end
+
+      # POST /companies/1/add_measurement
+      def add_measurements
+        measurement_ids = params[:measurements_ids]
+        measurements = Measurement.find(measurement_ids)
+        @company.measurements << measurements
+
+        render json: @company.measurements
+      end
+
+      def remove_invoice_type
+        @company.invoice_types.delete(params[:invoice_type_id])
+
+        render json: @company.invoice_types
+      end
+
+      def remove_document_sector_type
+        @company.document_sector_types.delete(params[:document_sector_type_id])
+
+        render json: @company.document_sector_types
+      end
+
+      def remove_measurements
+        @company.measurements.delete(params[:measurement_id])
+
+        render json: @company.measurements
+      end
+
+      def mail_test
+        unless @company.company_setting.present?
+          return render json: 'No se ha configurado ningun correo para la empresa.',
+                        status: :unprocessable_entity
+        end
+
+        MailTestMailer.with(email: params[:email], company: @company).send_mail.deliver_later
+
+        render json: { message: "Si recibió un correo de prueba en #{params[:email]}, presione el botón de confirmación." }
+      end
+
+      def confirm_mail
+        @company.company_setting.update(mail_verification: true)
+        @company.save
+
+        render json: { message: 'Se ha confirmado que la configuración del correo es correcta.' }
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
@@ -130,7 +231,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def company_params
-        params.require(:company).permit(:name, :nit, :address, :phone, :logo, :page_size_id)
+        params.require(:company).permit(:name, :nit, :address, :phone, :logo, :page_size_id, :environment_type_id, :modality_id)
       end
 
       def setting_params

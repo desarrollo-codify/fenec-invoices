@@ -26,6 +26,7 @@ FactoryBot.define do
     description { 'Abc' }
     sin_code { '123' }
     company factory: :company
+    measurement factory: :measurement
   end
 
   factory :document_type do
@@ -254,6 +255,16 @@ FactoryBot.define do
     # company factory: :company
   end
 
+  factory :country do
+    code { 123 }
+    description { 'ABC' }
+  end
+
+  factory :currency_type do
+    code { 123 }
+    description { 'ABC' }
+  end
+
   factory :environment_type do
     description { 'Abc' }
   end
@@ -270,5 +281,77 @@ FactoryBot.define do
   factory :invoice_type do
     code { '123abc' }
     description { 'ABC' }
+  end
+
+  factory :issuance_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :room_type do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :service_message do
+    code { '123abc' }
+    description { 'ABC' }
+  end
+
+  factory :account_type do
+    description { 'Activo' }
+  end
+
+  factory :account_level do
+    description { 'Grupo' }
+  end
+
+  factory :cycle do
+    year { 2022 }
+    status { 'Abierta' }
+    start_date { '2022-01-01' }
+    end_date { '2022-12-31' }
+    company factory: :company
+  end
+
+  factory :account do
+    number { '1.1.1' }
+    description { 'Cuenta 1' }
+    company factory: :company
+    cycle factory: :cycle
+    account_type factory: :account_type
+    account_level factory: :account_level
+  end
+
+  factory :currency do
+    description { 'Bolivianos' }
+    abbreviation { 'Bs' }
+  end
+
+  factory :transaction_type do
+    description { 'Ingreso' }
+  end
+
+  factory :entry do
+    debit_bs { 10 }
+    credit_bs { 0 }
+    accounting_transaction factory: :accounting_transaction
+    account factory: :account
+    company factory: :company
+  end
+
+  factory :accounting_transaction do
+    date { '2022-01-01' }
+    gloss { 'asdf' }
+    currency factory: :currency
+    cycle factory: :cycle
+    transaction_type factory: :transaction_type
+    company factory: :company
+  end
+
+  factory :exchange_rate do
+    date { '2022-01-01' }
+    rate { 1 }
+    company factory: :company
   end
 end

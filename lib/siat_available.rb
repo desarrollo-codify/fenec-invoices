@@ -3,7 +3,7 @@
 class SiatAvailable
   def self.available(api_key)
     client = Savon.client(
-      wsdl: ENV.fetch('siat_computarized_invoice_service_wsdl'.to_s, nil),
+      wsdl: ENV.fetch('siat_sales_invoice_service_wsdl'.to_s, nil),
       headers: {
         'apikey' => api_key,
         'SOAPAction' => ''
@@ -15,11 +15,11 @@ class SiatAvailable
     response = client.call(:verificar_comunicacion)
     if response.success?
       data = response.to_array(:verificar_comunicacion_response).first
-      data = data[:return]
+      data = data[:return][:transaccion]
     else
       data = { return: 'Communication error' }
     end
-    data == '926'
+    true if data
   rescue StandardError
     false
   end

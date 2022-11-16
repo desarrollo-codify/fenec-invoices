@@ -11,17 +11,40 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :environment_types, only: %i[index]
+      resources :modalities, only: %i[index]
       resources :users, shallow: true
       resources :companies do
+        resources :accounting_transactions, shallow: true
+        resources :accounts, shallow: true do
+          post :import, on: :collection
+        end
+        resources :cycles, shallow: true do
+          get :current, on: :collection
+        end
         resources :delegated_tokens, shallow: true
+        resources :exchange_rates, shallow: true
         resources :branch_offices, only: %i[index create]
+        resources :aromas, only: %i[index]
+        post :add_invoice_types, on: :member
+        post :add_document_sector_types, on: :member
+        post :add_measurements, on: :member
+        post :mail_test, on: :member
+        post :confirm_mail, on: :member
+        post :remove_invoice_type, on: :member
+        post :remove_document_sector_type, on: :member
+        post :remove_measurements, on: :member
         resources :products, shallow: true do
           post :homologate, on: :collection
+          post :import, on: :collection
         end
         resources :clients, only: %i[index create]
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
         get :cuis_codes, on: :member
+        get :contingencies, on: :member
+        get :invoices, on: :member
+        get :product_codes, on: :member
         put '/settings', to: 'companies#update_settings'
       end
       get '/branch_offices/:branch_office_id/daily_codes/current', to: 'daily_codes#current'
@@ -78,6 +101,7 @@ Rails.application.routes.draw do
       end
       resources :contingency_codes, only: %i[show update destroy]
       resources :clients, only: %i[update destroy]
+      resources :aromas, only: %i[destroy]
 
       # siat controller
       post 'siat/bulk_products_update'
@@ -97,6 +121,16 @@ Rails.application.routes.draw do
       get 'global_settings/service_messages'
       get 'global_settings/document_sector_types'
       get 'global_settings/product_codes'
+
+      get 'accounting/currencies'
+      get 'accounting/transaction_types'
+
+      post 'aromas/generate'
+
+      resources :product_types
+      resources :brands
+      resources :account_levels, only: %i[index]
+      resources :account_types, only: %i[index]
     end
   end
 end

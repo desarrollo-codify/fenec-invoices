@@ -12,7 +12,7 @@ module Api
 
       # GET /api/v1/invoices
       def index
-        @invoices = @branch_office.company.invoices.includes(:branch_office, :invoice_status, :invoice_details).descending
+        @invoices = @branch_office.invoices.includes(:branch_office, :invoice_status, :invoice_details).descending
         render json: @invoices.as_json(include: [{ branch_office: { only: %i[id number name] } },
                                                  { invoice_status: { only: %i[id description] } },
                                                  { invoice_details: { except: %i[created_at updated_at] } }])
@@ -41,6 +41,7 @@ module Api
         @errors = []
         validate!(@invoice)
         return render json: @errors, status: :unprocessable_entity if @errors.any?
+
         @company = @branch_office.company
 
         @invoice.company_name = @branch_office.company.name
@@ -199,14 +200,15 @@ module Api
         company = branch_office.company
         validate_cuis(branch_office, invoice)
         validate_cufd(branch_office, invoice)
-        validate_sync(company)
-        validate_product(invoice, company)
+        validate_sync(company, invoice)
+        validate_product(invoice.invoice_details, company)
         validate_invoice_detail_measurement(invoice.invoice_details)
         validate_invoice_statuses(invoice)
         validate_client(company, invoice)
         validate_document_types(company, invoice)
         validate_payment_methods(invoice)
         validate_manual_invoice(invoice, company)
+        validate_company_requirements(company)
       end
 
       def validate_cuis(branch_office, invoice)
@@ -221,23 +223,29 @@ module Api
         @errors << 'El CUFD del punto de venta no ha sido generado.'
       end
 
-      def validate_sync(company)
-        @errors << 'No se han sincronizado las actividades economicas de la compañia.' unless company.economic_activities.present?
-        # company.economic_activities.each do |economic_activity|
-        #   unless economic_activity.legends.present?
-        #     @errors << 'No se han sincronizado las leyendas de cada actividad economicas de la compañia.'
-        #   end
-        # end
+      def validate_sync(company, invoice)
+        unless company.economic_activities.present?
+          return @errors << 'No se han sincronizado las actividades economicas de la compañia.'
+        end
+
+        invoice.invoice_details.each do |invoice_detail|
+          economic_activity = company.economic_activities.find_by(code: invoice_detail.economic_activity_code)
+          validate_legends(economic_activity, invoice_detail.description)
+        end
       end
 
-      def validate_product(invoice, company)
-        product_codes = invoice.invoice_details.pluck(:product_code).uniq
-        products = company.products.where(primary_code: product_codes)
+      def validate_legends(economic_activity, product)
+        return if economic_activity.legends.present?
 
-        @errors << 'No se han insertado producto por cada detalle de factura.' unless product_codes.length == products.length
+        @errors << "No se han sincronizado las leyendas de la actividad economica del producto #{product}."
+      end
 
-        products.each do |product|
-          @errors << 'El producto registrado no se encuentra homologado.' unless product.sin_code.present?
+      def validate_product(invoice_details, company)
+        invoice_details.each do |invoice_detail|
+          next @errors << 'No se ha insertado un producto en el detalle de factura.' unless invoice_detail.product_code.present?
+
+          product = company.products.find_by(primary_code: invoice_detail.product_code)
+          @errors << "El producto #{product.description} no se encuentra homologado." unless product.sin_code.present?
         end
       end
 
@@ -309,6 +317,24 @@ module Api
 
         @errors << 'La factura manual debe estar dentro del rango de la contingencia.' if invoice.date.between? contingency.start_date,
                                                                                                                 contingency.end_date
+      end
+
+      def validate_company_requirements(company)
+        unless company.modality_id.present?
+          @errors << 'No se ha definido el tipo de modalidad en la empresa. Favor solicitar al administrador del Sistema.'
+        end
+
+        unless company.environment_type_id.present?
+          @errors << 'No se ha definido el ambiente de la empresa. Favor solicitar al administrador del Sistema.'
+        end
+
+        unless company.invoice_types.present?
+          @errors << 'No se ha definido el tipo de facturación de la empresa. Favor solicitar al administrador del Sistema.'
+        end
+
+        return if company.environment_type_id.present?
+
+        @errors << 'No se ha definido el codigo Documento Sector de la empresa. Favor solicitar al administrador del Sistema.'
       end
     end
   end

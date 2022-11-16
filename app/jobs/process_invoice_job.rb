@@ -99,7 +99,7 @@ class ProcessInvoiceJob < ApplicationJob
     invoice.number = invoice_number(point_of_sale)
     invoice.cuf = cuf(invoice.date, invoice.number, invoice.control_code, point_of_sale)
     # TODO: implement paper size: 1 roll, 2 half office or half letter
-    invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1)
+    invoice.qr_content = qr_content(invoice.company_nit, invoice.cuf, invoice.number, 1, invoice.branch_office.company)
     invoice.cafc = process_cafc(invoice, economic_activity, point_of_sale) if invoice.is_manual
     if !siat_available || invoice.is_manual
       # rubocop:disable Layout/LineLength
@@ -153,8 +153,9 @@ class ProcessInvoiceJob < ApplicationJob
     value.to_s(16)
   end
 
-  def qr_content(nit, cuf, number, page_size)
-    base_url = ENV.fetch('siat_url', nil)
+  def qr_content(nit, cuf, number, page_size, company)
+    wsdl_name = company.environment_type_id == 2 ? 'pilot_siat_url' : 'siat_url'
+    base_url = ENV.fetch(wsdl_name, nil)
     params = { nit: nit, cuf: cuf, numero: number, t: page_size }
     "#{base_url}?#{params.to_param}"
   end
