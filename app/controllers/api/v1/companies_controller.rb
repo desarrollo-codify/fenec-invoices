@@ -138,9 +138,14 @@ module Api
       end
 
       def product_codes
-        @product_codes = @company.product_codes
+        @product_codes = @company.product_codes.includes(:economic_activity).order(:description)
       
-        render json: @product_codes.as_json(except: %i[created_at updated_at])
+        render json: @product_codes.map { |product|
+          product.as_json(except: %i[created_at updated_at])
+            .merge(
+              economic_activity_code: product.economic_activity.code
+            )
+          }
       end
 
       def invoices
