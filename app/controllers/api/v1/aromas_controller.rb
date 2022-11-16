@@ -8,7 +8,7 @@ class Api::V1::AromasController < ApplicationController
   # ShopifyAPI::Base.api_version = '2020-10'
 
   def index
-    @orders = Order.includes(:order_details, :order_customer).all.order(id: :desc)
+    @orders = Order.includes(:order_details, :order_customer).all.order(number: :desc)
     render json: @orders.as_json(except: %i[created_at updated_at],
                                  include: [{ order_details: { except: %i[created_at updated_at] }},
                                              order_customer: { except: %i[created_at updated_at company_id] }])
