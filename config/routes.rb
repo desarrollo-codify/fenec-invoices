@@ -131,6 +131,7 @@ Rails.application.routes.draw do
       resources :brands
       resources :account_levels, only: %i[index]
       resources :account_types, only: %i[index]
+      resources :orders, only: %i[update]
     end
   end
 end

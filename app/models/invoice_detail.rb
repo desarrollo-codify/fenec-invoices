@@ -3,7 +3,7 @@
 class InvoiceDetail < ApplicationRecord
   validates :economic_activity_code, presence: true
   validates :product_code, presence: true
-  validates :description, presence: true, format: { with: VALID_NAME_REGEX }
+  validates :description, presence: true
   validates :quantity, presence: true,
                        numericality: { greater_than_or_equal_to: 0, message: 'Cantidad debe ser mayor o igual a 0.' }
   validates :unit_price, presence: true,

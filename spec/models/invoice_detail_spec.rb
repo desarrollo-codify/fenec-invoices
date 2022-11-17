@@ -59,22 +59,6 @@ RSpec.describe InvoiceDetail, type: :model do
         expect(invoice_detail).to_not be_valid
       end
     end
-
-    context 'with special characters' do
-      let(:invoice_detail) { build(:invoice_detail, description: '$%^') }
-
-      it 'is not valid' do
-        expect(invoice_detail).to_not be_valid
-      end
-    end
-
-    context 'with allowed characters' do
-      let(:invoice_detail) { build(:invoice_detail, description: 'áu .-_') }
-
-      it 'is valid' do
-        expect(invoice_detail).to be_valid
-      end
-    end
   end
 
   describe 'quantity attribute' do
