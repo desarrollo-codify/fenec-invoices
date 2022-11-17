@@ -26,8 +26,8 @@ class Api::V1::AromasController < ApplicationController
         order = company.orders.build(order_id: json_data['id'], date: DateTime.now, location_id: json_data['location_id'], number: json_data['number'])
         json_data['line_items'].each do |item|
           order_detail = order.order_details.build(product_id: item['product_id'], title: item['title'], sku: item['sku'], 
-              total: item['price'] * 6.96,
-              discount: item['discount'].present? ? item['discount'] * 6.96 : 0, 
+              total: (item['price'].to_d * 6.96).round(2),
+              discount: item['total_discount'].present? ? (item['total_discount'].to_d * 6.96).round(2) : 0, 
               quantity: item['quantity'])
         end
         full_name = json_data['customer'] ? json_data['customer']['first_name'] + ' ' + json_data['customer']['last_name'] : "No Customer"
