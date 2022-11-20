@@ -10,9 +10,7 @@ module Api
 
       # GET /api/v1/companies/1/accounts
       def index
-        @accounts = Account.all
-
-        return render json: 'No existe ninguna cuenta en la empresa.', status: :unprocessable_entity unless @accounts.present?
+        @accounts = @company.accounts
 
         render json: @accounts
       end
