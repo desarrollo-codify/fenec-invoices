@@ -39,6 +39,7 @@ class Invoice < ApplicationRecord
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
   has_many :invoice_logs, dependent: :destroy
   has_one :cancellation_reason
+  has_one :order, dependent: :destroy
   has_and_belongs_to_many :payment_methods
   accepts_nested_attributes_for :invoice_details, reject_if: :all_blank
 
@@ -70,7 +71,7 @@ class Invoice < ApplicationRecord
   end
 
   def total_must_be_correctly_calculated
-    if total && discount && subtotal && discount && gift_card_total && advance && total == (subtotal - discount - advance).round(2)
+    if total && discount && subtotal && discount && gift_card_total && advance && total.round(2) == (subtotal - discount - advance).round(2)
       return
     end
 

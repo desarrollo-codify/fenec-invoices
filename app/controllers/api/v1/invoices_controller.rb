@@ -65,7 +65,7 @@ module Api
         activity_code = invoice_params[:invoice_details_attributes].first[:economic_activity_code]
         @economic_activity = @company.economic_activities.find_by(code: activity_code)
         @invoice.document_sector_code = 1
-        @invoice.total = @invoice.subtotal - @invoice.discount - @invoice.advance
+        @invoice.total = (@invoice.subtotal - @invoice.discount - @invoice.advance).round(2)
         @invoice.amount_payable = @invoice.total - @invoice.gift_card_total
         @invoice.invoice_status_id = 1
         @invoice.legend = @economic_activity.random_legend.description
