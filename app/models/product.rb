@@ -11,5 +11,5 @@ class Product < ApplicationRecord
   belongs_to :product_status, optional: true
   belongs_to :brand, optional: true
   has_many :variants, dependent: :destroy
-  belongs_to :measurement
+  belongs_to :measurement, optional: true
 end
