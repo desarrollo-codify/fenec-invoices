@@ -11,7 +11,10 @@ class InvoiceMailer < ApplicationMailer
                          password: params[:sender].password,
                          domain: params[:sender].domain,
                          port: params[:sender].port,
-                         address: params[:sender].address }
+                         address: params[:sender].address,
+                         openssl_verify_mode: params[:sender].is_secure ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE,
+                         ssl: params[:sender].is_secure,
+                         tls: params[:sender].is_secure }
     xml_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.xml"
     GenerateXmlJob.perform_now(@invoice) unless File.exist?(xml_path)
     attachments['factura.xml'] = File.read(xml_path)
@@ -21,6 +24,6 @@ class InvoiceMailer < ApplicationMailer
     GeneratePdfJob.perform_now(@invoice) unless File.exist?(pdf_path)
     attachments['factura.pdf'] = File.read(pdf_path)
 
-    mail to: @client.email, subject: 'Factura', delivery_method_options: delivery_options
+    mail to: @client.email,, from: params[:sender].user_name, subject: 'Factura', delivery_method_options: delivery_options
   end
 end

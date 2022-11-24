@@ -10,8 +10,11 @@ class CancellationInvoiceMailer < ApplicationMailer
                          password: params[:sender].password,
                          domain: params[:sender].domain,
                          port: params[:sender].port,
-                         address: params[:sender].address }
+                         address: params[:sender].address,
+                         openssl_verify_mode: params[:sender].is_secure ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE,
+                         ssl: params[:sender].is_secure,
+                         tls: params[:sender].is_secure }
 
-    mail to: @client.email, subject: 'Factura anulada', delivery_method_options: delivery_options
+    mail to: @client.email, from: params[:sender].user_name, subject: 'Factura anulada', delivery_method_options: delivery_options
   end
 end
