@@ -8,4 +8,12 @@ class CompanySetting < ApplicationRecord
   validates :password, presence: true
 
   belongs_to :company
+
+  after_initialize :default_values, if: :new_record?
+
+  private
+
+  def default_values
+    self.is_secure ||= true
+  end
 end

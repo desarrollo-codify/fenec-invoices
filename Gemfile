@@ -36,15 +36,15 @@ gem 'bootsnap', require: false
 # gem "image_processing", "~> 1.2"
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
+gem 'activesupport'
 gem 'image_processing', '>= 1.2'
 gem 'nokogiri', '~> 1.6', '>= 1.6.8'
 gem 'rqrcode'
 gem 'savon', '~> 2.12.0'
+gem 'shopify_api'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 gem 'zlib'
-gem 'shopify_api'
-gem 'activesupport'
 
 gem 'devise_token_auth'
 gem 'rack-cors'
