@@ -11,9 +11,9 @@ class MailTestMailer < ApplicationMailer
                          address: @company.company_setting.address,
                          openssl_verify_mode: @company.company_setting.is_secure ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE,
                          ssl: @company.company_setting.is_secure,
-                         tls: @company.company_setting.is_secure
-                      }
-    debugger
-    mail to: @email, from: @company.company_setting.user_name, subject: 'Correo de verificación', delivery_method_options: delivery_options
+                         tls: @company.company_setting.is_secure }
+
+    mail to: @email, from: @company.company_setting.user_name, subject: 'Correo de verificación',
+         delivery_method_options: delivery_options
   end
 end

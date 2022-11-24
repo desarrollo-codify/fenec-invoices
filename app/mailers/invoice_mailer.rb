@@ -24,6 +24,6 @@ class InvoiceMailer < ApplicationMailer
     GeneratePdfJob.perform_now(@invoice) unless File.exist?(pdf_path)
     attachments['factura.pdf'] = File.read(pdf_path)
 
-    mail to: @client.email,, from: params[:sender].user_name, subject: 'Factura', delivery_method_options: delivery_options
+    mail to: @client.email, from: params[:sender].user_name, subject: 'Factura', delivery_method_options: delivery_options
   end
 end

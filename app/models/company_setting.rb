@@ -9,7 +9,7 @@ class CompanySetting < ApplicationRecord
 
   belongs_to :company
 
-  after_initialize :default_values
+  after_initialize :default_values, if: :new_record?
 
   private
 
