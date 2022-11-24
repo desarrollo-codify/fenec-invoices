@@ -14,6 +14,6 @@ class MailTestMailer < ApplicationMailer
                          tls: @company.company_setting.is_secure
                       }
     debugger
-    mail to: @email, from: @company.company_setting.user_name, subject: 'Prueba', delivery_method_options: delivery_options
+    mail to: @email, from: @company.company_setting.user_name, subject: 'Correo de verificación', delivery_method_options: delivery_options
   end
 end
