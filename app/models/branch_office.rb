@@ -12,6 +12,7 @@ class BranchOffice < ApplicationRecord
   has_many :cuis_codes, dependent: :destroy
   has_many :point_of_sales, dependent: :destroy
   has_many :contingencies, through: :point_of_sales
+  belongs_to :page_size, optional: true
 
   after_create :add_point_of_sale
 
