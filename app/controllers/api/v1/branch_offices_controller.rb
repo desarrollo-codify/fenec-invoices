@@ -3,7 +3,7 @@
 module Api
   module V1
     class BranchOfficesController < ApplicationController
-      before_action :set_branch_office, only: %i[show update destroy contingencies]
+      before_action :set_branch_office, only: %i[update destroy contingencies]
       before_action :set_company, only: %i[index create]
 
       # GET /api/v1/companies/:company_id/branch_offices
@@ -15,7 +15,11 @@ module Api
 
       # GET /api/v1/branch_offices/1
       def show
-        render json: @branch_office
+        branch_office = BranchOffice.includes(:page_size).find(params[:id])
+
+        render json: branch_office.as_json(except: %i[created_at updated_at],
+                                           include: [{ page_size: { except: %i[created_at
+                                                                               updated_at] } }])
       end
 
       # POST /api/v1/companies/:company_id/branch_offices
