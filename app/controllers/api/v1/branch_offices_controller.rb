@@ -27,7 +27,9 @@ module Api
         @branch_office = @company.branch_offices.build(branch_office_params)
 
         if @branch_office.save
-          render json: @branch_office, status: :created
+          render json: @branch_office.as_json(except: %i[created_at updated_at],
+                                              include: [{ page_size: { except: %i[created_at
+                                                                                  updated_at] } }]), status: :created
         else
           render json: @branch_office.errors, status: :unprocessable_entity
         end
@@ -36,7 +38,9 @@ module Api
       # PATCH/PUT /api/v1/branch_offices/1
       def update
         if @branch_office.update(branch_office_params)
-          render json: @branch_office
+          render json: @branch_office.as_json(except: %i[created_at updated_at],
+                                              include: [{ page_size: { except: %i[created_at
+                                                                                  updated_at] } }])
         else
           render json: @branch_office.errors, status: :unprocessable_entity
         end
