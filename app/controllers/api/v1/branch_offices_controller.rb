@@ -68,7 +68,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def branch_office_params
-        params.require(:branch_office).permit(:name, :phone, :address, :city, :number)
+        params.require(:branch_office).permit(:name, :phone, :address, :city, :number, :page_size_id)
       end
     end
   end

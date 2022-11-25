@@ -13,45 +13,23 @@ class GeneratePdfJob < ApplicationJob
     @literal_amount = literal_amount(@invoice.amount_payable)
     @qr_code_file = qr_code(@invoice.qr_content, @invoice.cuf)
 
-    height = 33
+    @height = 33
     details_count = @invoice.invoice_details.count
-    height += details_count - 4 if details_count > 4
+    @height += details_count - 4 if details_count > 4
 
-    view = ActionController::Base.new
-    view.view_context_class.include(ActionView::Helpers, ApplicationHelper)
+    @view = ActionController::Base.new
+    @view.view_context_class.include(ActionView::Helpers, ApplicationHelper)
 
-    if @company.page_size_id == 1
-      pdf_html = view.render_to_string(template: 'layouts/invoice',
-                                       locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
-                                                 economic_activity: @economic_activity,
-                                                 literal_amount: @literal_amount, qr_code_file: @qr_code_file })
-
-      pdf_content = WickedPdf.new.pdf_from_string(
-        pdf_html,
-        page_width: '8.5cm',
-        page_height: "#{height}cm",
-        page_size: nil,
-        title: '',
-        margin: {
-          top: '0', bottom: '0', left: '0', right: '0'
-        }
-      )
+    if @branch_office.page_size_id.present?
+      if @branch_office.page_size_id == 1
+        page_size_roll
+      else
+        page_size_half_page
+      end
+    elsif @company.page_size_id == 1
+      page_size_roll
     else
-      pdf_html = view.render_to_string(template: 'layouts/invoice-half-page',
-                                       locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
-                                                 economic_activity: @economic_activity,
-                                                 literal_amount: @literal_amount, qr_code_file: @qr_code_file })
-
-      pdf_content = WickedPdf.new.pdf_from_string(
-        pdf_html,
-        page_width: '216mm',
-        page_height: '279mm',
-        page_size: 'A4',
-        title: '',
-        margin: {
-          top: '0', bottom: '0', left: '1cm', right: '1cm'
-        }
-      )
+      page_size_half_page
     end
 
     pdf_path = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.pdf"
@@ -59,12 +37,48 @@ class GeneratePdfJob < ApplicationJob
     return if File.exist?(pdf_path)
 
     File.open(pdf_path, 'wb') do |file|
-      file << pdf_content
+      file << @pdf_content
       file.close
     end
   end
 
   private
+
+  def page_size_roll
+    pdf_html = @view.render_to_string(template: 'layouts/invoice',
+                                      locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
+                                                economic_activity: @economic_activity,
+                                                literal_amount: @literal_amount, qr_code_file: @qr_code_file })
+
+    @pdf_content = WickedPdf.new.pdf_from_string(
+      pdf_html,
+      page_width: '8.5cm',
+      page_height: "#{@height}cm",
+      page_size: nil,
+      title: '',
+      margin: {
+        top: '0', bottom: '0', left: '0', right: '0'
+      }
+    )
+  end
+
+  def page_size_half_page
+    pdf_html = @view.render_to_string(template: 'layouts/invoice-half-page',
+                                     locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
+                                               economic_activity: @economic_activity,
+                                               literal_amount: @literal_amount, qr_code_file: @qr_code_file })
+
+    @pdf_content = WickedPdf.new.pdf_from_string(
+      pdf_html,
+      page_width: '216mm',
+      page_height: '279mm',
+      page_size: 'A4',
+      title: '',
+      margin: {
+        top: '0', bottom: '0', left: '1cm', right: '1cm'
+      }
+    )
+  end
 
   def literal_amount(amount)
     return 'Cero 00/100' if amount.zero?
