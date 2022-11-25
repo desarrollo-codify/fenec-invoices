@@ -63,7 +63,7 @@ class GeneratePdfJob < ApplicationJob
   end
 
   def page_size_half_page
-    pdf_html = view.render_to_string(template: 'layouts/invoice-half-page',
+    pdf_html = @view.render_to_string(template: 'layouts/invoice-half-page',
                                      locals: { invoice: @invoice, branch_office: @branch_office, company: @company,
                                                economic_activity: @economic_activity,
                                                literal_amount: @literal_amount, qr_code_file: @qr_code_file })
