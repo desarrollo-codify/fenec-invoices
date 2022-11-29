@@ -80,6 +80,7 @@ module Api
         end
 
         @invoice.invoice_details.each do |detail|
+          detail.unit_price = detail.unit_price.round(2)
           detail.discount = detail.discount.round(2)
           detail.total = detail.subtotal - detail.discount.round(2)
           detail.product = @company.products.find_by(primary_code: detail.product_code)
