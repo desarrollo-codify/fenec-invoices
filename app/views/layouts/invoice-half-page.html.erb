@@ -96,7 +96,7 @@
             <% invoice.invoice_details.each do |detail| %>
               <tr *ngFor="let detail of invoice.invoice_details">
                 <td><%= detail.product_code %></td>
-                <td><%= detail.quantity.to_i %></td>
+                <td><%= detail.quantity %></td>
                 <td><%= detail.measurement.description %></td>
                 <td><%= detail.description %></td>
                 <td class="text-right"><%= custom_currency(detail.unit_price) %></td>

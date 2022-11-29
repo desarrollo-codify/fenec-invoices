@@ -86,7 +86,7 @@
               <td colspan="4"><%= detail.product_code %> <%= detail.description %></td>
             </tr>
             <tr style="line-height:13px;height:13px;">
-              <td style="width:15%" class="text-right"><%= detail.quantity.to_i %></td>
+              <td style="width:15%" class="text-right"><%= detail.quantity %></td>
               <%# <td>PZA</td>  %>
               <td><%= detail.measurement.description %></td>
               <td class="text-right"><%= custom_currency(detail.unit_price) %></td>
