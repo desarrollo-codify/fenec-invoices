@@ -24,7 +24,7 @@ module Api
 
         json_data = JSON.parse data
 
-        if json_data['location_id'] == 3_417_309_211 && !Order.find_by(number: json_data['number'])
+        unless Order.find_by(number: json_data['number'])
           company = Company.first
           order = company.orders.build(order_id: json_data['id'], date: DateTime.now, location_id: json_data['location_id'],
                                        number: json_data['number'])
