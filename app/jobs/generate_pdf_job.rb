@@ -52,7 +52,7 @@ class GeneratePdfJob < ApplicationJob
 
     @pdf_content = WickedPdf.new.pdf_from_string(
       pdf_html,
-      page_width: '8cm',
+      page_width: '7.8cm',
       page_height: "#{@height}cm",
       page_size: nil,
       title: '',
