@@ -37,12 +37,12 @@ class InvoiceDetail < ApplicationRecord
   end
 
   def subtotal_must_be_correctly_calculated
-    return if subtotal && quantity && unit_price && subtotal == unit_price * quantity
+    return if subtotal && quantity && unit_price && subtotal.round(2) == unit_price.round(2) * quantity
 
     errors.add(:subtotal, 'El subtotal no esta calculado correctamente.')
   end
 
   def total_must_be_correctly_calculated
-    errors.add(:total, 'El total no esta calculado correctamente.') unless subtotal && discount && total == subtotal - discount
+    errors.add(:total, 'El total no esta calculado correctamente.') unless subtotal && discount && total.round(2) == subtotal.round(2) - discount.round(2)
   end
 end
