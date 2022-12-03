@@ -24,16 +24,19 @@ module Api
 
         json_data = JSON.parse data
 
-        unless Order.find_by(number: json_data['number'])
+        unless Order.find_by(number: json_data['order_number'])
           company = Company.first
+          total_order = 0
           order = company.orders.build(order_id: json_data['id'], date: DateTime.now, location_id: json_data['location_id'],
-                                       number: json_data['number'])
+                                       number: json_data['order_number'])
           json_data['line_items'].each do |item|
             order_detail = order.order_details.build(product_id: item['product_id'], title: item['title'], sku: item['sku'],
                                                      total: (item['price'].to_d * 6.96).round(2),
                                                      discount: item['total_discount'].present? ? (item['total_discount'].to_d * 6.96).round(2) : 0,
                                                      quantity: item['quantity'])
+            total_order += (item['price'].to_d - item['total_discount'].to_d)
           end
+          order.total = total_order
           full_name = json_data['customer'] ? "#{json_data['customer']['first_name']} #{json_data['customer']['last_name']}" : 'No Customer'
           customer_id = json_data['customer'] ? json_data['customer']['id'] : 0
           email = json_data['customer'] ? json_data['customer']['email'] : ''
