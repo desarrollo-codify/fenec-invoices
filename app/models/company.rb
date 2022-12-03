@@ -22,6 +22,7 @@ class Company < ApplicationRecord
   has_many :exchange_rates, dependent: :destroy
   has_many :orders, dependent: :destroy
   has_many :product_codes, through: :economic_activities
+  has_many :point_of_sales, through: :branch_offices
   belongs_to :environment_type, optional: true
   belongs_to :modality, optional: true
   has_and_belongs_to_many :invoice_types, optional: true
