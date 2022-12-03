@@ -11,6 +11,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :email_verifications, only: %i[] do
+        get :confirm_email, on: :member
+      end
       resources :environment_types, only: %i[index]
       resources :modalities, only: %i[index]
       resources :users, shallow: true
@@ -30,7 +33,6 @@ Rails.application.routes.draw do
         post :add_document_sector_types, on: :member
         post :add_measurements, on: :member
         post :mail_test, on: :member
-        post :confirm_mail, on: :member
         post :remove_invoice_type, on: :member
         post :remove_document_sector_type, on: :member
         post :remove_measurements, on: :member
