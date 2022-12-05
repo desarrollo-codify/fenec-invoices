@@ -40,8 +40,8 @@ module Api
 
       def default_password
         @user.update(password: 'Llave123.', password_confirmation: 'Llave123.', default_password: true)
-        
-        render json: "Se ha restablecido la contraseña", status: :ok
+
+        render json: 'Se ha restablecido la contraseña', status: :ok
       end
 
       def reset_password
