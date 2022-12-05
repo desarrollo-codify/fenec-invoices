@@ -1,50 +1,77 @@
-<div>
-  <div width="100%">
-    <table border="0" width="100%" cellspacing="0" cellpadding="0">
-      <tbody>
-        <tr> 
-          <td style="padding: 20px 0 20px 0" align="center" valign="top">
-            <table width="700" cellspacing="0" cellpadding="10" bgcolor="#ffffff"> 
-              <tbody>
-                <tr> 
-                  <td bgcolor="#4D6E5E" align="center" style="height: 60px">
-                    <font size="6" color="white"><%= @company.name %></font>
-                  </td> 
-                </tr> 
-                <tr> 
-                  <td valign="top" align="center">
-                    <h2>Correo de verificación</h2>
-                  </td> 
-                </tr> 
-                <tr> 
-                  <td> 
-                    <div>  
-                      <div><ul>
-                        <li>Usuario: <b><%= @company.company_setting.user_name %></b></li>
-                        <li>Dominio: <b><%= @company.company_setting.domain %></b></li>
-                        <li>Puerto: <b><%= @company.company_setting.port %></b></li>
-                        <li>Dirección: <b><strong><%= @company.company_setting.address %></strong></b></li>
-                        <li>Hora de envio: <b><strong><%= DateTime.now.strftime('%H:%M:%S') %></strong></b></li>
-                      </ul></div>                  
-                    </div> 
-                  </td> 
-                </tr> 
-              </tbody>
-            </table> 
-            <table width="700" cellspacing="0" cellpadding="10" bgcolor="#">
-              <tbody>
-                <tr> 
-                  <td style="background: #4D6E5E; color: white" align="center" bgcolor="#eaeaea">
-                    <center>
-                      <p style="font-size: 12px; margin: 0"></p> 
-                    </center> 
-                  </td> 
-                </tr> 
-              </tbody>
-            </table> 
-          </td> 
-        </tr> 
-      </tbody>
-    </table>
-  </div>
-</div>
+<!DOCTYPE html>
+  <head>
+    <style>
+      .btn{
+        display: block;
+        width: fit-content;
+        height: auto;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 700;
+        background-color: #4D6E5E;
+        border-radius: 10px;
+        padding: 15px 30px;
+        color: #fff;
+        margin-top: 10px;
+        text-decoration: none;
+        text-decoration: #4D6E5E;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div width="100%">
+        <table border="0" width="100%" cellspacing="0" cellpadding="0">
+          <tbody>
+            <tr> 
+              <td style="padding: 20px 0 20px 0" align="center" valign="top">
+                <table width="700" cellspacing="0" cellpadding="10" bgcolor="#ffffff"> 
+                  <tbody>
+                    <tr> 
+                      <td bgcolor="#4D6E5E" align="center" style="height: 60px">
+                        <font size="6" color="white"><%= @company.name %></font>
+                      </td> 
+                    </tr> 
+                    <tr> 
+                      <td valign="top" align="center">
+                        <h2>Correo de verificación</h2>
+                      </td> 
+                    </tr> 
+                    <tr> 
+                      <td> 
+                        <div>  
+                          <div><ul>
+                            <li>Usuario: <b><%= @company.company_setting.user_name %></b></li>
+                            <li>Dominio: <b><%= @company.company_setting.domain %></b></li>
+                            <li>Puerto: <b><%= @company.company_setting.port %></b></li>
+                            <li>Dirección: <b><strong><%= @company.company_setting.address %></strong></b></li>
+                            <li>Hora de envio: <b><strong><%= DateTime.now.strftime('%H:%M:%S') %></strong></b></li>
+                          </ul></div>                  
+                        </div>
+                        <center>
+                          <a class="btn" href=<%= confirm_email_api_v1_email_verification_url(@company.company_setting.confirm_token) %>>
+                            Verificar correo
+                          </a> 
+                        </center> 
+                      </td> 
+                    </tr> 
+                  </tbody>
+                </table> 
+                <table width="700" cellspacing="0" cellpadding="10" bgcolor="#">
+                  <tbody>
+                    <tr> 
+                      <td style="background: #4D6E5E; color: white" align="center" bgcolor="#eaeaea">
+                        <center>
+                          <p style="font-size: 12px; margin: 0"></p> 
+                        </center> 
+                      </td> 
+                    </tr> 
+                  </tbody>
+                </table> 
+              </td> 
+            </tr> 
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

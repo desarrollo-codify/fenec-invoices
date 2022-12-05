@@ -5,7 +5,7 @@ module Api
     class CompaniesController < ApplicationController
       # before_action :authenticate_user!
       # before_action :super_admin_only, only: %i[index destroy]
-      before_action :set_company, except: %i[index update_settings logo create]
+      before_action :set_company, except: %i[index update_settings logo create confirm_email]
       before_action :set_parent_company, only: %i[update_settings]
 
       # GET /companies
@@ -86,6 +86,9 @@ module Api
         settings = @company.company_setting
         settings.update(setting_params)
         settings.update(mail_verification: false)
+        if settings.confirm_token.blank?
+          settings.update(confirm_token: SecureRandom.urlsafe_base64.to_s)
+        end
 
         render json: settings
       end
@@ -209,13 +212,6 @@ module Api
         MailTestMailer.with(email: params[:email], company: @company).send_mail.deliver_later
 
         render json: { message: "Si recibió un correo de prueba en #{params[:email]}, presione el botón de confirmación." }
-      end
-
-      def confirm_mail
-        @company.company_setting.update(mail_verification: true)
-        @company.save
-
-        render json: { message: 'Se ha confirmado que la configuración del correo es correcta.' }
       end
 
       private
