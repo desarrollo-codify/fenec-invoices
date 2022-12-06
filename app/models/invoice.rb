@@ -38,6 +38,7 @@ class Invoice < ApplicationRecord
   belongs_to :contingency, optional: true
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
   has_many :invoice_logs, dependent: :destroy
+  has_many :payments, dependent: :destroy
   has_one :cancellation_reason
   has_one :order, dependent: :destroy
   has_and_belongs_to_many :payment_methods
