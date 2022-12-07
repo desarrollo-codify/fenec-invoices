@@ -13,7 +13,7 @@ module Api
       end
 
       def show
-        render json: @user.as_json(only: %i[id full_name username role email company_id],
+        render json: @user.as_json(only: %i[id full_name username role email default_password company_id],
                                    include: [{ company: { only: :name } }])
       end
 
