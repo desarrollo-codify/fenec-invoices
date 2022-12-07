@@ -38,6 +38,21 @@ module Api
         end
       end
 
+      def default_password
+        @user.update(password: 'Llave123.', password_confirmation: 'Llave123.', default_password: true)
+
+        render json: 'Se ha restablecido la contraseña', status: :ok
+      end
+
+      def reset_password
+        if @user.update(reset_user_params)
+          @user.update(default_password: false)
+          render json: { message: "Se ha cambiado correctamente la contraseña"}
+        else
+          render json: @user.errors, status: :unprocessable_entity
+        end
+      end
+
       def destroy
         @user.destroy
       end
@@ -54,6 +69,10 @@ module Api
 
       def update_user_params
         params.require(:user).permit(:full_name, :username, :role, :company_id)
+      end
+
+      def reset_user_params
+        params.require(:user).permit(:password, :password_confirmation)
       end
     end
   end

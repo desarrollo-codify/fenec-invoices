@@ -86,9 +86,7 @@ module Api
         settings = @company.company_setting
         settings.update(setting_params)
         settings.update(mail_verification: false)
-        if settings.confirm_token.blank?
-          settings.update(confirm_token: SecureRandom.urlsafe_base64.to_s)
-        end
+        settings.update(confirm_token: SecureRandom.urlsafe_base64.to_s) if settings.confirm_token.blank?
 
         render json: settings
       end

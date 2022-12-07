@@ -16,7 +16,10 @@ Rails.application.routes.draw do
       end
       resources :environment_types, only: %i[index]
       resources :modalities, only: %i[index]
-      resources :users, shallow: true
+      resources :users, shallow: true do
+        post :default_password, on: :member
+        put :reset_password, on: :member
+      end
       resources :companies do
         resources :accounting_transactions, shallow: true
         resources :accounts, shallow: true do
