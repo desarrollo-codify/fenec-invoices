@@ -58,10 +58,6 @@ class Invoice < ApplicationRecord
     self.discount ||= 0.00
     self.gift_card_total ||= 0.00
     self.advance ||= 0.00
-    self.cash_paid ||= 0.00
-    self.online_paid ||= 0.00
-    self.qr_paid ||= 0.00
-    self.card_paid ||= 0.00
     self.amount_payable ||= 0.00
     self.business_name ||= 'S/N'
     self.business_nit ||= '0'
@@ -87,10 +83,9 @@ class Invoice < ApplicationRecord
   end
 
   def total_paid_must_be_equal_to_total
-    return if total && qr_paid && cash_paid && card_paid && gift_card_total &&
-              online_paid && total == (qr_paid + cash_paid + card_paid + gift_card_total + online_paid).round(2)
+    sum_payment = payments.inject(0) { |total, payment| total + payment.mount }
 
-    errors.add(:total, 'El total pagado no concuerda con el total a pagar.')
+    errors.add(:total, 'El total pagado no concuerda con el total a pagar.') unless sum_payment + gift_card_total == total
   end
 
   def business_nit_is_ci_or_nit
