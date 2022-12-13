@@ -1,32 +1,33 @@
 # frozen_string_literal: true
 
 class Invoice < ApplicationRecord
-  validates :company_nit, presence: true
-  validates :company_name, presence: true
-  validates :municipality, presence: true, format: { with: VALID_NAME_REGEX }
+  validates :company_nit, presence: { message: 'El nit de la empresa no puede estar en blanco.' }
+  validates :company_name, presence: { message: 'El nombre de la empresa no puede estar en blanco.' }
+  validates :municipality, presence: { message: 'La municipalidad no puede estar en blanco.' }, format: { with: VALID_NAME_REGEX }
   validates :number,
             uniqueness: { scope: :cufd_code,
                           message: 'Ya existe este número de factura con el código único de facturación diaria.',
                           unless: -> { number.blank? } }
-  validates :cufd_code, presence: true
-  validates :address, presence: true
-  validates :date, presence: true
-  validates :business_name, presence: true
-  validates :document_type, presence: true
-  validates :business_nit, presence: true
-  validates :client_code, presence: true
-  validates :payment_method, presence: true
-  validates :total, presence: true,
+  validates :cufd_code, presence: { message: 'El código CUFD no puede estar en blanco.' }
+  validates :address, presence: { message: 'La dirección no puede estar en blanco.' }
+  validates :date, presence: { message: 'La fecha no puede estar en blanco.' }
+  validates :business_name, presence: { message: 'El nombre o razón social no puede estar en blanco.' }
+  validates :document_type, presence: { message: 'El tipo de documento no puede estar en blanco.' }
+  validates :business_nit, presence: { message: 'El nit a emitir no puede estar en blanco.' }
+  validates :client_code, presence: { message: 'El código del cliente no puede estar en blanco.' }
+  validates :payment_method, presence: { message: 'El método de pago no puede estar en blanco.' }
+  validates :total, presence: { message: 'El total no puede estar en blanco.' },
                     numericality: { message: 'El total debe ser un valor numérico.' }
-  validates :currency_code, presence: true
-  validates :exchange_rate, presence: true
-  validates :currency_total, presence: true
-  validates :legend, presence: true
-  validates :user, presence: true
-  validates :document_sector_code, presence: true
+  validates :currency_code, presence: { message: 'El código de moneda no puede estar en blanco.' }
+  validates :exchange_rate, presence: { message: 'El tipod e cambio no puede estar en blanco.' }
+  validates :currency_total, presence: { message: 'El monto en moneda nacional total no puede estar en blanco.' }
+  validates :legend, presence: { message: 'La leyenda no puede estar en blanco.' }
+  validates :user, presence: { message: 'El código de usuario no puede estar en blanco.' }
+  validates :document_sector_code, presence: { message: 'El código de documento sector no puede estar en blanco.' }
 
-  validates :subtotal, presence: true,
+  validates :subtotal, presence: { message: 'El subtotal no puede estar en blanco.' },
                        numericality: { message: 'El subtotal debe ser un valor numérico.' }
+                       
   validate :discount_cannot_be_greater_or_equal_than_subtotal
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total

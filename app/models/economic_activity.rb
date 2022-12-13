@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class EconomicActivity < ApplicationRecord
-  validates :code, presence: true
-  validates :description, presence: true, format: { with: VALID_NAME_REGEX }
+  validates :code, presence: { message: 'El código no puede estar en blanco.' }
+  validates :description, presence: { message: 'La descripción no puede estar en blanco.' }, format: { with: VALID_NAME_REGEX }
 
   belongs_to :company
   has_many :legends, dependent: :destroy
