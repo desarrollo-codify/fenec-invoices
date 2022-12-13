@@ -20,7 +20,7 @@ module Api
         data = ClientCall.cuis(@branch_office, point_of_sale)
 
         if !data[:transaccion] && data[:mensajes_list][:codigo] != '980'
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}"
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}" }, status: :unprocessable_entity
         end
 
         code = data[:codigo]
@@ -30,7 +30,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def show_cuis
@@ -38,13 +38,13 @@ module Api
           render json: @cuis_code
         else
           error_message = 'La sucursal no tiene CUIS. Por favor genere uno nuevo.'
-          render json: error_message, status: :not_found
+          render json: { message: error_message }, status: :not_found
         end
       end
 
       def generate_cufd
         if @cuis_code&.code.blank?
-          render json: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.', status: :unprocessable_entity
+          render json: { message: 'El CUIS no ha sido generado. No es posible generar el CUFD sin ese dato.' }, status: :unprocessable_entity
           return
         end
 
@@ -53,7 +53,7 @@ module Api
         data = ClientCall.cufd(@branch_office, point_of_sale, @cuis_code)
 
         unless data[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}"
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}" }, status: :unprocessable_entity
         end
 
         code = data[:codigo]
@@ -63,7 +63,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message:"La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def show_cufd
@@ -72,7 +72,7 @@ module Api
           render json: @daily_code
         else
           error_message = 'La sucursal no cuenta con un codigo diario CUFD.'
-          render json: error_message, status: :not_found
+          render json: { message:error_message }, status: :not_found
         end
       end
 
@@ -91,7 +91,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def product_codes
@@ -116,7 +116,7 @@ module Api
         end
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def document_types
@@ -133,7 +133,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def payment_methods
@@ -150,7 +150,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def legends
@@ -173,7 +173,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def measurements
@@ -190,7 +190,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def significative_events
@@ -207,7 +207,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def verify_communication
@@ -221,7 +221,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def pos_types
@@ -238,7 +238,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def cancellation_reasons
@@ -255,7 +255,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def document_sectors
@@ -282,7 +282,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def countries
@@ -299,7 +299,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def issuance_types
@@ -316,7 +316,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def room_types
@@ -333,7 +333,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def currency_types
@@ -350,7 +350,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def invoice_types
@@ -367,7 +367,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def service_messages
@@ -384,7 +384,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def document_sector_types
@@ -401,7 +401,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def verify_nit
@@ -424,7 +424,7 @@ module Api
         response_transaction = response.to_array(:verificar_nit_response, :respuesta_verificar_nit).first
 
         if !response_transaction[:transaccion] && response_transaction[:mensajes_list][:codigo] != '994'
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}" } , status: :unprocessable_entity
         end
 
         data = response.to_array(:verificar_nit_response, :respuesta_verificar_nit, :mensajes_list).first
@@ -434,7 +434,7 @@ module Api
 
         render json: result
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def point_of_sales
@@ -454,7 +454,7 @@ module Api
         response_transaction = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta).first
 
         unless response_transaction[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}"
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}" }, status: :unprocessable_entity
         end
 
         data_pos = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta, :lista_puntos_ventas)
@@ -471,7 +471,7 @@ module Api
 
         render json: pos_list
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       private
@@ -485,10 +485,10 @@ module Api
         data = SiatAvailable.available(@branch_office.company.company_setting.api_key)
         return if data
 
-        render json: 'La solicitud a SIAT no se pudo procesar, intente nuevamente en unos minutos.',
+        render json: { message: 'La solicitud a SIAT no se pudo procesar, intente nuevamente en unos minutos.' },
                status: :precondition_failed
       rescue StandardError => e
-        render json: "La solicitud a SIAT obtuvo el siguiente error: #{e}", status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def set_cuis_code
