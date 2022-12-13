@@ -203,7 +203,7 @@ module Api
 
       def mail_test
         unless @company.company_setting.present?
-          return render json: 'No se ha configurado ningun correo para la empresa.',
+          return render json: { message: 'No se ha configurado ningun correo para la empresa.' },
                         status: :unprocessable_entity
         end
 
