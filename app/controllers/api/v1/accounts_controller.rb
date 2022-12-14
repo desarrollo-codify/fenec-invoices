@@ -27,7 +27,7 @@ module Api
         if @account.save
           render json: @account, status: :created
         else
-          render json: @account.errors, status: :unprocessable_entity
+          render json: @account.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -36,16 +36,16 @@ module Api
         if @account.update(update_account_params)
           render json: @account
         else
-          render json: @account.errors, status: :unprocessable_entity
+          render json: @account.errors.full_messages, status: :unprocessable_entity
         end
       end
 
       # DELETE /api/v1/accounts/1
       def destroy
         @account.destroy
-        render json: 'Se ha eliminado correctamente la cuenta.', status: :no_content
+        render json: { message: 'Se ha eliminado correctamente la cuenta.' }, status: :no_content
       rescue StandardError
-        render json: 'No se ha podido eliminar la cuenta.',
+        render json: { message: 'No se ha podido eliminar la cuenta.' },
                status: :unprocessable_entity
       end
 

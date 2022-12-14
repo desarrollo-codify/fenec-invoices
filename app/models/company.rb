@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Company < ApplicationRecord
-  validates :name, presence: true, uniqueness: true, format: { with: VALID_NAME_REGEX }
-  validates :nit, presence: true, numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
-  validates :address, presence: true
+  validates :name, presence: { message: 'El nombre no puede estar en blanco.' }, uniqueness: true, format: { with: VALID_NAME_REGEX }
+  validates :nit, presence: { message: 'El nit no puede estar en blanco.' }, numericality: { only_integer: true, message: 'El NIT debe ser un valor numérico.' }
+  validates :address, presence: { message: 'La dirección no puede estar en blanco.' }
 
   belongs_to :page_size, optional: true
   has_one_attached :logo

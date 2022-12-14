@@ -13,7 +13,7 @@ module Api
       end
 
       def show
-        render json: @user.as_json(only: %i[id full_name username role email company_id],
+        render json: @user.as_json(only: %i[id full_name username role email default_password company_id],
                                    include: [{ company: { only: :name } }])
       end
 
@@ -41,7 +41,7 @@ module Api
       def default_password
         @user.update(password: 'Llave123.', password_confirmation: 'Llave123.', default_password: true)
 
-        render json: 'Se ha restablecido la contraseña', status: :ok
+        render json: { message: 'Se ha restablecido la contraseña' }, status: :ok
       end
 
       def reset_password

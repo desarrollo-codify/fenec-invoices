@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 class InvoiceDetail < ApplicationRecord
-  validates :economic_activity_code, presence: true
-  validates :product_code, presence: true
-  validates :description, presence: true
-  validates :quantity, presence: true,
+  validates :economic_activity_code, presence: { message: 'La actividad económica no puede estar en blanco.' }
+  validates :product_code, presence: { message: 'El código del producto no puede estar en blanco.' }
+  validates :description, presence: { message: 'La descripción no puede estar en blanco.' }
+  validates :quantity, presence: { message: 'La cantidad no puede estar en blanco.' },
                        numericality: { greater_than_or_equal_to: 0, message: 'Cantidad debe ser mayor o igual a 0.' }
-  validates :unit_price, presence: true,
+  validates :unit_price, presence: { message: 'El precio unitario no puede estar en blanco.' },
                          numericality: { greater_than_or_equal_to: 0, message: 'Precio unitario debe ser mayor o igual a 0.' }
-  validates :subtotal, presence: true,
+  validates :subtotal, presence: { message: 'El subtotal no puede estar en blanco.' },
                        numericality: { greater_than_or_equal_to: 0, message: 'Subtotal debe ser mayor o igual a 0.' }
-  validates :discount, presence: true,
+  validates :discount, presence: { message: 'El descuento no puede estar en blanco.' },
                        numericality: { greater_than_or_equal_to: 0, message: 'Descuento debe ser mayor o igual a 0.' }
-  validates :total, presence: true,
+  validates :total, presence: { message: 'El total no puede estar en blanco.' },
                     numericality: { greater_than_or_equal_to: 0, message: 'Total debe ser mayor o igual a 0.' }
 
   validate :discount_cannot_be_greater_or_equal_than_subtotal

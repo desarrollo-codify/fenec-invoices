@@ -4,11 +4,11 @@ module Api
   module V1
     class CyclesController < ApplicationController
       before_action :set_cycle, only: %i[show update destroy]
-      before_action :set_company, only: %i[current]
+      before_action :set_company, only: %i[index create current]
 
       # GET /api/v1/cycles
       def index
-        @cycles = Cycle.all
+        @cycles = @company.cycles
 
         render json: @cycles
       end
@@ -20,12 +20,12 @@ module Api
 
       # POST /api/v1/cycles
       def create
-        @cycle = Cycle.new(cycle_params)
+        @cycle = @company.cycles.build(cycle_params)
 
         if @cycle.save
           render json: @cycle, status: :created, location: @cycle
         else
-          render json: @cycle.errors, status: :unprocessable_entity
+          render json: @cycle.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -34,7 +34,7 @@ module Api
         if @cycle.update(cycle_params)
           render json: @cycle
         else
-          render json: @cycle.errors, status: :unprocessable_entity
+          render json: @cycle.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -46,7 +46,7 @@ module Api
       def current
         @cycle = @company.cycles.current
 
-        return render json: 'No existen una Gestión abierta para esta empresa.', status: :unprocessable_entity unless @cycle.present?
+        return render json: { message: 'No existen una Gestión abierta para esta empresa.' }, status: :unprocessable_entity unless @cycle.present?
 
         render json: @cycle
       end

@@ -25,7 +25,7 @@ module Api
           render json: @daily_code
         else
           error_message = 'La sucursal no cuenta con un codigo diario CUFD.'
-          render json: error_message, status: :not_found
+          render json: { message: error_message }, status: :not_found
         end
       end
 

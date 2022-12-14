@@ -7,9 +7,9 @@ module Api
         setting = CompanySetting.find_by_confirm_token(params[:id])
         if setting
           setting.email_activate
-          render json: 'Se ha verificado correctamente la configuración del correo.'
+          render json: { message: 'Se ha verificado correctamente la configuración del correo.' }
         else
-          render json: 'El enlace ya expiró.'
+          render json: { message: 'El enlace ya expiró.' }
         end
       end
     end

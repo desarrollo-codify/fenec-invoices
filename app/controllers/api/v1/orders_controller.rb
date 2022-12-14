@@ -8,7 +8,7 @@ module Api
         if @order.update(order_params)
           render json: @order
         else
-          render json: @order.errors, status: :unprocessable_entity
+          render json: @order.errors.full_messages, status: :unprocessable_entity
         end
       end
 

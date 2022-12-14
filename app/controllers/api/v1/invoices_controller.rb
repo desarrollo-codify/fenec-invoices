@@ -98,7 +98,7 @@ module Api
         end
 
         unless @invoice.valid?
-          render json: { message: @invoice.errors.first }, status: :unprocessable_entity
+          render json: @invoice.errors.full_messages, status: :unprocessable_entity
           return
         end
 
@@ -107,7 +107,7 @@ module Api
           ProcessInvoiceJob.perform_later(@invoice, point_of_sale, @economic_activity)
           render json: @invoice.as_json(only: %i[id total]), status: :created
         else
-          render json: { message: @invoice.errors.first }, status: :unprocessable_entity
+          render json: @invoice.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -128,7 +128,7 @@ module Api
       # POST /api/v1/invoices/1/cancel
       def cancel
         if @invoice.cancel_sent_at == true
-          return render json: "La factura ya fue anulada el #{@invoice.cancellation_date}",
+          return render json: { message: "La factura ya fue anulada el #{@invoice.cancellation_date}" },
                         status: :unprocessable_entity
         end
         return unless params[:reason].present?
@@ -140,7 +140,7 @@ module Api
         if @invoice.cancel_sent_at
           render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
         else
-          render json: 'Se ha producido un error al anular la factura, verifique el log.', status: :not_found
+          render json: { message:'Se ha producido un error al anular la factura, verifique el log.' }, status: :not_found
         end
       end
 
@@ -156,7 +156,7 @@ module Api
         rescue StandardError => e
           p e.message
         end
-        render json: "La factura #{@invoice.number} fue reenviada."
+        render json: { message: "La factura #{@invoice.number} fue reenviada." }
       end
 
       def verify_status

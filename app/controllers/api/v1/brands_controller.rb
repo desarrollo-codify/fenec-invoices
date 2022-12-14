@@ -24,7 +24,7 @@ module Api
         if @brand.save
           render json: @brand, status: :created, location: @brand
         else
-          render json: @brand.errors, status: :unprocessable_entity
+          render json: @brand.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -33,7 +33,7 @@ module Api
         if @brand.update(brand_params)
           render json: @brand
         else
-          render json: @brand.errors, status: :unprocessable_entity
+          render json: @brand.errors.full_messages, status: :unprocessable_entity
         end
       end
 

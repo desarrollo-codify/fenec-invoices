@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class CompanySetting < ApplicationRecord
-  validates :address, presence: true
-  validates :port, presence: true, numericality: { only_integer: true, message: 'El Puerto debe ser un valor numérico.' }
-  validates :domain, presence: true
-  validates :user_name, presence: true, format: { with: VALID_EMAIL_REGEX }
-  validates :password, presence: true
+  validates :address, presence: { message: 'La dirección no puede estar en blanco.' }
+  validates :port, presence: { message: 'El puerto no puede estar en blanco.' }, numericality: { only_integer: true, message: 'El Puerto debe ser un valor numérico.' }
+  validates :domain, presence: { message: 'El dominio no puede estar en blanco.' }
+  validates :user_name, presence: { message: 'El usuario no puede estar en blanco.' }, format: { with: VALID_EMAIL_REGEX }
+  validates :password, presence: { message: 'La contraseña no puede estar en blanco.' }
 
   belongs_to :company
 

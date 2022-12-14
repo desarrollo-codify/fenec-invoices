@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 class ContingencyCode < ApplicationRecord
-  validates :code, presence: true, uniqueness: true
-  validates :document_sector_code, presence: true, numericality: {
+  validates :code, presence: { message: 'El código no puede estar en blanco.' }, uniqueness: true
+  validates :document_sector_code, presence: { message: 'La tipo de documento sector no puede estar en blanco.' }, numericality: {
     message: 'El Codigo de documento Sector debe ser un valor numérico.'
   }
-  validates :limit, presence: true, numericality: {
+  validates :limit, presence: { message: 'El límite no puede estar en blanco.' }, numericality: {
     message: 'El limite debe ser un valor numérico.'
   }
-  validates :current_use, presence: true, numericality: {
+  validates :current_use, presence: { message: 'El uso actual no puede estar en blanco.' }, numericality: {
     less_than_or_equal_to: :limit
   }
   validates :available, inclusion: { in: [true, false] }
