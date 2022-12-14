@@ -220,7 +220,7 @@ module Api
           invoice.payments.build(mount: payment_params[:online_paid], payment_method: payment_method)
         end
 
-        return if payment_params[:voucher_paid].zero
+        return if payment_params[:voucher_paid].zero?
 
         payment_method = PaymentMethod.find_by(code: 4)
         invoice.payments.build(mount: payment_params[:voucher_paid], payment_method: payment_method)
