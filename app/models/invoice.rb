@@ -68,9 +68,7 @@ class Invoice < ApplicationRecord
   end
 
   def total_must_be_correctly_calculated
-    if total && discount && subtotal && discount && gift_card_total && advance && total.round(2) == (subtotal - discount - advance).round(2)
-      return
-    end
+    return if total && discount && subtotal && discount && gift_card_total && advance && total.round(2) == (subtotal - discount - advance).round(2)
 
     errors.add(:total, 'El monto total no concuerda con el calculo realizado.')
   end

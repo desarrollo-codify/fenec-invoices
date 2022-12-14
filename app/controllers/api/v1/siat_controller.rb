@@ -52,9 +52,7 @@ module Api
 
         data = ClientCall.cufd(@branch_office, point_of_sale, @cuis_code)
 
-        unless data[:transaccion]
-          return render json: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}"
-        end
+        return render json: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}" unless data[:transaccion]
 
         code = data[:codigo]
         control_code = data[:codigo_control]

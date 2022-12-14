@@ -5,7 +5,7 @@ Style/Documentation:
   Enabled: false
 
 Layout/LineLength:
-  Max: 135
+  Max: 150
   Exclude:
     - 'bin/bundle'
 
