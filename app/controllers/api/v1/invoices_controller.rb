@@ -39,6 +39,7 @@ module Api
       def create
         @invoice = @branch_office.invoices.build(invoice_params)
         @errors = []
+        add_payments(@invoice, payment_params)
         validate!(@invoice)
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
@@ -104,7 +105,6 @@ module Api
         if @invoice.save
           point_of_sale = @branch_office.point_of_sales.find_by(code: @invoice.point_of_sale)
           ProcessInvoiceJob.perform_later(@invoice, point_of_sale, @economic_activity)
-
           render json: @invoice.as_json(only: %i[id total]), status: :created
         else
           render json: @invoice.errors.full_messages, status: :unprocessable_entity
@@ -140,7 +140,7 @@ module Api
         if @invoice.cancel_sent_at
           render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
         else
-          render json: { message:'Se ha producido un error al anular la factura, verifique el log.' }, status: :not_found
+          render json: { message: 'Se ha producido un error al anular la factura, verifique el log.' }, status: :not_found
         end
       end
 
@@ -189,11 +189,41 @@ module Api
         params.require(:invoice).permit(:business_name, :document_type, :business_nit, :complement, :client_code, :payment_method,
                                         :card_number, :subtotal, :gift_card_total, :discount, :exception_code, :cafc,
                                         :currency_code, :exchange_rate, :currency_total, :user, :document_sector_code,
-                                        :cancellation_reason_id, :point_of_sale, :cash_paid, :qr_paid, :card_paid, :gift_card,
-                                        :online_paid, :is_manual, :date,
+                                        :cancellation_reason_id, :point_of_sale, :is_manual, :date,
                                         invoice_details_attributes: %i[product_code description quantity measurement_id
                                                                        unit_price discount subtotal serial_number imei_code
                                                                        economic_activity_code])
+      end
+
+      def payment_params
+        params.require(:payment).permit(:cash_paid, :qr_paid, :card_paid, :online_paid, :voucher_paid)
+      end
+
+      def add_payments(invoice, payment_params)
+        unless payment_params[:cash_paid].zero?
+          payment_method = PaymentMethod.find_by(code: 1)
+          invoice.payments.build(mount: payment_params[:cash_paid], payment_method: payment_method)
+        end
+
+        unless payment_params[:card_paid].zero?
+          payment_method = PaymentMethod.find_by(code: 2)
+          invoice.payments.build(mount: payment_params[:card_paid], payment_method: payment_method)
+        end
+
+        unless payment_params[:qr_paid].zero?
+          payment_method = PaymentMethod.find_by(code: 7)
+          invoice.payments.build(mount: payment_params[:qr_paid], payment_method: payment_method)
+        end
+
+        unless payment_params[:online_paid].zero?
+          payment_method = PaymentMethod.find_by(code: 33)
+          invoice.payments.build(mount: payment_params[:online_paid], payment_method: payment_method)
+        end
+
+        return if payment_params[:voucher_paid].zero?
+
+        payment_method = PaymentMethod.find_by(code: 4)
+        invoice.payments.build(mount: payment_params[:voucher_paid], payment_method: payment_method)
       end
 
       def validate!(invoice)
@@ -225,9 +255,7 @@ module Api
       end
 
       def validate_sync(company, invoice)
-        unless company.economic_activities.present?
-          return @errors << 'No se han sincronizado las actividades economicas de la compañia.'
-        end
+        return @errors << 'No se han sincronizado las actividades economicas de la compañia.' unless company.economic_activities.present?
 
         invoice.invoice_details.each do |invoice_detail|
           economic_activity = company.economic_activities.find_by(code: invoice_detail.economic_activity_code)
@@ -273,26 +301,50 @@ module Api
 
       def validate_payment_methods(invoice)
         @errors << 'No se ha insertado el metodo de pago.' unless invoice.payment_method
+        # - Are there payment methods for cash paid?
+        @payment_cash = nil
+        invoice.payments.each do |payment|
+          @payment_cash = payment if payment.payment_method_id == PaymentMethod.find_by(code: 1).id
+        end
+        @errors << 'No se ha insertado el monto del pago por efectivo.' if ([1, 10, 12, 13, 35,
+                                                                             38].include? invoice.payment_method) && @payment_cash.blank?
         # - Are there payment methods for card paid?
         validate_card_paid(invoice)
         # - Are there payment methods for qr paid?
-        @errors << 'No se ha insertado el monto del pago por transferencia bancaria.' if ([7, 13, 18, 64,
-                                                                                           67].include? invoice.payment_method) &&
-                                                                                         invoice.qr_paid.zero?
+        @payment_qr = nil
+        invoice.payments.each do |payment|
+          @payment_qr = payment if payment.payment_method_id == PaymentMethod.find_by(code: 7).id
+        end
+        @errors << 'No se ha insertado el monto del pago por transferencia bancaria.' if ([7, 13, 18, 21, 64,
+                                                                                           67].include? invoice.payment_method) && @payment_qr.blank?
         # - Are there payment methods for online paid?
-        @errors << 'No se ha insertado el monto del pago online.' if ([33, 38, 43, 67,
-                                                                       78].include? invoice.payment_method) &
-                                                                     invoice.online_paid.zero?
+        @payment_online = nil
+        invoice.payments.each do |payment|
+          @payment_online = payment if payment.payment_method_id == PaymentMethod.find_by(code: 33).id
+        end
+        @errors << 'No se ha insertado el monto del pago online.' if ([33, 38, 43, 67, 56,
+                                                                       78].include? invoice.payment_method) && @payment_online.blank?
         # - Are there payment methods for gift card?
-        @errors << 'No se ha insertado el monto del pago por Gift Card.' if ([27, 35, 40, 64,
-                                                                              78].include? invoice.payment_method) &&
-                                                                            invoice.gift_card_total.zero?
+        @errors << 'No se ha insertado el monto del pago por Gift Card.' if ([27, 35, 40, 53, 64,
+                                                                              78].include? invoice.payment_method) && invoice.gift_card_total.zero?
+        # - Are there payment methods for vouncher?
+        @payment_voucher = nil
+        invoice.payments.each do |payment|
+          @payment_voucher = payment if payment.payment_method_id == PaymentMethod.find_by(code: 4).id
+        end
+        @errors << 'No se ha insertado el monto del pago por Vales.' if ([4, 12, 17, 21, 53,
+                                                                          56].include? invoice.payment_method) && @payment_voucher.blank?
       end
 
       def validate_card_paid(invoice)
-        return unless [2, 10, 18, 40, 43].include? invoice.payment_method
+        return unless [2, 10, 17, 18, 40, 43].include? invoice.payment_method
 
-        @errors << 'No se ha insertado el monto del pago por tarjeta.' if invoice.card_paid.zero?
+        @payment_card = nil
+        invoice.payments.each do |payment|
+          @payment_card = payment if payment.payment_method_id == PaymentMethod.find_by(code: 2).id
+        end
+
+        @errors << 'No se ha insertado el monto del pago por tarjeta.' if @payment_card.blank?
 
         return if invoice.card_number.present?
 
@@ -303,9 +355,7 @@ module Api
         return unless invoice.is_manual
 
         contingency = invoice.branch_office.point_of_sales.find_by(code: invoice.point_of_sale).contingencies.pending.manual.last
-        unless contingency.present?
-          @errors << 'No se puede registrar una factura manual sin iniciar previamente una contingencia para la misma.'
-        end
+        @errors << 'No se puede registrar una factura manual sin iniciar previamente una contingencia para la misma.' unless contingency.present?
 
         activity_code = invoice.invoice_details.first.economic_activity_code
         economic_activity = company.economic_activities.find_by(code: activity_code)

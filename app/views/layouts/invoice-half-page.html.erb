@@ -131,27 +131,35 @@
               <td colspan="6" class="text-right" style="border:0;"><b>Importe base crédito fiscal Bs</b></td>
               <td class="text-right"><%= custom_currency(invoice.amount_payable) %></td>
             </tr>
-            <% if invoice.card_paid > 0 %>
-              <tr style="line-height:13px;height:13px;">
-                <td colspan="6" class="text-right" style="border:0;">Tarjeta Cred. Bs:</td>
-                <td class="text-right"><%= custom_currency(invoice.card_paid) %></td>
-              </tr>
-              <tr style="line-height:13px;height:13px;">
-                <td colspan="6" class="text-right" style="border:0;">Nro:</td>
-                <td class="text-right"><%= invoice.card_number %></td>
-              </tr>
-            <% end %>
-            <% if invoice.qr_paid > 0 %>
-              <tr style="line-height:13px;height:13px;">
-                <td colspan="6" class="text-right" style="border:0;">Transferencia bancaria Bs:</td>
-                <td class="text-right"><%= custom_currency(invoice.qr_paid) %></td>
-              </tr>
-            <% end %>
-            <% if invoice.online_paid > 0 %>
+            <% invoice.payments.each do |payment|%>
+              <% if payment.payment_method.code == 2 %>
+                <tr style="line-height:13px;height:13px;">
+                  <td colspan="6" class="text-right" style="border:0;">Tarjeta Cred. Bs:</td>
+                  <td class="text-right"><%= custom_currency(payment.mount) %></td>
+                </tr>
+                <tr style="line-height:13px;height:13px;">
+                  <td colspan="6" class="text-right" style="border:0;">Nro:</td>
+                  <td class="text-right"><%= invoice.card_number %></td>
+                </tr>
+              <% end %>
+              <% if payment.payment_method.code == 7 %>
+                <tr style="line-height:13px;height:13px;">
+                  <td colspan="6" class="text-right" style="border:0;">Transferencia bancaria Bs:</td>
+                  <td class="text-right"><%= custom_currency(payment.mount) %></td>
+                </tr>
+              <% end %>
+              <% if payment.payment_method.code == 33 %>
               <tr style="line-height:13px;height:13px;">
                 <td colspan="6" class="text-right" style="border:0;">Pago online Bs:</td>
-                <td class="text-right"><%= custom_currency(invoice.online_paid) %></td>
+                <td class="text-right"><%= custom_currency(payment.mount) %></td>
               </tr>
+              <% end %>
+              <% if payment.payment_method.code == 4 %>
+                <tr style="line-height:13px;height:13px;">
+                  <td colspan="6" class="text-right" style="border:0;">Vale Bs:</td>
+                  <td class="text-right"><%= custom_currency(payment.mount) %></td>
+                </tr>
+              <% end %>
             <% end %>
           </tbody>
         </table>

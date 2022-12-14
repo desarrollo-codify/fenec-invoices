@@ -47,7 +47,7 @@ module Api
       def reset_password
         if @user.update(reset_user_params)
           @user.update(default_password: false)
-          render json: { message: "Se ha cambiado correctamente la contraseña"}
+          render json: { message: 'Se ha cambiado correctamente la contraseña' }
         else
           render json: @user.errors, status: :unprocessable_entity
         end

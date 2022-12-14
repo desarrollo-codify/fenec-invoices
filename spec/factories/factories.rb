@@ -117,7 +117,6 @@ FactoryBot.define do
 
     after(:build) do |invoice, evaluator|
       unless evaluator.default_values
-        invoice.cash_paid = 1
         invoice.gift_card_total = 0
         invoice.business_name = 'Codify'
         invoice.business_nit = '123'
@@ -353,5 +352,11 @@ FactoryBot.define do
     date { '2022-01-01' }
     rate { 1 }
     company factory: :company
+  end
+
+  factory :payment do
+    mount { 10 }
+    invoice factory: :invoice
+    payment_method factory: :payment_method
   end
 end

@@ -20,7 +20,8 @@ module Api
         data = ClientCall.cuis(@branch_office, point_of_sale)
 
         if !data[:transaccion] && data[:mensajes_list][:codigo] != '980'
-          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}" }, status: :unprocessable_entity
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}" },
+                        status: :unprocessable_entity
         end
 
         code = data[:codigo]
@@ -53,7 +54,8 @@ module Api
         data = ClientCall.cufd(@branch_office, point_of_sale, @cuis_code)
 
         unless data[:transaccion]
-          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}" }, status: :unprocessable_entity
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{data[:mensajes_list][:descripcion]}" },
+                        status: :unprocessable_entity
         end
 
         code = data[:codigo]
@@ -63,7 +65,7 @@ module Api
 
         render json: data
       rescue StandardError => e
-        render json: { message:"La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
+        render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{e}" }, status: :internal_server_error
       end
 
       def show_cufd
@@ -72,7 +74,7 @@ module Api
           render json: @daily_code
         else
           error_message = 'La sucursal no cuenta con un codigo diario CUFD.'
-          render json: { message:error_message }, status: :not_found
+          render json: { message: error_message }, status: :not_found
         end
       end
 
@@ -424,7 +426,8 @@ module Api
         response_transaction = response.to_array(:verificar_nit_response, :respuesta_verificar_nit).first
 
         if !response_transaction[:transaccion] && response_transaction[:mensajes_list][:codigo] != '994'
-          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}" } , status: :unprocessable_entity
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}" },
+                        status: :unprocessable_entity
         end
 
         data = response.to_array(:verificar_nit_response, :respuesta_verificar_nit, :mensajes_list).first
@@ -454,7 +457,8 @@ module Api
         response_transaction = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta).first
 
         unless response_transaction[:transaccion]
-          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}" }, status: :unprocessable_entity
+          return render json: { message: "La solicitud a SIAT obtuvo el siguiente error: #{response_transaction[:mensajes_list][:descripcion]}" },
+                        status: :unprocessable_entity
         end
 
         data_pos = response.to_array(:consulta_punto_venta_response, :respuesta_consulta_punto_venta, :lista_puntos_ventas)

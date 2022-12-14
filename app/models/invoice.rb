@@ -27,7 +27,7 @@ class Invoice < ApplicationRecord
 
   validates :subtotal, presence: { message: 'El subtotal no puede estar en blanco.' },
                        numericality: { message: 'El subtotal debe ser un valor numérico.' }
-                       
+
   validate :discount_cannot_be_greater_or_equal_than_subtotal
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total
@@ -39,6 +39,7 @@ class Invoice < ApplicationRecord
   belongs_to :contingency, optional: true
   has_many :invoice_details, dependent: :destroy # , inverse_of: :invoice
   has_many :invoice_logs, dependent: :destroy
+  has_many :payments, dependent: :destroy
   has_one :cancellation_reason
   has_one :order, dependent: :destroy
   has_and_belongs_to_many :payment_methods
@@ -58,10 +59,6 @@ class Invoice < ApplicationRecord
     self.discount ||= 0.00
     self.gift_card_total ||= 0.00
     self.advance ||= 0.00
-    self.cash_paid ||= 0.00
-    self.online_paid ||= 0.00
-    self.qr_paid ||= 0.00
-    self.card_paid ||= 0.00
     self.amount_payable ||= 0.00
     self.business_name ||= 'S/N'
     self.business_nit ||= '0'
@@ -72,9 +69,7 @@ class Invoice < ApplicationRecord
   end
 
   def total_must_be_correctly_calculated
-    if total && discount && subtotal && discount && gift_card_total && advance && total.round(2) == (subtotal - discount - advance).round(2)
-      return
-    end
+    return if total && discount && subtotal && discount && gift_card_total && advance && total.round(2) == (subtotal - discount - advance).round(2)
 
     errors.add(:total, 'El monto total no concuerda con el calculo realizado.')
   end
@@ -87,10 +82,9 @@ class Invoice < ApplicationRecord
   end
 
   def total_paid_must_be_equal_to_total
-    return if total && qr_paid && cash_paid && card_paid && gift_card_total &&
-              online_paid && total == (qr_paid + cash_paid + card_paid + gift_card_total + online_paid).round(2)
+    sum_payment = payments.inject(0) { |total, payment| total + payment.mount }
 
-    errors.add(:total, 'El total pagado no concuerda con el total a pagar.')
+    errors.add(:total, 'El total pagado no concuerda con el total a pagar.') unless sum_payment + gift_card_total == total
   end
 
   def business_nit_is_ci_or_nit
