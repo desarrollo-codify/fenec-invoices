@@ -27,7 +27,7 @@ module Api
         if @account.save
           render json: @account, status: :created
         else
-          render json: @account.errors, status: :unprocessable_entity
+          render json: @account.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -36,7 +36,7 @@ module Api
         if @account.update(update_account_params)
           render json: @account
         else
-          render json: @account.errors, status: :unprocessable_entity
+          render json: @account.errors.full_messages, status: :unprocessable_entity
         end
       end
 

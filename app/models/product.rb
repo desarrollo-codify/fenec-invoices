@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Product < ApplicationRecord
-  validates :primary_code, presence: true, uniqueness: { scope: :company_id,
+  validates :primary_code, presence: { message: 'El código primario no puede estar en blanco.' }, uniqueness: { scope: :company_id,
                                                          message: 'Ya existe este codigo primario de producto.' }
-  validates :description, presence: true
+  validates :description, presence: { message: 'La descripción no puede estar en blanco.' }
 
   belongs_to :company
   belongs_to :product_type, optional: true

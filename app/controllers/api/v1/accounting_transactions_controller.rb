@@ -35,7 +35,7 @@ module Api
         if @accounting_transaction.save
           render json: @accounting_transaction, status: :created
         else
-          render json: @accounting_transaction.errors, status: :unprocessable_entity
+          render json: @accounting_transaction.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -44,7 +44,7 @@ module Api
         if @accounting_transaction.update(accounting_transaction_params)
           render json: @accounting_transaction
         else
-          render json: @accounting_transaction.errors, status: :unprocessable_entity
+          render json: @accounting_transaction.errors.full_messages, status: :unprocessable_entity
         end
       end
 

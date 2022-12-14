@@ -21,7 +21,7 @@ module Api
         if @delegated_token.save
           render json: @delegated_token, status: :created
         else
-          render json: @delegated_token.errors, status: :unprocessable_entity
+          render json: @delegated_token.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -29,7 +29,7 @@ module Api
         if @delegated_token.update(delegated_token_params)
           render json: @delegated_token
         else
-          render json: @delegated_token.errors, status: :unprocessable_entity
+          render json: @delegated_token.errors.full_messages, status: :unprocessable_entity
         end
       end
 

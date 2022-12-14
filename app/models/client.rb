@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Client < ApplicationRecord
-  validates :name, presence: true
-  validates :nit, presence: true
+  validates :name, presence: { message: 'El nombre no puede estar en blanco.' }
+  validates :nit, presence: { message: 'El nit no puede estar en blanco.' }
   validates :email, format: { with: VALID_EMAIL_REGEX }
 
   belongs_to :company

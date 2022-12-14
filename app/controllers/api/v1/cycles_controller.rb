@@ -25,7 +25,7 @@ module Api
         if @cycle.save
           render json: @cycle, status: :created, location: @cycle
         else
-          render json: @cycle.errors, status: :unprocessable_entity
+          render json: @cycle.errors.full_messages, status: :unprocessable_entity
         end
       end
 
@@ -34,7 +34,7 @@ module Api
         if @cycle.update(cycle_params)
           render json: @cycle
         else
-          render json: @cycle.errors, status: :unprocessable_entity
+          render json: @cycle.errors.full_messages, status: :unprocessable_entity
         end
       end
 

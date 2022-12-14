@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 class CuisCode < ApplicationRecord
-  validates :code, presence: true, uniqueness: { scope: :branch_office_id,
+  validates :code, presence: { message: 'El código no puede estar en blanco.' }, uniqueness: { scope: :branch_office_id,
                                                  message: 'Solo puede haber un CUIS por sucursal.' }
-  validates :expiration_date, presence: true
-  validates :current_number, presence: true
+  validates :expiration_date, presence: { message: 'La fecha de caducidad no puede estar en blanco.' }
+  validates :current_number, presence: { message: 'El número actual no puede estar en blanco.' }
 
   belongs_to :branch_office
 
