@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Account < ApplicationRecord
-  validates :description, presence: { message: 'La descripción no puede estar en blanco.' }, 
+  validates :description, presence: { message: 'La descripción no puede estar en blanco.' }
   validates :number, presence: { message: 'El número no puede estar en blanco.' }
 
   belongs_to :company

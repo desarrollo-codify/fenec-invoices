@@ -27,7 +27,7 @@ class Invoice < ApplicationRecord
 
   validates :subtotal, presence: { message: 'El subtotal no puede estar en blanco.' },
                        numericality: { message: 'El subtotal debe ser un valor numérico.' }
-                       
+
   validate :discount_cannot_be_greater_or_equal_than_subtotal
   validate :total_must_be_correctly_calculated
   validate :total_paid_must_be_equal_to_total

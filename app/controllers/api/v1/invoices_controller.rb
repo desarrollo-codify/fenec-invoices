@@ -140,7 +140,7 @@ module Api
         if @invoice.cancel_sent_at
           render json: @invoice.as_json(only: %i[id number total cuf cancellation_date cancel_sent_at]), status: :created
         else
-          render json: { message:'Se ha producido un error al anular la factura, verifique el log.' }, status: :not_found
+          render json: { message: 'Se ha producido un error al anular la factura, verifique el log.' }, status: :not_found
         end
       end
 
