@@ -44,7 +44,7 @@ module Api
       def destroy
         @account.destroy
         render json: 'Se ha eliminado correctamente la cuenta.', status: :no_content
-      rescue StandardError => e
+      rescue StandardError
         render json: 'No se ha podido eliminar la cuenta.',
                status: :unprocessable_entity
       end

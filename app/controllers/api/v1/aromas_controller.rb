@@ -30,10 +30,10 @@ module Api
           order = company.orders.build(order_id: json_data['id'], date: DateTime.now, location_id: json_data['location_id'],
                                        number: json_data['order_number'])
           json_data['line_items'].each do |item|
-            order_detail = order.order_details.build(product_id: item['product_id'], title: item['title'], sku: item['sku'],
-                                                     total: (item['price'].to_d * 6.96).round(2),
-                                                     discount: item['total_discount'].present? ? (item['total_discount'].to_d * 6.96).round(2) : 0,
-                                                     quantity: item['quantity'])
+            order.order_details.build(product_id: item['product_id'], title: item['title'], sku: item['sku'],
+                                      total: (item['price'].to_d * 6.96).round(2),
+                                      discount: item['total_discount'].present? ? (item['total_discount'].to_d * 6.96).round(2) : 0,
+                                      quantity: item['quantity'])
             total_order += (item['price'].to_d - item['total_discount'].to_d)
           end
           order.total = total_order
@@ -41,7 +41,7 @@ module Api
           customer_id = json_data['customer'] ? json_data['customer']['id'] : 0
           email = json_data['customer'] ? json_data['customer']['email'] : ''
           phone = json_data['customer'] ? json_data['customer']['phone'] : ''
-          order_customer = order.build_order_customer(name: full_name, email: email, phone: phone, customer_id: customer_id)
+          order.build_order_customer(name: full_name, email: email, phone: phone, customer_id: customer_id)
           order.save!
         end
 
@@ -62,14 +62,14 @@ module Api
         verified = verify_webhook(data, hmac_header)
         puts "Webhook verified: #{verified}"
 
-        unless verified
-          render json: {
-                   status: 403,
-                   message: 'nop',
-                   data: ''
-                 },
-                 status: 403
-        end
+        return if verified
+
+        render json: {
+                 status: 403,
+                 message: 'nop',
+                 data: ''
+               },
+               status: 403
       end
 
       def verify_webhook(data, hmac_header)
