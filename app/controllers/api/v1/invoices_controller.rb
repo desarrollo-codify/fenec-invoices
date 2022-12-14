@@ -74,7 +74,7 @@ module Api
                                                'emitido en una modalidad de facturación en línea'
         @invoice.card_number = nil
 
-        if [2, 10, 18, 40, 43].include? @invoice.payment_method
+        if [2, 10, 17, 18, 40, 43].include? @invoice.payment_method
           card_number = invoice_params[:card_number]
           card_number = "#{card_number[0, 4]}00000000#{card_number[card_number.length - 4, 4]}"
           @invoice.card_number = card_number
