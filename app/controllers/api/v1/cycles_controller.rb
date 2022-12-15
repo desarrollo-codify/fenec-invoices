@@ -23,7 +23,7 @@ module Api
         @cycle = @company.cycles.build(cycle_params)
 
         if @cycle.save
-          render json: @cycle, status: :created, location: @cycle
+          render json: @cycle, status: :created
         else
           render json: @cycle.errors.full_messages, status: :unprocessable_entity
         end
@@ -64,7 +64,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def cycle_params
-        params.fetch(:cycle, {})
+        params.require(:cycle).permit(:year, :start_date, :end_date, :status)
       end
     end
   end
