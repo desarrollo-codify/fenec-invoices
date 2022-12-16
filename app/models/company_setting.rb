@@ -23,6 +23,7 @@ class CompanySetting < ApplicationRecord
 
   def default_values
     self.is_secure ||= true
+    self.account_levels ||= 4
   end
 
   def confirmation_token

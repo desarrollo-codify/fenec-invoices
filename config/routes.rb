@@ -24,6 +24,7 @@ Rails.application.routes.draw do
         resources :accounting_transactions, shallow: true
         resources :accounts, shallow: true do
           post :import, on: :collection
+          get :for_transactions, on: :collection
         end
         resources :cycles, shallow: true do
           get :current, on: :collection
