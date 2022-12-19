@@ -16,7 +16,7 @@ RSpec.describe Invoice, type: :model do
 
   describe 'with valid values' do
     it 'is valid' do
-      subject.payments.build(mount:1, payment_method_id: 1)
+      subject.payments.build(mount: 1, payment_method_id: 1)
       expect(subject).to be_valid
     end
   end
@@ -28,7 +28,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, default_values: true, company_nit: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -41,7 +41,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, company_name: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         invoice.company_name = ''
         expect(invoice).to_not be_valid
@@ -56,7 +56,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, municipality: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         invoice.municipality = ''
         expect(invoice).to_not be_valid
@@ -67,7 +67,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, municipality: '$%^') }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -76,7 +76,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, municipality: 'áü -_.') }
 
       it 'is valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to be_valid
       end
     end
@@ -87,12 +87,12 @@ RSpec.describe Invoice, type: :model do
       context 'with duplicated number' do
         before(:each) do
           invoice = build(:invoice, branch_office: branch_office)
-          invoice.payments.build(mount:1, payment_method_id: 1)
+          invoice.payments.build(mount: 1, payment_method_id: 1)
           invoice.save
         end
 
         it 'is invalid when number is duplicated' do
-          subject.payments.build(mount:1, payment_method_id: 1)
+          subject.payments.build(mount: 1, payment_method_id: 1)
           expect(subject).to_not be_valid
           expect(subject.errors[:number])
             .to eq ['Ya existe este número de factura con el código único de facturación diaria.']
@@ -102,12 +102,12 @@ RSpec.describe Invoice, type: :model do
       context 'with different number' do
         before(:each) do
           invoice = build(:invoice, branch_office: branch_office, number: 2)
-          invoice.payments.build(mount:1, payment_method_id: 1)
+          invoice.payments.build(mount: 1, payment_method_id: 1)
           invoice.save
         end
 
         it 'is valid' do
-          subject.payments.build(mount:1, payment_method_id: 1)
+          subject.payments.build(mount: 1, payment_method_id: 1)
           expect(subject).to be_valid
         end
       end
@@ -121,7 +121,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, cufd_code: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         invoice.cufd_code = ''
         expect(invoice).to_not be_valid
@@ -136,7 +136,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, address: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         invoice.address = ''
         expect(invoice).to_not be_valid
@@ -151,7 +151,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, date: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -164,7 +164,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, default_values: true, business_name: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         invoice.business_name = ''
         expect(invoice).to_not be_valid
@@ -179,7 +179,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, document_type: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -192,7 +192,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, default_values: true, business_nit: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -202,7 +202,7 @@ RSpec.describe Invoice, type: :model do
         let(:invoice) { build(:invoice, default_values: true, business_nit: '123a', document_type: 1) }
 
         it 'is invalid' do
-          invoice.payments.build(mount:1, payment_method_id: 1)
+          invoice.payments.build(mount: 1, payment_method_id: 1)
           expect(invoice).to_not be_valid
           expect(invoice.errors[:business_nit]).to eq(['El número de documento debe ser numérico.'])
         end
@@ -212,7 +212,7 @@ RSpec.describe Invoice, type: :model do
         let(:invoice) { build(:invoice, default_values: true, business_nit: '123a', document_type: 5) }
 
         it 'is invalid' do
-          invoice.payments.build(mount:1, payment_method_id: 1)
+          invoice.payments.build(mount: 1, payment_method_id: 1)
           expect(invoice).to_not be_valid
           expect(invoice.errors[:business_nit]).to eq(['El número de documento debe ser numérico.'])
         end
@@ -227,7 +227,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, client_code: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -240,7 +240,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, payment_method: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -253,7 +253,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, total: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -265,7 +265,7 @@ RSpec.describe Invoice, type: :model do
         let(:invoice) { build(:invoice, total: 'A') }
 
         it 'is not valid' do
-          invoice.payments.build(mount:1, payment_method_id: 1)
+          invoice.payments.build(mount: 1, payment_method_id: 1)
           expect(invoice).to_not be_valid
           expect(invoice.errors[:total]).to include('El total debe ser un valor numérico.')
         end
@@ -290,7 +290,7 @@ RSpec.describe Invoice, type: :model do
         end
 
         it 'is valid' do
-          invoice.payments.build(mount:7, payment_method_id: 1)
+          invoice.payments.build(mount: 7, payment_method_id: 1)
           expect(invoice).to be_valid
         end
       end
@@ -304,7 +304,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, currency_code: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -317,7 +317,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, exchange_rate: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -330,7 +330,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, currency_total: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -343,7 +343,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, legend: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         invoice.legend = ''
         expect(invoice).to_not be_valid
@@ -358,7 +358,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, user: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         invoice.user = ''
         expect(invoice).to_not be_valid
@@ -373,7 +373,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, document_sector_code: nil) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -386,7 +386,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, subtotal: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -398,7 +398,7 @@ RSpec.describe Invoice, type: :model do
         let(:invoice) { build(:invoice, subtotal: 'A') }
 
         it 'is not invalid' do
-          invoice.payments.build(mount:1, payment_method_id: 1)
+          invoice.payments.build(mount: 1, payment_method_id: 1)
           expect(invoice).to_not be_valid
           expect(invoice.errors[:subtotal]).to eq ['El subtotal debe ser un valor numérico.']
         end
@@ -411,7 +411,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, total: 1, subtotal: 1, discount: 2) }
 
       it 'is invalid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
         expect(invoice.errors[:discount]).to eq(['Descuento no puede ser mayor al subtotal.'])
       end
@@ -423,7 +423,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, branch_office: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -434,7 +434,7 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, invoice_status: nil) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
         expect(invoice).to_not be_valid
       end
     end
@@ -465,7 +465,7 @@ RSpec.describe Invoice, type: :model do
       end
       before(:each) do
         @invoice = build(:invoice, branch_office: branch_office)
-        @invoice.payments.build(mount:1, payment_method_id: 1)
+        @invoice.payments.build(mount: 1, payment_method_id: 1)
         @invoice.save
       end
       before { create(:invoice_detail, product: product, invoice: @invoice) }
@@ -481,9 +481,9 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, total: 2, subtotal: 2) }
 
       it 'is not valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
-        invoice.payments.build(mount:1, payment_method_id: 2)
-        invoice.payments.build(mount:1, payment_method_id: 3)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 2)
+        invoice.payments.build(mount: 1, payment_method_id: 3)
         expect(invoice).to_not be_valid
         expect(invoice.errors[:total]).to eq(['El total pagado no concuerda con el total a pagar.'])
       end
@@ -493,9 +493,9 @@ RSpec.describe Invoice, type: :model do
       let(:invoice) { build(:invoice, total: 3, subtotal: 3, amount_payable: 3) }
 
       it 'is valid' do
-        invoice.payments.build(mount:1, payment_method_id: 1)
-        invoice.payments.build(mount:1, payment_method_id: 2)
-        invoice.payments.build(mount:1, payment_method_id: 3)
+        invoice.payments.build(mount: 1, payment_method_id: 1)
+        invoice.payments.build(mount: 1, payment_method_id: 2)
+        invoice.payments.build(mount: 1, payment_method_id: 3)
         expect(invoice).to be_valid
       end
     end
@@ -507,8 +507,8 @@ RSpec.describe Invoice, type: :model do
       let(:send) { build(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 2, sent_at: DateTime.now) }
 
       it 'Includes only the expected invoice' do
-        for_sending.payments.build(mount:1, payment_method_id: 1)
-        send.payments.build(mount:1, payment_method_id: 1)
+        for_sending.payments.build(mount: 1, payment_method_id: 1)
+        send.payments.build(mount: 1, payment_method_id: 1)
         for_sending.save
         send.save
         expect(Invoice.for_sending).to include(for_sending)
@@ -528,8 +528,8 @@ RSpec.describe Invoice, type: :model do
       end
 
       it 'Includes only the expected invoice' do
-        cufd.payments.build(mount:1, payment_method_id: 1)
-        non_cufd.payments.build(mount:1, payment_method_id: 1)
+        cufd.payments.build(mount: 1, payment_method_id: 1)
+        non_cufd.payments.build(mount: 1, payment_method_id: 1)
         cufd.save
         non_cufd.save
         expect(Invoice.by_cufd(@cufd_code)).to include(cufd)
@@ -547,8 +547,8 @@ RSpec.describe Invoice, type: :model do
       let(:non_cancel) { build(:invoice, branch_office: branch_office, invoice_status: invoice_status, number: 2) }
 
       it 'Includes only the expected invoice' do
-        for_sendig_cancel.payments.build(mount:1, payment_method_id: 1)
-        non_cancel.payments.build(mount:1, payment_method_id: 1)
+        for_sendig_cancel.payments.build(mount: 1, payment_method_id: 1)
+        non_cancel.payments.build(mount: 1, payment_method_id: 1)
         for_sendig_cancel.save
         non_cancel.save
         expect(Invoice.for_sending_cancel).to include(for_sendig_cancel)

@@ -19,18 +19,29 @@ RSpec.describe '/api/v1/invoices', type: :request do
   end
 
   describe 'GET /show' do
-    let(:invoice) { create(:invoice) }
+    let(:invoice) { build(:invoice) }
 
-    it 'renders a successful response' do
-      get api_v1_invoice_url(invoice), as: :json
-      expect(response).to be_successful
+    context 'is valid' do
+      before { create(:payment_method) }
+      it 'renders a successful response' do
+        invoice.payments.build(mount: 1, payment_method_id: 1)
+        invoice.save
+        get api_v1_invoice_url(invoice), as: :json
+        expect(response).to be_successful
+      end
     end
   end
 
   describe 'PUT /update' do
     context 'with valid parameters' do
       let(:new_attributes) { { business_name: 'ABC' } }
-      let(:invoice) { create(:invoice) }
+      let(:invoice) { build(:invoice) }
+      before { create(:payment_method) }
+
+      before(:each) do
+        invoice.payments.build(mount: 1, payment_method_id: 1)
+        invoice.save
+      end
 
       it 'updates the requested invoice' do
         put api_v1_invoice_url(invoice),
@@ -48,7 +59,13 @@ RSpec.describe '/api/v1/invoices', type: :request do
     end
 
     context 'with invalid parameters' do
-      let(:invoice) { create(:invoice) }
+      let(:invoice) { build(:invoice) }
+      before { create(:payment_method) }
+
+      before(:each) do
+        invoice.payments.build(mount: 1, payment_method_id: 1)
+        invoice.save
+      end
 
       it 'renders a JSON response with errors for the api_v1_invoice' do
         put api_v1_invoice_url(invoice),
@@ -60,8 +77,15 @@ RSpec.describe '/api/v1/invoices', type: :request do
   end
 
   describe 'DELETE /destroy' do
+    let(:invoice) { build(:invoice) }
+    before { create(:payment_method) }
+
+    before(:each) do
+      invoice.payments.build(mount: 1, payment_method_id: 1)
+      invoice.save
+    end
+
     it 'destroys the requested api_v1_invoice' do
-      invoice = create(:invoice)
       expect do
         delete api_v1_invoice_url(invoice), headers: valid_headers, as: :json
       end.to change(Invoice, :count).by(-1)
@@ -88,7 +112,14 @@ RSpec.describe '/api/v1/invoices', type: :request do
       before { create(:client, company: branch_office.company) }
       before { create(:company_setting, company: branch_office.company) }
       let(:invoice) do
-        create(:invoice, branch_office: branch_office, client_code: '00001', sent_at: '2022-10-17', invoice_status_id: 1)
+        build(:invoice, branch_office: branch_office, client_code: '00001', sent_at: '2022-10-17', invoice_status_id: 1)
+      end
+
+      before { create(:payment_method) }
+
+      before(:each) do
+        invoice.payments.build(mount: 1, payment_method_id: 1)
+        invoice.save
       end
 
       it 'cancel invoices' do
@@ -118,7 +149,14 @@ RSpec.describe '/api/v1/invoices', type: :request do
       before { create(:client, company: branch_office.company) }
       before { create(:company_setting, company: branch_office.company) }
       let(:invoice) do
-        create(:invoice, branch_office: branch_office, client_code: '00001', sent_at: '2022-10-17', invoice_status_id: 1)
+        build(:invoice, branch_office: branch_office, client_code: '00001', sent_at: '2022-10-17', invoice_status_id: 1)
+      end
+
+      before { create(:payment_method) }
+
+      before(:each) do
+        invoice.payments.build(mount: 1, payment_method_id: 1)
+        invoice.save
       end
 
       it 'cancel invoices' do
@@ -141,7 +179,14 @@ RSpec.describe '/api/v1/invoices', type: :request do
     before { create(:invoice_status) }
     before { create(:client, company: branch_office.company) }
     before { create(:company_setting, company: branch_office.company) }
-    let(:invoice) { create(:invoice, branch_office: branch_office, client_code: '00001') }
+    let(:invoice) { build(:invoice, branch_office: branch_office, client_code: '00001') }
+
+    before { create(:payment_method) }
+
+    before(:each) do
+      invoice.payments.build(mount: 1, payment_method_id: 1)
+      invoice.save
+    end
 
     xml_path = "#{Rails.root}/public/tmp/mails/abc.xml"
     pdf_path = "#{Rails.root}/public/tmp/mails/abc.pdf"
@@ -165,7 +210,13 @@ RSpec.describe '/api/v1/invoices', type: :request do
     before { create(:invoice_status) }
     before { create(:client, company: branch_office.company) }
     before { create(:company_setting, company: branch_office.company) }
-    let(:invoice) { create(:invoice, branch_office: branch_office, client_code: '00001') }
+    let(:invoice) { build(:invoice, branch_office: branch_office, client_code: '00001') }
+    before { create(:payment_method) }
+
+    before(:each) do
+      invoice.payments.build(mount: 1, payment_method_id: 1)
+      invoice.save
+    end
 
     response = { codigo_descripcion: 'VALIDA', codigo_estado: '908', transaccion: true }
 
@@ -181,7 +232,13 @@ RSpec.describe '/api/v1/invoices', type: :request do
   end
 
   describe 'GET /logs' do
-    let(:invoice) { create(:invoice) }
+    let(:invoice) { build(:invoice) }
+    before { create(:payment_method) }
+
+    before(:each) do
+      invoice.payments.build(mount: 1, payment_method_id: 1)
+      invoice.save
+    end
     let(:invoice_log) { create(:invoice_log) }
 
     it 'renders a successful response' do
