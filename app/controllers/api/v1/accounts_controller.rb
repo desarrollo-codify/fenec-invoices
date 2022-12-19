@@ -5,7 +5,7 @@ require 'csv'
 module Api
   module V1
     class AccountsController < ApplicationController
-      before_action :set_company, only: %i[index create import]
+      before_action :set_company, only: %i[index create import for_transactions]
       before_action :set_account, only: %i[show update destroy]
 
       # GET /api/v1/companies/1/accounts
@@ -77,6 +77,14 @@ module Api
         end
 
         render json: count
+      end
+
+      def for_transactions
+        cycle = @company.cycles.current.id
+        level = @company.company_setting.account_levels
+        accounts = @company.accounts.for_transactions(level, cycle)
+
+        render json: accounts.as_json(except: %i[created_at updated_at])
       end
 
       private

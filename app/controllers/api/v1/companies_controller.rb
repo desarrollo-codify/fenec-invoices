@@ -183,6 +183,15 @@ module Api
         render json: @company.measurements
       end
 
+      # POST /companies/1/add_payment_methods
+      def add_payment_methods
+        payment_methods_ids = params[:payment_method_ids]
+        payment_methods = PaymentMethod.find(payment_methods_ids)
+        @company.payment_methods << payment_methods
+
+        render json: @company.payment_methods
+      end
+
       def remove_invoice_type
         @company.invoice_types.delete(params[:invoice_type_id])
 
@@ -199,6 +208,12 @@ module Api
         @company.measurements.delete(params[:measurement_id])
 
         render json: @company.measurements
+      end
+
+      def remove_payment_methods
+        @company.payment_methods.delete(params[:payment_method_id])
+
+        render json: @company.payment_methods
       end
 
       def mail_test
