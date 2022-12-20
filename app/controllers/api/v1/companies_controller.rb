@@ -25,7 +25,7 @@ module Api
       # GET /companies/1
       def show
         @company = Company.includes(:economic_activities, :company_setting, :page_size, :invoice_types, :measurements, :modality,
-                                    :environment_type, :document_sector_types, branch_offices: :point_of_sales)
+                                    :environment_type, :document_sector_types, :payment_methods, branch_offices: :point_of_sales)
                           .find(params[:id])
         result = @company.as_json(except: %i[created_at updated_at],
                                   include: [{ economic_activities: { except: %i[created_at
@@ -37,6 +37,7 @@ module Api
                                             invoice_types: { only: %i[id description] },
                                             document_sector_types: { only: %i[id description] },
                                             measurements: { only: %i[id description] },
+                                            payment_methods: { only: %i[id code description] },
                                             modality: { only: %i[description] },
                                             environment_type: { only: %i[description] }])
 
@@ -185,7 +186,7 @@ module Api
 
       # POST /companies/1/add_payment_methods
       def add_payment_methods
-        payment_methods_ids = params[:payment_method_ids]
+        payment_methods_ids = params[:payment_methods_ids]
         payment_methods = PaymentMethod.find(payment_methods_ids)
         @company.payment_methods << payment_methods
 
