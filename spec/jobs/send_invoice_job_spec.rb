@@ -9,9 +9,15 @@ RSpec.describe SendInvoiceJob, type: :job do
   let(:invoice_status) { InvoiceStatus.create!(description: 'Good') }
   let(:company) { Company.create!(name: 'Codify', nit: '123', address: 'Anywhere') }
 
-  let(:invoice) { create(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
+  let(:invoice) { build(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
 
   describe '#perform_later' do
+    before { create(:payment_method) }
+
+    before(:each) do
+      invoice.payments.build(mount: 1, payment_method_id: 1)
+      invoice.save
+    end
     it 'send invoice' do
       ActiveJob::Base.queue_adapter = :test
       expect do
