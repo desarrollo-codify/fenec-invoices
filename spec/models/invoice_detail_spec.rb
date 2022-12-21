@@ -12,9 +12,16 @@ RSpec.describe InvoiceDetail, type: :model do
   let(:measurement) { create(:measurement) }
   let(:branch_office) { create(:branch_office, company: company) }
   let(:invoice_status) { create(:invoice_status) }
-  let(:invoice) { create(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
+  let(:invoice) { build(:invoice, branch_office: branch_office, invoice_status: invoice_status) }
 
+  before { create(:payment_method) }
+
+  before(:each) do
+    invoice.payments.build(mount: 1, payment_method_id: 1)
+    invoice.save
+  end
   subject { build(:invoice_detail, invoice: invoice, measurement: measurement) }
+
   describe 'with valid values' do
     it 'is valid' do
       expect(subject).to be_valid
@@ -276,11 +283,11 @@ RSpec.describe InvoiceDetail, type: :model do
 
   describe '#default_values' do
     context 'with missing values' do
-      let(:invoice) { described_class.new }
+      let(:invoice_detail) { build(:invoice_detail, default_values: true) }
 
       it 'has default values' do
-        expect(invoice.discount).to eq(0)
-        expect(invoice.quantity).to eq(1)
+        expect(invoice_detail.discount).to eq(0)
+        expect(invoice_detail.quantity).to eq(1)
       end
     end
   end
