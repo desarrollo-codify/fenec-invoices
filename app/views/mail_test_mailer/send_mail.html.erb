@@ -47,11 +47,13 @@
                             <li>Hora de envio: <b><strong><%= DateTime.now.strftime('%H:%M:%S') %></strong></b></li>
                           </ul></div>                  
                         </div>
+                        <%if @company.company_setting.confirm_token.present?%>
                         <center>
                           <a class="btn" href=<%= confirm_email_api_v1_email_verification_url(@company.company_setting.confirm_token) %>>
                             Verificar correo
                           </a> 
                         </center> 
+                        <%end%>
                       </td> 
                     </tr> 
                   </tbody>
