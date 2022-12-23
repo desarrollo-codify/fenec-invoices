@@ -31,8 +31,9 @@ module Api
       def create
         @accounting_transaction = @company.accounting_transactions.build(accounting_transaction_params)
         @accounting_transaction.number = AccountingTransaction.any? ? AccountingTransaction.last.number + 1 : 1
-
         if @accounting_transaction.save
+          @accounting_transaction.accounting_transaction_logs.create(full_name: 'current_user.full_name', action: 'CREATE', log_action: @accounting_transaction.as_json(include: { entries: {except: %i[created_at updated_at] } }))
+          debugger
           render json: @accounting_transaction, status: :created
         else
           render json: @accounting_transaction.errors.full_messages, status: :unprocessable_entity
@@ -42,6 +43,7 @@ module Api
       # PATCH/PUT /api/v1/accounting_transactions/1
       def update
         if @accounting_transaction.update(accounting_transaction_params)
+          @accounting_transaction.accounting_transaction_logs.create(full_name: 'current_user.full_name', action: 'UPDATE', log_action: @accounting_transaction.as_json(include: { entries: {except: %i[created_at updated_at] } }))
           render json: @accounting_transaction
         else
           render json: @accounting_transaction.errors.full_messages, status: :unprocessable_entity
