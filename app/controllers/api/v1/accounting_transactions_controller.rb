@@ -34,13 +34,12 @@ module Api
         validate!(@accounting_transaction)
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
-        @accounting_transaction.number = AccountingTransaction.any? ? AccountingTransaction.last.number + 1 : 1
+        add_number
 
         if @accounting_transaction.save
-          render json: @accounting_transaction.as_json(include: [{ currency: { only: %i[id description abbreviation] } },
-                                                                 { cycle: { only: %i[id year] } },
-                                                                 { transaction_type: { only: %i[id description] } },
-                                                                 { entries: { except: %i[created_at updated_at] } }]), status: :created
+          @accounting_transaction.accounting_transaction_logs.create(full_name: 'current_user.full_name', action: 'CREATE',
+                                                                     log_action: @accounting_transaction.as_json(include: :entires))
+          render json: @accounting_transaction, status: :created
         else
           render json: @accounting_transaction.errors.full_messages, status: :unprocessable_entity
         end
@@ -53,10 +52,9 @@ module Api
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
         if @accounting_transaction.update(accounting_transaction_params)
-          render json: @accounting_transaction.as_json(include: [{ currency: { only: %i[id description abbreviation] } },
-                                                                 { cycle: { only: %i[id year] } },
-                                                                 { transaction_type: { only: %i[id description] } },
-                                                                 { entries: { except: %i[created_at updated_at] } }])
+          @accounting_transaction.accounting_transaction_logs.create(full_name: 'current_user.full_name', action: 'UPDATE',
+                                                                     log_action: @accounting_transaction.as_json(include: :entires))
+          render json: @accounting_transaction
         else
           render json: @accounting_transaction.errors.full_messages, status: :unprocessable_entity
         end
@@ -98,6 +96,19 @@ module Api
         return if accounting_transaction.date.to_date == Date.today
 
         @errors << 'Para realizar cambios en un día distinto al de creación, se requiere un nuevo comprobante.'
+      end
+
+      def add_number
+        cycle = Cycle.find(@accounting_transaction.cycle_id)
+        transaction_type = TransactionType.find(@accounting_transaction.transaction_type_id)
+
+        if TransactionNumber.find_by(cycle_id: cycle.id, transaction_type_id: transaction_type.id).present?
+          transaction_number = TransactionNumber.find_by(cycle_id: cycle.id, transaction_type_id: transaction_type.id)
+          transaction_number.increment!
+        else
+          transaction_number = TransactionNumber.create(cycle: cycle, transaction_type: transaction_type)
+        end
+        @accounting_transaction.number = transaction_number.number
       end
 
       # Use callbacks to share common setup or constraints between actions.
