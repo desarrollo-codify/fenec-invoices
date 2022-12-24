@@ -13,6 +13,7 @@ class AccountingTransaction < ApplicationRecord
   belongs_to :transaction_type
 
   has_many :entries, dependent: :destroy
+  has_many :accounting_transaction_logs, dependent: :destroy
   accepts_nested_attributes_for :entries, reject_if: :all_blank
 
   private
