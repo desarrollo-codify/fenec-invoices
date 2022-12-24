@@ -30,7 +30,7 @@ module Api
       # POST /api/v1/companies/1/accounting_transactions
       def create
         @accounting_transaction = @company.accounting_transactions.build(accounting_transaction_params)
-        @accounting_transaction.number = AccountingTransaction.any? ? AccountingTransaction.last.number + 1 : 1
+        add_number
 
         if @accounting_transaction.save
           render json: @accounting_transaction, status: :created
@@ -54,6 +54,19 @@ module Api
       end
 
       private
+
+      def add_number
+        cycle = Cycle.find(@accounting_transaction.cycle_id)
+        transaction_type = TransactionType.find(@accounting_transaction.transaction_type_id)
+
+        if TransactionNumber.find_by(cycle_id: cycle.id, transaction_type_id: transaction_type.id).present?
+          transaction_number = TransactionNumber.find_by(cycle_id: cycle.id, transaction_type_id: transaction_type.id)
+          transaction_number.increment!
+        else
+          transaction_number = TransactionNumber.create(cycle: cycle, transaction_type: transaction_type)
+        end
+        @accounting_transaction.number = transaction_number.number
+      end
 
       # Use callbacks to share common setup or constraints between actions.
       def set_accounting_transaction
