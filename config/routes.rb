@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         put :reset_password, on: :member
       end
       resources :companies do
+        get :find_currency, on: :member
         resources :accounting_transactions, shallow: true
         resources :accounts, shallow: true do
           post :import, on: :collection

@@ -228,6 +228,19 @@ module Api
         render json: { message: "Si recibió un correo de prueba en #{params[:email]}, presione el botón de confirmación." }
       end
 
+      def find_currency
+        date = params[:date].to_date
+
+        currency = @company.accounting_transactions.find_by(date: date).currency
+
+        unless currency.present?
+          render json: { message: "No se ha encontrado un tipo de cambio en la fecha: #{date}." },
+                 status: :unprocessable_entity
+        end
+
+        render json: currency
+      end
+
       private
 
       # Use callbacks to share common setup or constraints between actions.
