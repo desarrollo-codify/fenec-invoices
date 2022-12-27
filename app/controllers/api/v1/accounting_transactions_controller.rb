@@ -95,16 +95,16 @@ module Api
           return @errors << 'No se pueden añadir asientos nuevos un día distinto al de creación del comprobante.' unless id.present?
 
           entry_current = Entry.find(id)
-          if entry[:debit_bs] != entry_current.debit_bs
+          if entry[:debit_bs].to_d.round(2) != entry_current.debit_bs.round(2)
             return @errors << 'No se pueden realizar cambios en algun asiento un día distinto al de creación del comprobante.'
           end
-          if entry[:credit_bs] != entry_current.credit_bs
+          if entry[:credit_bs].to_d.round(2) != entry_current.credit_bs.round(2)
             return @errors << 'No se pueden realizar cambios en algun asiento un día distinto al de creación del comprobante.'
           end
-          if entry[:debit_sus] != entry_current.debit_sus
+          if entry[:debit_sus].to_d.round(2) != entry_current.debit_sus.round(2)
             return @errors << 'No se pueden realizar cambios en algun asiento un día distinto al de creación del comprobante.'
           end
-          if entry[:credit_sus] != entry_current.credit_sus
+          if entry[:credit_sus].to_d.round(2) != entry_current.credit_sus.round(2)
             return @errors << 'No se pueden realizar cambios en algun asiento un día distinto al de creación del comprobante.'
           end
           if entry[:account_id] != entry_current.account_id
