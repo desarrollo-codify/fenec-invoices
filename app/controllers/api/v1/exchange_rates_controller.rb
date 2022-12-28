@@ -4,7 +4,7 @@ module Api
   module V1
     class ExchangeRatesController < ApplicationController
       before_action :set_exchange_rate, only: %i[show update destroy]
-      before_action :set_company, only: %i[index create]
+      before_action :set_company, only: %i[index create find_exchange_rate_by_date]
 
       # GET /api/v1/companies/1/exchange_rates
       def index
@@ -40,6 +40,18 @@ module Api
       # DELETE /api/v1/exchange_rates/1
       def destroy
         @exchange_rate.destroy
+      end
+
+      def find_exchange_rate_by_date
+        date = params[:date].to_date
+        @exchange_rate = @company.exchange_rates.by_date(date)
+
+        if @exchange_rate.blank?
+          return render json: { message: "No se encontro ningun tipo de cambio en la fecha #{date}" },
+                        status: :unprocessable_entity
+        end
+
+        render json: @exchange_rate
       end
 
       private
