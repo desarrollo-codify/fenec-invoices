@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Api::V1::EmailVerificationsController, type: :controller do
@@ -12,7 +14,7 @@ RSpec.describe Api::V1::EmailVerificationsController, type: :controller do
       end
 
       it 'returns a success message' do
-        company_setting = create(:company_setting, confirm_token: 'valid_token')
+        create(:company_setting, confirm_token: 'valid_token')
 
         post :confirm_email, params: { id: 'valid_token' }
 

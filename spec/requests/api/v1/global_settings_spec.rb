@@ -7,9 +7,9 @@ RSpec.describe '/api/v1/global_settings', type: :request do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /significative_events' do

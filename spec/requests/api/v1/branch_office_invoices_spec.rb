@@ -1929,9 +1929,9 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /index' do

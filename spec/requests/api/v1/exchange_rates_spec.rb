@@ -21,9 +21,9 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /index' do

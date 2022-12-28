@@ -2,9 +2,7 @@
 
 require 'rails_helper'
 
-
 RSpec.describe '/api/v1/product_types', type: :request do
-
   let(:valid_attributes) do
     skip('Add a hash of attributes valid for your model')
   end
@@ -17,11 +15,11 @@ RSpec.describe '/api/v1/product_types', type: :request do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
-  
+
   describe 'GET /index' do
     it 'renders a successful response' do
       ProductType.create! valid_attributes

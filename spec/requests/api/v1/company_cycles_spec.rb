@@ -25,13 +25,13 @@ RSpec.describe '/api/v1/companies/:company_id/cycles', type: :request do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /index' do
-    let(:company){ create(:company) }
+    let(:company) { create(:company) }
     it 'renders a successful response' do
       create(:cycle, company: company)
       get api_v1_company_cycles_url(company), headers: @auth_headers, as: :json
@@ -41,7 +41,7 @@ RSpec.describe '/api/v1/companies/:company_id/cycles', type: :request do
 
   describe 'POST /create' do
     context 'with valid parameters' do
-      let(:company){ create(:company) }
+      let(:company) { create(:company) }
       it 'creates a new Api::V1::Cycle' do
         expect do
           post api_v1_company_cycles_url(company),
@@ -58,7 +58,7 @@ RSpec.describe '/api/v1/companies/:company_id/cycles', type: :request do
     end
 
     context 'with invalid parameters' do
-      let(:company){ create(:company) }
+      let(:company) { create(:company) }
       it 'does not create a new Api::V1::Cycle' do
         expect do
           post api_v1_company_cycles_url(company),

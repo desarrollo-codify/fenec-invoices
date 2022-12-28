@@ -7,7 +7,7 @@ RSpec.describe 'Api::V1::AccountLevels', type: :request do
     before do
       @user = create(:user)
     end
-  
+
     after do
       @user.destroy
     end

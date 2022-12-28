@@ -4,7 +4,7 @@ module Api
   module V1
     class ModalitiesController < ApplicationController
       before_action :authenticate_user!
-      
+
       def index
         @modalities = Modality.all
 

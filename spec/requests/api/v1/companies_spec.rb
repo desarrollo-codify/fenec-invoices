@@ -20,16 +20,16 @@ RSpec.describe '/api/v1/companies', type: :request do
   end
 
   let(:valid_headers) do
-    {"Authorization" => "Bearer #{user.auth_token}"}
+    { 'Authorization' => "Bearer #{user.auth_token}" }
   end
 
   before(:all) do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /index' do
@@ -143,7 +143,7 @@ RSpec.describe '/api/v1/companies', type: :request do
       company = create(:company)
       expect do
         post add_document_sector_types_api_v1_company_url(company), params: { document_sector_type_ids: [1, 2] },
-        headers: @auth_headers, as: :json
+                                                                    headers: @auth_headers, as: :json
       end.to change(company.document_sector_types, :count).by(2)
     end
   end

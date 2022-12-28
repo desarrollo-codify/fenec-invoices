@@ -17,7 +17,7 @@ RSpec.describe '/api/v1/accounts', type: :request do
   end
 
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /show' do

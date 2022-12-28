@@ -27,7 +27,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/daily_codes', type: :re
   end
 
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /index' do

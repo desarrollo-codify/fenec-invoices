@@ -16,9 +16,9 @@ RSpec.describe '/point_of_sales', type: :request do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /show' do
@@ -44,7 +44,7 @@ RSpec.describe '/point_of_sales', type: :request do
 
       it 'renders a JSON response with the point_of_sale' do
         put api_v1_point_of_sale_url(point_of_sale),
-            params: { point_of_sale: new_attributes },headers: @auth_headers, as: :json
+            params: { point_of_sale: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end

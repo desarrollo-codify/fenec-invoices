@@ -27,9 +27,9 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   let(:data) do

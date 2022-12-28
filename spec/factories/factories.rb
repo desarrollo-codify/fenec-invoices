@@ -364,7 +364,7 @@ FactoryBot.define do
     number { 9000 }
     date { DateTime.now }
     total { 1 }
-    order_id { 10000 }
+    order_id { 10_000 }
     company factory: :company
   end
 

@@ -3,14 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe '/api/v1/cycles', type: :request do
-
   before(:all) do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /show' do
@@ -28,7 +27,7 @@ RSpec.describe '/api/v1/cycles', type: :request do
       it 'renders a JSON response with the api_v1_cycle' do
         cycle = create(:cycle)
         put api_v1_cycle_url(cycle),
-              params: { cycle: new_attributes }, headers: @auth_headers, as: :json
+            params: { cycle: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -40,7 +39,7 @@ RSpec.describe '/api/v1/cycles', type: :request do
       it 'renders a JSON response with errors for the api_v1_cycle' do
         cycle = create(:cycle)
         put api_v1_cycle_url(cycle),
-              params: { cycle: invalid_attributes }, headers: @auth_headers, as: :json
+            params: { cycle: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end

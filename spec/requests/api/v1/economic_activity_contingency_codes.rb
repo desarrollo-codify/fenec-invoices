@@ -23,9 +23,9 @@ RSpec.describe '/api/v1/economic_activities/:economic_activity_id/contingency_co
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'GET /index' do

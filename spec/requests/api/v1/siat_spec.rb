@@ -12,9 +12,9 @@ RSpec.describe 'Api::V1::Siat', type: :request do
     @user = create(:user)
     @auth_headers = @user.create_new_auth_token
   end
-  
+
   after(:all) do
-    @user.destroy  
+    @user.destroy
   end
 
   describe 'POST /generate_cuis' do

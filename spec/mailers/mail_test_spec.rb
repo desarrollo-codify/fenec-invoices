@@ -16,7 +16,7 @@ RSpec.describe MailTestMailer, type: :mailer do
                 password: 'password',
                 domain: 'codify.com.bo',
                 port: 465,
-                address: 'codify.com.bo',
+                address: 'codify.com.bo'
               }
             )
           }
