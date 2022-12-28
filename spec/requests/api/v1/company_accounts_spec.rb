@@ -23,8 +23,13 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
     }
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+  
+  after(:all) do
+    @user.destroy  
   end
 
   let(:data) do
@@ -58,7 +63,7 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
     let(:account_level) { create(:account_level) }
     before { create(:account, company: company, cycle: cycle, account_type: account_type, account_level: account_level) }
     it 'renders a successful response' do
-      get api_v1_company_accounts_url(company_id: company.id), headers: valid_headers, as: :json
+      get api_v1_company_accounts_url(company_id: company.id), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -72,13 +77,13 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
       it 'creates a new Account' do
         expect do
           post api_v1_company_accounts_url(company_id: @company.id),
-               params: { account: valid_attributes }, headers: valid_headers, as: :json
+               params: { account: valid_attributes }, headers: @auth_headers, as: :json
         end.to change(Account, :count).by(1)
       end
 
       it 'renders a JSON response with the new api_v1_account' do
         post api_v1_company_accounts_url(company_id: @company.id),
-             params: { account: valid_attributes }, headers: valid_headers, as: :json
+             params: { account: valid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -94,7 +99,7 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
 
       it 'renders a JSON response with errors for the new api_v1_account' do
         post api_v1_company_accounts_url(company_id: @company.id),
-             params: { account: invalid_attributes }, headers: valid_headers, as: :json
+             params: { account: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -111,7 +116,7 @@ RSpec.describe '/api/v1/companies/:company_id/accounts', type: :request do
   #     it 'renders a successful response' do
   #       expect do
   #         post import_api_v1_company_accounts_url(company_id: @company.id),
-  #              params: { csv: csv_file }, headers: valid_headers, as: :json
+  #              params: { csv: csv_file }, headers: @auth_headers, as: :json
   #       end.to change(Account, :count).by(2)
   #     end
   #   end

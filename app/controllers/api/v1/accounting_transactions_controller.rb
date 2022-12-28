@@ -3,6 +3,7 @@
 module Api
   module V1
     class AccountingTransactionsController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_company, only: %i[index create]
       before_action :set_accounting_transaction, only: %i[show update destroy]
 

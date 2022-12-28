@@ -5,6 +5,7 @@ require 'csv'
 module Api
   module V1
     class AccountsController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_company, only: %i[index create import for_transactions]
       before_action :set_account, only: %i[show update destroy]
 

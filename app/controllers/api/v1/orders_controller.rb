@@ -3,6 +3,8 @@
 module Api
   module V1
     class OrdersController < ApplicationController
+      before_action :authenticate_user!
+      
       def update
         @order = Order.find(params[:id])
         if @order.update(order_params)

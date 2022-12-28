@@ -8,6 +8,15 @@ RSpec.describe 'Api::V1::Siat', type: :request do
   require 'siat_available'
   require 'client_call'
 
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+  
+  after(:all) do
+    @user.destroy  
+  end
+
   describe 'POST /generate_cuis' do
     context 'with valid response of siat' do
       let(:branch_office) { create(:branch_office) }
@@ -23,7 +32,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_generate_cuis_url(branch_office), params: { point_of_sale: 0 }, as: :json
+          post api_v1_branch_office_siat_generate_cuis_url(branch_office), params: { point_of_sale: 0 }, headers: @auth_headers, as: :json
         end.to change(branch_office.cuis_codes, :count).by(1)
       end
     end
@@ -42,7 +51,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_generate_cuis_url(branch_office), params: { point_of_sale: 0 }, as: :json
+          post api_v1_branch_office_siat_generate_cuis_url(branch_office), params: { point_of_sale: 0 }, headers: @auth_headers, as: :json
         end.to change(branch_office.cuis_codes, :count).by(0)
       end
     end
@@ -53,7 +62,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
     before { create(:cuis_code, branch_office: branch_office) }
 
     it 'returns http success' do
-      get api_v1_branch_office_siat_show_cuis_url(branch_office_id: branch_office.id, point_of_sale: 0)
+      get api_v1_branch_office_siat_show_cuis_url(branch_office_id: branch_office.id, point_of_sale: 0), headers: @auth_headers
       expect(response).to have_http_status(:success)
     end
   end
@@ -74,7 +83,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_generate_cufd_url(branch_office), params: { point_of_sale: 0 }, as: :json
+          post api_v1_branch_office_siat_generate_cufd_url(branch_office), params: { point_of_sale: 0 }, headers: @auth_headers, as: :json
         end.to change(branch_office.daily_codes, :count).by(1)
       end
     end
@@ -94,7 +103,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_generate_cufd_url(branch_office), params: { point_of_sale: 0 }, as: :json
+          post api_v1_branch_office_siat_generate_cufd_url(branch_office), params: { point_of_sale: 0 }, headers: @auth_headers, as: :json
         end.to change(branch_office.daily_codes, :count).by(0)
       end
     end
@@ -105,7 +114,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
     before { create(:daily_code, branch_office: branch_office) }
 
     it 'returns http success' do
-      get api_v1_branch_office_siat_show_cufd_url(branch_office_id: branch_office.id, point_of_sale: 0)
+      get api_v1_branch_office_siat_show_cufd_url(branch_office_id: branch_office.id, point_of_sale: 0), headers: @auth_headers
       expect(response).to have_http_status(:success)
     end
   end
@@ -128,7 +137,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_economic_activities_url(branch_office), as: :json
+          post api_v1_branch_office_siat_economic_activities_url(branch_office), headers: @auth_headers, as: :json
         end.to change(company.economic_activities, :count).by(2)
       end
     end
@@ -147,7 +156,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_economic_activities_url(branch_office), as: :json
+          post api_v1_branch_office_siat_economic_activities_url(branch_office), headers: @auth_headers, as: :json
         end.to change(company.economic_activities, :count).by(0)
       end
     end
@@ -173,7 +182,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_product_codes_url(branch_office), params: { point_of_sale: 0 }, as: :json
+          post api_v1_branch_office_siat_product_codes_url(branch_office), params: { point_of_sale: 0 }, headers: @auth_headers, as: :json
         end.to change(ProductCode, :count).by(2)
       end
     end
@@ -194,7 +203,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'returns http success' do
         expect do
-          post api_v1_branch_office_siat_product_codes_url(branch_office), params: { point_of_sale: 0 }, as: :json
+          post api_v1_branch_office_siat_product_codes_url(branch_office), params: { point_of_sale: 0 }, headers: @auth_headers, as: :json
         end.to change(ProductCode, :count).by(0)
       end
     end
@@ -218,7 +227,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_document_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_document_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(DocumentType, :count).by(2)
       end
     end
@@ -236,7 +245,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_document_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_document_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(DocumentType, :count).by(0)
       end
     end
@@ -260,7 +269,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_payment_methods_url(branch_office), as: :json
+          post api_v1_branch_office_siat_payment_methods_url(branch_office), headers: @auth_headers, as: :json
         end.to change(PaymentMethod, :count).by(2)
       end
     end
@@ -278,7 +287,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_payment_methods_url(branch_office), as: :json
+          post api_v1_branch_office_siat_payment_methods_url(branch_office), headers: @auth_headers, as: :json
         end.to change(PaymentMethod, :count).by(0)
       end
     end
@@ -304,7 +313,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_legends_url(branch_office), as: :json
+          post api_v1_branch_office_siat_legends_url(branch_office), headers: @auth_headers, as: :json
         end.to change(Legend, :count).by(2)
       end
     end
@@ -324,7 +333,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_legends_url(branch_office), as: :json
+          post api_v1_branch_office_siat_legends_url(branch_office), headers: @auth_headers, as: :json
         end.to change(Legend, :count).by(0)
       end
     end
@@ -348,7 +357,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_measurements_url(branch_office), as: :json
+          post api_v1_branch_office_siat_measurements_url(branch_office), headers: @auth_headers, as: :json
         end.to change(Measurement, :count).by(2)
       end
     end
@@ -366,7 +375,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_measurements_url(branch_office), as: :json
+          post api_v1_branch_office_siat_measurements_url(branch_office), headers: @auth_headers, as: :json
         end.to change(Measurement, :count).by(0)
       end
     end
@@ -390,7 +399,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_significative_events_url(branch_office), as: :json
+          post api_v1_branch_office_siat_significative_events_url(branch_office), headers: @auth_headers, as: :json
         end.to change(SignificativeEvent, :count).by(2)
       end
     end
@@ -408,7 +417,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_significative_events_url(branch_office), as: :json
+          post api_v1_branch_office_siat_significative_events_url(branch_office), headers: @auth_headers, as: :json
         end.to change(SignificativeEvent, :count).by(0)
       end
     end
@@ -432,7 +441,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_pos_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_pos_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(PosType, :count).by(2)
       end
     end
@@ -450,7 +459,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_pos_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_pos_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(PosType, :count).by(0)
       end
     end
@@ -474,7 +483,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_cancellation_reasons_url(branch_office), as: :json
+          post api_v1_branch_office_siat_cancellation_reasons_url(branch_office), headers: @auth_headers, as: :json
         end.to change(CancellationReason, :count).by(2)
       end
     end
@@ -492,7 +501,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_cancellation_reasons_url(branch_office), as: :json
+          post api_v1_branch_office_siat_cancellation_reasons_url(branch_office), headers: @auth_headers, as: :json
         end.to change(CancellationReason, :count).by(0)
       end
     end
@@ -518,7 +527,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_document_sectors_url(branch_office), as: :json
+          post api_v1_branch_office_siat_document_sectors_url(branch_office), headers: @auth_headers, as: :json
         end.to change(DocumentSector, :count).by(2)
       end
     end
@@ -538,7 +547,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_document_sectors_url(branch_office), as: :json
+          post api_v1_branch_office_siat_document_sectors_url(branch_office), headers: @auth_headers, as: :json
         end.to change(DocumentSector, :count).by(0)
       end
     end
@@ -562,7 +571,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_countries_url(branch_office), as: :json
+          post api_v1_branch_office_siat_countries_url(branch_office), headers: @auth_headers, as: :json
         end.to change(Country, :count).by(2)
       end
     end
@@ -580,7 +589,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_countries_url(branch_office), as: :json
+          post api_v1_branch_office_siat_countries_url(branch_office), headers: @auth_headers, as: :json
         end.to change(Country, :count).by(0)
       end
     end
@@ -604,7 +613,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_issuance_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_issuance_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(IssuanceType, :count).by(2)
       end
     end
@@ -622,7 +631,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_issuance_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_issuance_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(IssuanceType, :count).by(0)
       end
     end
@@ -646,7 +655,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_room_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_room_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(RoomType, :count).by(2)
       end
     end
@@ -664,7 +673,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_room_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_room_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(RoomType, :count).by(0)
       end
     end
@@ -688,7 +697,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_currency_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_currency_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(CurrencyType, :count).by(2)
       end
     end
@@ -706,7 +715,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_currency_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_currency_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(CurrencyType, :count).by(0)
       end
     end
@@ -730,7 +739,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_invoice_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_invoice_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(InvoiceType, :count).by(2)
       end
     end
@@ -748,7 +757,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_invoice_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_invoice_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(InvoiceType, :count).by(0)
       end
     end
@@ -772,7 +781,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_service_messages_url(branch_office), as: :json
+          post api_v1_branch_office_siat_service_messages_url(branch_office), headers: @auth_headers, as: :json
         end.to change(ServiceMessage, :count).by(2)
       end
     end
@@ -790,7 +799,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_service_messages_url(branch_office), as: :json
+          post api_v1_branch_office_siat_service_messages_url(branch_office), headers: @auth_headers, as: :json
         end.to change(ServiceMessage, :count).by(0)
       end
     end
@@ -814,7 +823,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
 
       it 'insert to table' do
         expect do
-          post api_v1_branch_office_siat_document_sector_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_document_sector_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(DocumentSectorType, :count).by(2)
       end
     end
@@ -832,7 +841,7 @@ RSpec.describe 'Api::V1::Siat', type: :request do
       end
       it 'not insert to table' do
         expect do
-          post api_v1_branch_office_siat_document_sector_types_url(branch_office), as: :json
+          post api_v1_branch_office_siat_document_sector_types_url(branch_office), headers: @auth_headers, as: :json
         end.to change(DocumentSectorType, :count).by(0)
       end
     end

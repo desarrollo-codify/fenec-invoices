@@ -14,8 +14,13 @@ RSpec.describe '/api/v1/invoices', type: :request do
     }
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+  
+  after(:all) do
+    @user.destroy  
   end
 
   describe 'GET /show' do
@@ -26,7 +31,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
       it 'renders a successful response' do
         invoice.payments.build(mount: 1, payment_method_id: 1)
         invoice.save
-        get api_v1_invoice_url(invoice), as: :json
+        get api_v1_invoice_url(invoice),headers: @auth_headers, as: :json
         expect(response).to be_successful
       end
     end
@@ -45,14 +50,14 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
       it 'updates the requested invoice' do
         put api_v1_invoice_url(invoice),
-            params: { invoice: new_attributes }, headers: valid_headers, as: :json
+            params: { invoice: new_attributes },headers: @auth_headers, as: :json
         invoice.reload
         expect(invoice.business_name).to eq('ABC')
       end
 
       it 'renders a JSON response with the api_v1_invoice' do
         put api_v1_invoice_url(invoice),
-            params: { invoice: new_attributes }, headers: valid_headers, as: :json
+            params: { invoice: new_attributes },headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -69,7 +74,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
       it 'renders a JSON response with errors for the api_v1_invoice' do
         put api_v1_invoice_url(invoice),
-            params: { invoice: invalid_attributes }, headers: valid_headers, as: :json
+            params: { invoice: invalid_attributes },headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -87,7 +92,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
     it 'destroys the requested api_v1_invoice' do
       expect do
-        delete api_v1_invoice_url(invoice), headers: valid_headers, as: :json
+        delete api_v1_invoice_url(invoice),headers: @auth_headers, as: :json
       end.to change(Invoice, :count).by(-1)
     end
   end
@@ -123,7 +128,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
       end
 
       it 'cancel invoices' do
-        post cancel_api_v1_invoice_url(invoice), params: { reason: 1 }, headers: valid_headers, as: :json
+        post cancel_api_v1_invoice_url(invoice), params: { reason: 1 },headers: @auth_headers, as: :json
         invoice_expect = Invoice.find(invoice.id)
         expect(invoice_expect.cancel_sent_at).to be_truthy
         expect(invoice_expect.invoice_status_id).to eq(2)
@@ -160,7 +165,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
       end
 
       it 'cancel invoices' do
-        post cancel_api_v1_invoice_url(invoice), params: { reason: 1 }, headers: valid_headers, as: :json
+        post cancel_api_v1_invoice_url(invoice), params: { reason: 1 },headers: @auth_headers, as: :json
         invoice_expect = Invoice.find(invoice.id)
         expect(invoice_expect.cancel_sent_at).to be(nil)
         expect(invoice_expect.invoice_status_id).to eq(2)
@@ -194,7 +199,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
     File.write(pdf_path, '')
 
     it 'resend the requested api_v1_invoice' do
-      post resend_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
+      post resend_api_v1_invoice_url(invoice),headers: @auth_headers, as: :json
       expect(response).to have_http_status(:ok)
     end
   end
@@ -226,7 +231,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
 
     it 'verifies the invoice status at the Siat platform' do
       expect do
-        post verify_status_api_v1_invoice_url(invoice), headers: valid_headers, as: :json
+        post verify_status_api_v1_invoice_url(invoice),headers: @auth_headers, as: :json
       end.to change(invoice.invoice_logs, :count).by(1)
     end
   end
@@ -242,7 +247,7 @@ RSpec.describe '/api/v1/invoices', type: :request do
     let(:invoice_log) { create(:invoice_log) }
 
     it 'renders a successful response' do
-      get logs_api_v1_invoice_url(invoice), as: :json
+      get logs_api_v1_invoice_url(invoice),headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end

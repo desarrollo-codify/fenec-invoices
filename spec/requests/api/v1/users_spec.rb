@@ -27,23 +27,27 @@ RSpec.describe 'Api::V1::Users', type: :request do
     }
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+  
+  after(:all) do
+    @user.destroy  
   end
 
   describe 'GET /index' do
     it 'renders a successful response' do
-      create(:user)
-      get api_v1_users_url, headers: valid_headers, as: :json
+      get api_v1_users_url, headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
 
   describe 'GET /show' do
-    let(:user) { create(:user) }
+    let(:user) { create(:user, email: 'example@example.com') }
 
     it 'renders a successful response' do
-      get api_v1_user_url(user), as: :json
+      get api_v1_user_url(user), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -53,13 +57,13 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it 'creates a new User' do
         expect do
           post api_v1_users_url,
-               params: { user: valid_attributes }, headers: valid_headers, as: :json
+               params: { user: valid_attributes }, headers: @auth_headers, as: :json
         end.to change(User, :count).by(1)
       end
 
       it 'renders a JSON response with the new user' do
         post api_v1_users_url,
-             params: { user: valid_attributes }, headers: valid_headers, as: :json
+             params: { user: valid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -69,13 +73,13 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it 'does not create a new user' do
         expect do
           post api_v1_users_url,
-               params: { user: invalid_attributes }, as: :json
+               params: { user: invalid_attributes }, headers: @auth_headers, as: :json
         end.to change(Company, :count).by(0)
       end
 
       it 'renders a JSON response with errors for the new user' do
         post api_v1_users_url,
-             params: { user: invalid_attributes }, headers: valid_headers, as: :json
+             params: { user: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -85,18 +89,18 @@ RSpec.describe 'Api::V1::Users', type: :request do
   describe 'PUT /update' do
     context 'with valid parameters' do
       let(:new_attributes) { { full_name: 'new full_name' } }
-      let(:user) { create(:user) }
+      let(:user) { create(:user, email: 'example@example.com') }
 
       it 'updates the requested user' do
         put api_v1_user_url(user),
-            params: { user: new_attributes }, headers: valid_headers, as: :json
+            params: { user: new_attributes }, headers: @auth_headers, as: :json
         user.reload
         expect(user.full_name).to eq('new full_name')
       end
 
       it 'renders a JSON response with the user' do
         put api_v1_user_url(user),
-            params: { user: new_attributes }, headers: valid_headers, as: :json
+            params: { user: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -105,9 +109,9 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
   describe 'DELETE /destroy' do
     it 'destroys the requested company' do
-      user = create(:user)
+      user = create(:user, email: 'example@example.com')
       expect do
-        delete api_v1_user_url(user), headers: valid_headers, as: :json
+        delete api_v1_user_url(user), headers: @auth_headers, as: :json
       end.to change(User, :count).by(-1)
     end
   end

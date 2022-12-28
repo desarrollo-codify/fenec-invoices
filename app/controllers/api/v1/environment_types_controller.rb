@@ -3,6 +3,7 @@
 module Api
   module V1
     class EnvironmentTypesController < ApplicationController
+      before_action :authenticate_user!
       def index
         @environment_types = EnvironmentType.all
 

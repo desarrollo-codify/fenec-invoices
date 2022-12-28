@@ -11,10 +11,14 @@ RSpec.describe 'api/v1/accounting_transactions', type: :request do
     skip('Add a hash of attributes invalid for your model')
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
   end
-
+  
+  after(:all) do
+    @user.destroy  
+  end
   describe 'GET /show' do
     let(:company) { create(:company) }
     let(:cycle) { create(:cycle, company: company) }
@@ -26,7 +30,7 @@ RSpec.describe 'api/v1/accounting_transactions', type: :request do
       accounting_transaction.entries.build(debit_bs: 0, credit_bs: 6.96, debit_sus: 0, credit_sus: 1, account: account)
       accounting_transaction.entries.build(debit_bs: 6.96, credit_bs: 0, debit_sus: 1, credit_sus: 0, account: account2)
       accounting_transaction.save
-      get api_v1_accounting_transaction_url(accounting_transaction), as: :json
+      get api_v1_accounting_transaction_url(accounting_transaction), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end

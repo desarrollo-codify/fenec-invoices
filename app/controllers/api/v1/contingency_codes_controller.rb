@@ -3,6 +3,7 @@
 module Api
   module V1
     class ContingencyCodesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_contingency_code, only: %i[show update destroy]
       before_action :set_economic_activity, only: %i[index create]
 

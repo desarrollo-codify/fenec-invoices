@@ -9,15 +9,20 @@ RSpec.describe '/api/v1/daily_codes', type: :request do
     }
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+  
+  after(:all) do
+    @user.destroy  
   end
 
   describe 'GET /show' do
     let(:daily_code) { create(:daily_code) }
 
     it 'renders a successful response' do
-      get api_v1_daily_code_url(daily_code), as: :json
+      get api_v1_daily_code_url(daily_code), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -29,14 +34,14 @@ RSpec.describe '/api/v1/daily_codes', type: :request do
 
       it 'updates the requested daily_code' do
         put api_v1_daily_code_url(daily_code),
-            params: { daily_code: new_attributes }, headers: valid_headers, as: :json
+            params: { daily_code: new_attributes }, headers: @auth_headers, as: :json
         daily_code.reload
         expect(daily_code.code).to eq('456')
       end
 
       it 'renders a JSON response with the daily_code' do
         put api_v1_daily_code_url(daily_code),
-            params: { daily_code: new_attributes }, headers: valid_headers, as: :json
+            params: { daily_code: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -47,7 +52,7 @@ RSpec.describe '/api/v1/daily_codes', type: :request do
 
       it 'renders a JSON response with errors for the daily_code' do
         put api_v1_daily_code_url(daily_code),
-            params: { daily_code: invalid_attributes }, headers: valid_headers, as: :json
+            params: { daily_code: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -58,7 +63,7 @@ RSpec.describe '/api/v1/daily_codes', type: :request do
     it 'destroys the requested api_v1_daily_code' do
       daily_code = create(:daily_code)
       expect do
-        delete api_v1_daily_code_url(daily_code), headers: valid_headers, as: :json
+        delete api_v1_daily_code_url(daily_code), headers: @auth_headers, as: :json
       end.to change(DailyCode, :count).by(-1)
     end
   end

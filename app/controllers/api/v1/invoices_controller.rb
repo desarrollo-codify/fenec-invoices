@@ -3,6 +3,7 @@
 module Api
   module V1
     class InvoicesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_invoice, only: %i[show update destroy cancel resend verify_status logs]
       before_action :set_branch_office, only: %i[index create generate pending]
       require 'invoice_xml'
