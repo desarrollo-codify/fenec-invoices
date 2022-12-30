@@ -131,7 +131,7 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
 
     context 'when a valid date is passed' do
       it 'returns the exchange rate for the given date' do
-        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-02' }
+        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-02' }, headers: @auth_headers
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(@exchange_rate1.to_json)
@@ -140,7 +140,7 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
 
     context 'when a valid date is passed' do
       it 'returns the exchange rate for the given date' do
-        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-06' }
+        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-06' }, headers: @auth_headers
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(@exchange_rate2.to_json)
@@ -149,7 +149,7 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
 
     context 'when no exchange rate is found for the given date' do
       it 'returns a 422 unprocessable entity status' do
-        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-01' }
+        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-01' }, headers: @auth_headers
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to include("No se encontro ningun tipo de cambio en la fecha 2020-01-01")
