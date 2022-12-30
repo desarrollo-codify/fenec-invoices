@@ -50,7 +50,7 @@ module Api
           return render json: { message: "No se encontro ningun tipo de cambio en la fecha #{date}" },
                         status: :unprocessable_entity
         end
-
+        debugger
         render json: @exchange_rate
       end
 

@@ -9,9 +9,9 @@ class ExchangeRate < ApplicationRecord
 
   belongs_to :company
 
-  scope :search, ->(date) { where('date >= ?', date) }
+  scope :search, ->(date) { where('date <= ?', date) }
 
   def self.by_date(date)
-    search(date).first
+    search(date).last
   end
 end
