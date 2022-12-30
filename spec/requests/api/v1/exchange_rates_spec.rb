@@ -152,7 +152,7 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
         get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-01' }, headers: @auth_headers
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.body).to include("No se encontro ningun tipo de cambio en la fecha 2020-01-01")
+        expect(response.body).to include('No se encontro ningun tipo de cambio en la fecha 2020-01-01')
       end
     end
   end
