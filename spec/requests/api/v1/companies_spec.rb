@@ -20,13 +20,21 @@ RSpec.describe '/api/v1/companies', type: :request do
   end
 
   let(:valid_headers) do
-    {}
+    { 'Authorization' => "Bearer #{user.auth_token}" }
+  end
+
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+
+  after(:all) do
+    @user.destroy
   end
 
   describe 'GET /index' do
     it 'renders a successful response' do
-      create(:company)
-      get api_v1_companies_url, headers: valid_headers, as: :json
+      get api_v1_companies_url, headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -35,7 +43,7 @@ RSpec.describe '/api/v1/companies', type: :request do
     let(:company) { create(:company) }
 
     it 'renders a successful response' do
-      get api_v1_company_url(company), as: :json
+      get api_v1_company_url(company), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -45,13 +53,13 @@ RSpec.describe '/api/v1/companies', type: :request do
       it 'creates a new Company' do
         expect do
           post api_v1_companies_url,
-               params: { company: valid_attributes }, headers: valid_headers, as: :json
+               params: { company: valid_attributes }, headers: @auth_headers, as: :json
         end.to change(Company, :count).by(1)
       end
 
       it 'renders a JSON response with the new company' do
         post api_v1_companies_url,
-             params: { company: valid_attributes }, headers: valid_headers, as: :json
+             params: { company: valid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -61,13 +69,13 @@ RSpec.describe '/api/v1/companies', type: :request do
       it 'does not create a new Company' do
         expect do
           post api_v1_companies_url,
-               params: { company: invalid_attributes }, as: :json
+               params: { company: invalid_attributes }, headers: @auth_headers, as: :json
         end.to change(Company, :count).by(0)
       end
 
       it 'renders a JSON response with errors for the new company' do
         post api_v1_companies_url,
-             params: { company: invalid_attributes }, headers: valid_headers, as: :json
+             params: { company: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -81,14 +89,14 @@ RSpec.describe '/api/v1/companies', type: :request do
 
       it 'updates the requested company' do
         put api_v1_company_url(company),
-            params: { company: new_attributes }, headers: valid_headers, as: :json
+            params: { company: new_attributes }, headers: @auth_headers, as: :json
         company.reload
         expect(company.name).to eq('new name')
       end
 
       it 'renders a JSON response with the company' do
         put api_v1_company_url(company),
-            params: { company: new_attributes }, headers: valid_headers, as: :json
+            params: { company: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -99,7 +107,7 @@ RSpec.describe '/api/v1/companies', type: :request do
 
       it 'renders a JSON response with errors for the company' do
         patch api_v1_company_url(company),
-              params: { company: invalid_attributes }, headers: valid_headers, as: :json
+              params: { company: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -110,7 +118,7 @@ RSpec.describe '/api/v1/companies', type: :request do
     it 'destroys the requested company' do
       company = create(:company)
       expect do
-        delete api_v1_company_url(company), headers: valid_headers, as: :json
+        delete api_v1_company_url(company), headers: @auth_headers, as: :json
       end.to change(Company, :count).by(-1)
     end
   end
@@ -122,7 +130,7 @@ RSpec.describe '/api/v1/companies', type: :request do
     it 'add invoice types company' do
       company = create(:company)
       expect do
-        post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: valid_headers, as: :json
+        post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: @auth_headers, as: :json
       end.to change(company.invoice_types, :count).by(2)
     end
   end
@@ -135,7 +143,7 @@ RSpec.describe '/api/v1/companies', type: :request do
       company = create(:company)
       expect do
         post add_document_sector_types_api_v1_company_url(company), params: { document_sector_type_ids: [1, 2] },
-                                                                    headers: valid_headers, as: :json
+                                                                    headers: @auth_headers, as: :json
       end.to change(company.document_sector_types, :count).by(2)
     end
   end
@@ -147,7 +155,7 @@ RSpec.describe '/api/v1/companies', type: :request do
     it 'add measurements company' do
       company = create(:company)
       expect do
-        post add_measurements_api_v1_company_url(company), params: { measurements_ids: [1, 2] }, headers: valid_headers, as: :json
+        post add_measurements_api_v1_company_url(company), params: { measurements_ids: [1, 2] }, headers: @auth_headers, as: :json
       end.to change(company.measurements, :count).by(2)
     end
   end
@@ -158,9 +166,9 @@ RSpec.describe '/api/v1/companies', type: :request do
 
     it 'add invoice types company' do
       company = create(:company)
-      post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: valid_headers, as: :json
+      post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: @auth_headers, as: :json
       expect do
-        post remove_invoice_type_api_v1_company_url(company), params: { invoice_type_id: 2 }, headers: valid_headers, as: :json
+        post remove_invoice_type_api_v1_company_url(company), params: { invoice_type_id: 2 }, headers: @auth_headers, as: :json
       end.to change(company.invoice_types, :count).by(-1)
     end
   end
@@ -171,9 +179,9 @@ RSpec.describe '/api/v1/companies', type: :request do
 
     it 'remove invoice types the company' do
       company = create(:company)
-      post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: valid_headers, as: :json
+      post add_invoice_types_api_v1_company_url(company), params: { invoice_type_ids: [1, 2] }, headers: @auth_headers, as: :json
       expect do
-        post remove_invoice_type_api_v1_company_url(company), params: { invoice_type_id: 2 }, headers: valid_headers, as: :json
+        post remove_invoice_type_api_v1_company_url(company), params: { invoice_type_id: 2 }, headers: @auth_headers, as: :json
       end.to change(company.invoice_types, :count).by(-1)
     end
   end
@@ -185,9 +193,9 @@ RSpec.describe '/api/v1/companies', type: :request do
     it 'remove document sector types the company' do
       company = create(:company)
       post add_document_sector_types_api_v1_company_url(company), params: { document_sector_type_ids: [1, 2] },
-                                                                  headers: valid_headers, as: :json
+                                                                  headers: @auth_headers, as: :json
       expect do
-        post remove_document_sector_type_api_v1_company_url(company), params: { document_sector_type_id: 2 }, headers: valid_headers,
+        post remove_document_sector_type_api_v1_company_url(company), params: { document_sector_type_id: 2 }, headers: @auth_headers,
                                                                       as: :json
       end.to change(company.document_sector_types, :count).by(-1)
     end
@@ -199,19 +207,10 @@ RSpec.describe '/api/v1/companies', type: :request do
 
     it 'remove measurement the company' do
       company = create(:company)
-      post add_measurements_api_v1_company_url(company), params: { measurements_ids: [1, 2] }, headers: valid_headers, as: :json
+      post add_measurements_api_v1_company_url(company), params: { measurements_ids: [1, 2] }, headers: @auth_headers, as: :json
       expect do
-        post remove_measurements_api_v1_company_url(company), params: { measurement_id: 2 }, headers: valid_headers, as: :json
+        post remove_measurements_api_v1_company_url(company), params: { measurement_id: 2 }, headers: @auth_headers, as: :json
       end.to change(company.measurements, :count).by(-1)
-    end
-  end
-
-  describe 'POST /confirm_mail' do
-    let(:company) { create(:company) }
-
-    it 'update mail verification' do
-      post confirm_mail_api_v1_company_url(company), params: {}, headers: valid_headers, as: :json
-      expect(company.company_setting.mail_verification).to be_truthy
     end
   end
 end

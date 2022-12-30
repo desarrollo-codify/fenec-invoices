@@ -5,6 +5,7 @@ require 'csv'
 module Api
   module V1
     class ProductsController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_product, only: %i[show update destroy]
       before_action :set_company, only: %i[index create homologate import]
 

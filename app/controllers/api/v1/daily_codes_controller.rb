@@ -3,6 +3,7 @@
 module Api
   module V1
     class DailyCodesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_daily_code, only: %i[show update destroy]
       before_action :set_branch_office, only: %i[index create current]
 

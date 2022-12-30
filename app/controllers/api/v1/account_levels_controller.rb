@@ -3,6 +3,8 @@
 module Api
   module V1
     class AccountLevelsController < ApplicationController
+      before_action :authenticate_user!
+
       def index
         @account_levels = AccountLevel.all
 

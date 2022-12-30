@@ -3,6 +3,7 @@
 module Api
   module V1
     class GlobalSettingsController < ApplicationController
+      before_action :authenticate_user!
       def significative_events
         @significative_events = SignificativeEvent.all.order(:code)
         render json: @significative_events

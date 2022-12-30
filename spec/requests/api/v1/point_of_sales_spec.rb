@@ -12,15 +12,20 @@ RSpec.describe '/point_of_sales', type: :request do
     }
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+
+  after(:all) do
+    @user.destroy
   end
 
   describe 'GET /show' do
     let(:point_of_sale) { create(:point_of_sale) }
 
     it 'renders a successful response' do
-      get api_v1_point_of_sale_url(point_of_sale), as: :json
+      get api_v1_point_of_sale_url(point_of_sale), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -32,14 +37,14 @@ RSpec.describe '/point_of_sales', type: :request do
 
       it 'updates the requested point_of_sale' do
         put api_v1_point_of_sale_url(point_of_sale),
-            params: { point_of_sale: new_attributes }, headers: valid_headers, as: :json
+            params: { point_of_sale: new_attributes }, headers: @auth_headers, as: :json
         point_of_sale.reload
         expect(point_of_sale.description).to eq('xyz')
       end
 
       it 'renders a JSON response with the point_of_sale' do
         put api_v1_point_of_sale_url(point_of_sale),
-            params: { point_of_sale: new_attributes }, headers: valid_headers, as: :json
+            params: { point_of_sale: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -50,7 +55,7 @@ RSpec.describe '/point_of_sales', type: :request do
 
       it 'renders a JSON response with errors for the point_of_sale' do
         put api_v1_point_of_sale_url(point_of_sale),
-            params: { point_of_sale: invalid_attributes }, headers: valid_headers, as: :json
+            params: { point_of_sale: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -65,7 +70,7 @@ RSpec.describe '/point_of_sales', type: :request do
       it 'destroys the requested point_of_sale' do
         point_of_sale = create(:point_of_sale)
         expect do
-          delete api_v1_point_of_sale_url(point_of_sale)
+          delete api_v1_point_of_sale_url(point_of_sale), headers: @auth_headers
         end.to change(PointOfSale, :count).by(-1)
       end
     end

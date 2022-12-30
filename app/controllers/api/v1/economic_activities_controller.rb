@@ -3,6 +3,7 @@
 module Api
   module V1
     class EconomicActivitiesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_company, only: %i[index]
 
       # GET /api/v1/companies/:company_id/economic_activities

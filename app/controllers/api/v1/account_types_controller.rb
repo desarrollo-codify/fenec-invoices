@@ -3,6 +3,8 @@
 module Api
   module V1
     class AccountTypesController < ApplicationController
+      before_action :authenticate_user!
+
       def index
         @account_types = AccountType.all
 

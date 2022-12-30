@@ -3,6 +3,7 @@
 module Api
   module V1
     class ExchangeRatesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_exchange_rate, only: %i[show update destroy]
       before_action :set_company, only: %i[index create find_exchange_rate_by_date]
 
