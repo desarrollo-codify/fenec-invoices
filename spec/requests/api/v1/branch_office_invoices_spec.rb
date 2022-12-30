@@ -1925,8 +1925,13 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     }
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+
+  after(:all) do
+    @user.destroy
   end
 
   describe 'GET /index' do
@@ -1941,7 +1946,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
     end
 
     it 'renders a successful response' do
-      get api_v1_branch_office_invoices_url(branch_office_id: branch_office.id), headers: valid_headers, as: :json
+      get api_v1_branch_office_invoices_url(branch_office_id: branch_office.id), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -1960,8 +1965,8 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       create(:payment_method, code: 7)
       create(:payment_method, code: 33)
       @company = Company.first
-      post add_invoice_types_api_v1_company_url(@company), params: invoice_types, as: :json
-      post add_document_sector_types_api_v1_company_url(@company), params: document_sector_types, as: :json
+      post add_invoice_types_api_v1_company_url(@company), headers: @auth_headers, params: invoice_types, as: :json
+      post add_document_sector_types_api_v1_company_url(@company), headers: @auth_headers, params: document_sector_types, as: :json
     end
 
     let(:branch_office) { create(:branch_office, company: @company) }
@@ -1979,13 +1984,13 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       it 'creates a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes, headers: valid_headers, as: :json
+               params: valid_attributes, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(1)
       end
 
       it 'renders a JSON response with the new api_v1_branch_office' do
         post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-             params: valid_attributes, headers: valid_headers, as: :json
+             params: valid_attributes, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -2002,13 +2007,13 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       it 'does not create a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: invalid_attributes, as: :json
+               params: invalid_attributes, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(0)
       end
 
       it 'renders a JSON response with errors for the new api_v1_company_branch_office' do
         post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-             params: invalid_attributes, headers: valid_headers, as: :json
+             params: invalid_attributes, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -2036,7 +2041,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
 
       it 'works' do
         post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-             params: valid_attributes, headers: valid_headers, as: :json
+             params: valid_attributes, headers: @auth_headers, as: :json
         expect(Invoice.first.exception_code).to eq(1)
       end
     end
@@ -2068,7 +2073,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
 
         it 'works' do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes, headers: valid_headers, as: :json
+               params: valid_attributes, headers: @auth_headers, as: :json
           expect(Invoice.first.exception_code).to eq(1)
         end
       end
@@ -2080,7 +2085,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
 
         it 'works' do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes, headers: valid_headers, as: :json
+               params: valid_attributes, headers: @auth_headers, as: :json
           expect(Invoice.first.exception_code).to be_nil
         end
       end
@@ -2099,14 +2104,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes_card_paid, as: :json
+               params: valid_attributes_card_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(1)
       end
 
       it 'does not create a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: invalid_attributes_card_paid, as: :json
+               params: invalid_attributes_card_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(0)
       end
 
@@ -2114,14 +2119,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_cash_and_card_paid, as: :json
+                 params: valid_attributes_cash_and_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_cash_and_card_paid, as: :json
+                 params: invalid_attributes_cash_and_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2130,14 +2135,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_card_and_qr_paid, as: :json
+                 params: valid_attributes_card_and_qr_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_card_and_qr_paid, as: :json
+                 params: invalid_attributes_card_and_qr_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2146,14 +2151,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_card_and_gift_card_paid, as: :json
+                 params: valid_attributes_card_and_gift_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_card_and_gift_card_paid, as: :json
+                 params: invalid_attributes_card_and_gift_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2162,14 +2167,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_card_and_online_paid, as: :json
+                 params: valid_attributes_card_and_online_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_card_and_online_paid, as: :json
+                 params: invalid_attributes_card_and_online_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2188,14 +2193,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes_qr_paid, as: :json
+               params: valid_attributes_qr_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(1)
       end
 
       it 'does not create a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: invalid_attributes_qr_paid, as: :json
+               params: invalid_attributes_qr_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(0)
       end
 
@@ -2203,14 +2208,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_qr_and_cash_paid, as: :json
+                 params: valid_attributes_qr_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_qr_and_cash_paid, as: :json
+                 params: invalid_attributes_qr_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2219,14 +2224,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_qr_and_gift_card_paid, as: :json
+                 params: valid_attributes_qr_and_gift_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_qr_and_gift_card_paid, as: :json
+                 params: invalid_attributes_qr_and_gift_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2235,14 +2240,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_qr_and_online_paid, as: :json
+                 params: valid_attributes_qr_and_online_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_qr_and_online_paid, as: :json
+                 params: invalid_attributes_qr_and_online_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2261,14 +2266,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes_online_paid, as: :json
+               params: valid_attributes_online_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(1)
       end
 
       it 'does not create a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: invalid_attributes_online_paid, as: :json
+               params: invalid_attributes_online_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(0)
       end
 
@@ -2276,14 +2281,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_online_and_cash_paid, as: :json
+                 params: valid_attributes_online_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_online_and_cash_paid, as: :json
+                 params: invalid_attributes_online_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2292,14 +2297,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_online_and_cash_paid, as: :json
+                 params: valid_attributes_online_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_online_and_cash_paid, as: :json
+                 params: invalid_attributes_online_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2318,14 +2323,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes_gift_card_paid, as: :json
+               params: valid_attributes_gift_card_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(1)
       end
 
       it 'does not create a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: invalid_attributes_gift_card_paid, as: :json
+               params: invalid_attributes_gift_card_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(0)
       end
 
@@ -2333,14 +2338,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_gift_card_and_cash_paid, as: :json
+                 params: valid_attributes_gift_card_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_gift_card_and_cash_paid, as: :json
+                 params: invalid_attributes_gift_card_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2359,14 +2364,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       it 'create new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: valid_attributes_voucher_paid, as: :json
+               params: valid_attributes_voucher_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(1)
       end
 
       it 'does not create a new Invoice' do
         expect do
           post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-               params: invalid_attributes_voucher_paid, as: :json
+               params: invalid_attributes_voucher_paid, headers: @auth_headers, as: :json
         end.to change(Invoice, :count).by(0)
       end
 
@@ -2374,14 +2379,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_voucher_and_cash_paid, as: :json
+                 params: valid_attributes_voucher_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_voucher_and_cash_paid, as: :json
+                 params: invalid_attributes_voucher_and_cash_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2390,14 +2395,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_voucher_and_card_paid, as: :json
+                 params: valid_attributes_voucher_and_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_voucher_and_card_paid, as: :json
+                 params: invalid_attributes_voucher_and_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2406,14 +2411,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_voucher_and_qr_paid, as: :json
+                 params: valid_attributes_voucher_and_qr_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_voucher_and_qr_paid, as: :json
+                 params: invalid_attributes_voucher_and_qr_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2422,14 +2427,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_voucher_and_gift_card_paid, as: :json
+                 params: valid_attributes_voucher_and_gift_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_voucher_and_gift_card_paid, as: :json
+                 params: invalid_attributes_voucher_and_gift_card_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2438,14 +2443,14 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         it 'create new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: valid_attributes_voucher_and_online_paid, as: :json
+                 params: valid_attributes_voucher_and_online_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(1)
         end
 
         it 'does not create a new Invoice' do
           expect do
             post api_v1_branch_office_invoices_url(branch_office_id: branch_office.id),
-                 params: invalid_attributes_voucher_and_online_paid, as: :json
+                 params: invalid_attributes_voucher_and_online_paid, headers: @auth_headers, as: :json
           end.to change(Invoice, :count).by(0)
         end
       end
@@ -2464,7 +2469,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
         invoice_not_pending.payments.build(mount: 1, payment_method_id: 1)
         invoice_pending.save
         invoice_not_pending.save
-        get pending_api_v1_branch_office_invoices_url(branch_office_id: branch_office.id), headers: valid_headers, as: :json
+        get pending_api_v1_branch_office_invoices_url(branch_office_id: branch_office.id), headers: @auth_headers, as: :json
         expect(response).to be_successful
         expect(Invoice.for_sending.count).to eq(1)
       end

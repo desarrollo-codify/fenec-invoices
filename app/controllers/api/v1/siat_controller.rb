@@ -8,7 +8,7 @@ module Api
       require 'verify_nit'
       require 'siat_client'
       require 'client_call'
-
+      before_action :authenticate_user!
       before_action :set_branch_office, except: %i[verify_communication]
       before_action :set_cuis_code, except: %i[generate_cuis show_cufd verify_communication]
       before_action :set_cuis_code_default, except: %i[generate_cuis show_cufd show_cuis generate_cufd verify_communication]

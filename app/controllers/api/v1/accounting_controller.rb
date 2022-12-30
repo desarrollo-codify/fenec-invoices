@@ -3,6 +3,8 @@
 module Api
   module V1
     class AccountingController < ApplicationController
+      before_action :authenticate_user!
+
       def currencies
         @currencies = Currency.all
         render json: @currencies

@@ -3,6 +3,7 @@
 module Api
   module V1
     class BranchOfficesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_branch_office, only: %i[update destroy contingencies]
       before_action :set_company, only: %i[index create]
 

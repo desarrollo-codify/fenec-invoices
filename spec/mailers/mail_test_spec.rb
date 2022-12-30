@@ -26,7 +26,7 @@ RSpec.describe MailTestMailer, type: :mailer do
     let(:mail) { MailTestMailer.with(params).send_mail }
 
     it 'renders the headers' do
-      expect(mail.subject).to eq('Prueba')
+      expect(mail.subject).to eq('Correo de verificación')
       expect(mail.to).to eq(['carlos.gutierrez@codify.com.bo'])
       expect(mail.from).to eq(['carlos.gutierrez@codify.com.bo'])
     end

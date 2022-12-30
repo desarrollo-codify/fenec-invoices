@@ -3,6 +3,7 @@
 module Api
   module V1
     class ProductCodesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_economic_activity
 
       # GET /api/v1/economic_activities/1/product_codes

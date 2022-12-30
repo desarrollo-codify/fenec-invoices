@@ -72,9 +72,5 @@ RSpec.describe Api::V1::CompaniesController, type: :routing do
     it 'routes to #mail_test' do
       expect(post: '/api/v1/companies/1/mail_test').to route_to('api/v1/companies#mail_test', id: '1')
     end
-
-    it 'routes to #confirm_mail' do
-      expect(post: '/api/v1/companies/1/confirm_mail').to route_to('api/v1/companies#confirm_mail', id: '1')
-    end
   end
 end

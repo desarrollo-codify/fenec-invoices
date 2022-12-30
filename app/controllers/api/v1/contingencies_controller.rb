@@ -4,7 +4,7 @@ module Api
   module V1
     class ContingenciesController < ApplicationController
       require 'generate_cufd'
-
+      before_action :authenticate_user!
       before_action :set_contingency, only: %i[show close update destroy]
       before_action :set_point_of_sale, only: %i[index create]
       # GET /api/v1/contingencies

@@ -3,6 +3,7 @@
 module Api
   module V1
     class CyclesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_cycle, only: %i[show update destroy]
       before_action :set_company, only: %i[index create current]
 

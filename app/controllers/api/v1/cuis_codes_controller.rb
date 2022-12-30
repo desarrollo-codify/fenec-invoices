@@ -3,6 +3,7 @@
 module Api
   module V1
     class CuisCodesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_branch_office, only: %i[index current]
 
       # GET /api/v1/branch_offices/:branch_office_id/cuis_codes

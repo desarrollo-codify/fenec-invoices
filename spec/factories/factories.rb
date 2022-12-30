@@ -359,4 +359,30 @@ FactoryBot.define do
     invoice factory: :invoice
     payment_method factory: :payment_method
   end
+
+  factory :order do
+    number { 9000 }
+    date { DateTime.now }
+    total { 1 }
+    order_id { 10_000 }
+    company factory: :company
+  end
+
+  factory :order_detail do
+    order factory: :order
+    product factory: :product
+    title { 'Product 01' }
+    sku { 'L80000' }
+    total { 1 }
+    discount { 0 }
+    quantity { 1 }
+  end
+
+  factory :order_customer do
+    order factory: :order
+    name { 'Juan Perez' }
+    email { 'juan@perez.com' }
+    phone { '+59177777777' }
+    customer_id { 1 }
+  end
 end

@@ -11,15 +11,20 @@ RSpec.describe '/api/v1/branch_offices', type: :request do
     }
   end
 
-  let(:valid_headers) do
-    {}
+  before(:all) do
+    @user = create(:user)
+    @auth_headers = @user.create_new_auth_token
+  end
+
+  after(:all) do
+    @user.destroy
   end
 
   describe 'GET /show' do
     let(:branch_office) { create(:branch_office) }
 
     it 'renders a successful response' do
-      get api_v1_branch_office_url(branch_office), as: :json
+      get api_v1_branch_office_url(branch_office), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
   end
@@ -31,14 +36,14 @@ RSpec.describe '/api/v1/branch_offices', type: :request do
 
       it 'updates the requested branch_office' do
         put api_v1_branch_office_url(branch_office),
-            params: { branch_office: new_attributes }, headers: valid_headers, as: :json
+            params: { branch_office: new_attributes }, headers: @auth_headers, as: :json
         branch_office.reload
         expect(branch_office.name).to eq('new name')
       end
 
       it 'renders a JSON response with the branch_office' do
         put api_v1_branch_office_url(branch_office),
-            params: { branch_office: new_attributes }, headers: valid_headers, as: :json
+            params: { branch_office: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -49,7 +54,7 @@ RSpec.describe '/api/v1/branch_offices', type: :request do
 
       it 'renders a JSON response with errors for the branch_office' do
         patch api_v1_branch_office_url(branch_office),
-              params: { branch_office: invalid_attributes }, headers: valid_headers, as: :json
+              params: { branch_office: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -60,7 +65,7 @@ RSpec.describe '/api/v1/branch_offices', type: :request do
     it 'destroys the requested branch_office' do
       branch_office = create(:branch_office)
       expect do
-        delete api_v1_branch_office_url(branch_office), headers: valid_headers, as: :json
+        delete api_v1_branch_office_url(branch_office), headers: @auth_headers, as: :json
       end.to change(BranchOffice, :count).by(-1)
     end
   end

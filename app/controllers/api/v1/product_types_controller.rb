@@ -3,6 +3,7 @@
 module Api
   module V1
     class ProductTypesController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_product_type, only: %i[show update destroy]
 
       # GET /api/v1/product_types
