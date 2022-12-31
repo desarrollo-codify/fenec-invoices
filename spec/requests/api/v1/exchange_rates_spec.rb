@@ -130,14 +130,14 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
     end
 
     context 'when a valid date is passed' do
-      it 'It gets the first rate' do
-        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-02' }, headers: @auth_headers
+      it 'gets the first rate with a date between both examples' do
+        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-03' }, headers: @auth_headers
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(@exchange_rate1.to_json)
       end
 
-      it 'It gets the last rate' do
+      it 'gets the last rate with a date after both examples' do
         get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-06' }, headers: @auth_headers
   
         expect(response).to have_http_status(:ok)
