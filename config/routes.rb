@@ -30,7 +30,9 @@ Rails.application.routes.draw do
           get :current, on: :collection
         end
         resources :delegated_tokens, shallow: true
-        resources :exchange_rates, shallow: true
+        resources :exchange_rates, shallow: true do
+          get :find_exchange_rate_by_date, on: :collection
+        end
         resources :branch_offices, only: %i[index create]
         resources :aromas, only: %i[index]
         post :add_invoice_types, on: :member

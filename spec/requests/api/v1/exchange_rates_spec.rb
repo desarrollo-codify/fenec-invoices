@@ -121,4 +121,37 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
       end.to change(ExchangeRate, :count).by(-1)
     end
   end
+
+  describe 'GET #find_exchange_rate_by_date' do
+    before do
+      @company = create(:company)
+      @exchange_rate1 = create(:exchange_rate, company: @company, date: Date.new(2020, 1, 2), rate: 1.0)
+      @exchange_rate2 = create(:exchange_rate, company: @company, date: Date.new(2020, 1, 5), rate: 2.0)
+    end
+
+    context 'when a valid date is passed' do
+      it 'gets the first rate with a date between both examples' do
+        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-03' }, headers: @auth_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to eq(@exchange_rate1.to_json)
+      end
+
+      it 'gets the last rate with a date after both examples' do
+        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-06' }, headers: @auth_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to eq(@exchange_rate2.to_json)
+      end
+    end
+
+    context 'when no exchange rate is found for the given date' do
+      it 'returns a 422 unprocessable entity status' do
+        get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-01' }, headers: @auth_headers
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include('No se encontro ningun tipo de cambio en la fecha 2020-01-01')
+      end
+    end
+  end
 end

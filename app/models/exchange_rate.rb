@@ -8,4 +8,10 @@ class ExchangeRate < ApplicationRecord
                    numericality: { greater_than: 0, message: 'Tipo de Cambio debe ser mayor a 0.' }
 
   belongs_to :company
+
+  scope :search, ->(date) { where('date <= ?', date) }
+
+  def self.by_date(date)
+    search(date).last
+  end
 end
