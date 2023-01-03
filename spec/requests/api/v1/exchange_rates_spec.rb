@@ -139,7 +139,7 @@ RSpec.describe '/api/v1/exchange_rates', type: :request do
 
       it 'gets the last rate with a date after both examples' do
         get find_exchange_rate_by_date_api_v1_company_exchange_rates_url(@company), params: { date: '2020-01-06' }, headers: @auth_headers
-  
+
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(@exchange_rate2.to_json)
       end
