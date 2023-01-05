@@ -4,11 +4,15 @@ require 'rails_helper'
 
 RSpec.describe '/api/v1/brands', type: :request do
   let(:valid_attributes) do
-    skip('Add a hash of attributes valid for your model')
+    {
+      description: 'ABCabc'
+    }
   end
 
   let(:invalid_attributes) do
-    skip('Add a hash of attributes invalid for your model')
+    {
+      description: nil
+    }
   end
 
   before(:all) do
@@ -22,7 +26,7 @@ RSpec.describe '/api/v1/brands', type: :request do
 
   describe 'GET /index' do
     it 'renders a successful response' do
-      Brand.create! valid_attributes
+      create(:brand)
       get api_v1_brands_url, headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
@@ -30,7 +34,7 @@ RSpec.describe '/api/v1/brands', type: :request do
 
   describe 'GET /show' do
     it 'renders a successful response' do
-      brand = Brand.create! valid_attributes
+      brand = create(:brand)
       get api_v1_brand_url(brand), headers: @auth_headers, as: :json
       expect(response).to be_successful
     end
@@ -41,13 +45,13 @@ RSpec.describe '/api/v1/brands', type: :request do
       it 'creates a new Brand' do
         expect do
           post api_v1_brands_url,
-               params: { api_v1_brand: valid_attributes }, headers: @auth_headers, as: :json
+               params: { brand: valid_attributes }, headers: @auth_headers, as: :json
         end.to change(Brand, :count).by(1)
       end
 
       it 'renders a JSON response with the new api_v1_brand' do
         post api_v1_brands_url,
-             params: { api_v1_brand: valid_attributes }, headers: @auth_headers, as: :json
+             params: { brand: valid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -57,13 +61,13 @@ RSpec.describe '/api/v1/brands', type: :request do
       it 'does not create a new Brand' do
         expect do
           post api_v1_brands_url,
-               params: { api_v1_brand: invalid_attributes }, headers: @auth_headers, as: :json
+               params: { brand: invalid_attributes }, headers: @auth_headers, as: :json
         end.to change(Brand, :count).by(0)
       end
 
       it 'renders a JSON response with errors for the new api_v1_brand' do
         post api_v1_brands_url,
-             params: { api_v1_brand: invalid_attributes }, headers: @auth_headers, as: :json
+             params: { brand: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -73,21 +77,23 @@ RSpec.describe '/api/v1/brands', type: :request do
   describe 'PATCH /update' do
     context 'with valid parameters' do
       let(:new_attributes) do
-        skip('Add a hash of attributes valid for your model')
+        {
+          description: 'BCDbcd'
+        }
       end
 
       it 'updates the requested api_v1_brand' do
-        brand = Brand.create! valid_attributes
+        brand = create(:brand)
         patch api_v1_brand_url(brand),
-              params: { api_v1_brand: new_attributes }, headers: @auth_headers, as: :json
+              params: { brand: new_attributes }, headers: @auth_headers, as: :json
         brand.reload
-        skip('Add assertions for updated state')
+        expect(brand.description).to eq('BCDbcd')
       end
 
       it 'renders a JSON response with the api_v1_brand' do
-        brand = Brand.create! valid_attributes
+        brand = create(:brand)
         patch api_v1_brand_url(brand),
-              params: { api_v1_brand: new_attributes }, headers: @auth_headers, as: :json
+              params: { brand: new_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -95,9 +101,9 @@ RSpec.describe '/api/v1/brands', type: :request do
 
     context 'with invalid parameters' do
       it 'renders a JSON response with errors for the api_v1_brand' do
-        brand = Brand.create! valid_attributes
+        brand = create(:brand)
         patch api_v1_brand_url(brand),
-              params: { api_v1_brand: invalid_attributes }, headers: @auth_headers, as: :json
+              params: { brand: invalid_attributes }, headers: @auth_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -106,7 +112,7 @@ RSpec.describe '/api/v1/brands', type: :request do
 
   describe 'DELETE /destroy' do
     it 'destroys the requested api_v1_brand' do
-      brand = Brand.create! valid_attributes
+      brand = create(:brand)
       expect do
         delete api_v1_brand_url(brand), headers: @auth_headers, as: :json
       end.to change(Brand, :count).by(-1)
