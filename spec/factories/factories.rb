@@ -251,7 +251,6 @@ FactoryBot.define do
     email { 'jperez@example.com' }
     password { 'abc123.' }
     password_confirmation { 'abc123.' }
-    # company factory: :company
   end
 
   factory :country do
@@ -307,7 +306,7 @@ FactoryBot.define do
 
   factory :cycle do
     year { 2022 }
-    status { 'Abierta' }
+    status { 'ABIERTA' }
     start_date { '2022-01-01' }
     end_date { '2022-12-31' }
     company factory: :company
@@ -332,15 +331,16 @@ FactoryBot.define do
   end
 
   factory :entry do
-    debit_bs { 10 }
-    credit_bs { 0 }
     accounting_transaction factory: :accounting_transaction
     account factory: :account
-    company factory: :company
+    debit_bs { 0 }
+    credit_bs { 0 }
+    debit_sus { 0 }
+    credit_sus { 0 }
   end
 
   factory :accounting_transaction do
-    date { '2022-01-01' }
+    date { '01/01/2022' }
     gloss { 'asdf' }
     currency factory: :currency
     cycle factory: :cycle
@@ -349,7 +349,7 @@ FactoryBot.define do
   end
 
   factory :exchange_rate do
-    date { '2022-01-01' }
+    date { '01/01/2022' }
     rate { 1 }
     company factory: :company
   end
@@ -384,5 +384,44 @@ FactoryBot.define do
     email { 'juan@perez.com' }
     phone { '+59177777777' }
     customer_id { 1 }
+  end
+
+  factory :accounting_transaction_log do
+    full_name { 'Juan Perez' }
+    action { 'UPDATE' }
+    log_action { '{\"date\"=>\"2022-12-23\", \"gloss\"=>\"prueba 4\"}' }
+    accounting_transaction factory: :accounting_transaction
+  end
+
+  factory :brand do
+    description { 'ABCabc' }
+  end
+
+  factory :product_category do
+    description { 'ABCabc' }
+  end
+
+  factory :product_status do
+    description { 'ABCabc' }
+  end
+
+  factory :product_type do
+    description { 'ABCabc' }
+  end
+
+  factory :tag do
+    description { 'ABCabc' }
+    association :taggable, factory: :order
+  end
+
+  factory :transaction_number do
+    cycle factory: :cycle
+    transaction_type factory: :transaction_type
+    number { 1 }
+  end
+
+  factory :variant do
+    title { 'ABCabc' }
+    product factory: :product
   end
 end

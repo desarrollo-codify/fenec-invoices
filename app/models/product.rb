@@ -13,4 +13,5 @@ class Product < ApplicationRecord
   belongs_to :brand, optional: true
   has_many :variants, dependent: :destroy
   belongs_to :measurement, optional: true
+  has_many :tags, as: :taggable
 end

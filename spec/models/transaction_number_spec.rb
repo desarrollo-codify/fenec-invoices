@@ -3,5 +3,23 @@
 require 'rails_helper'
 
 RSpec.describe TransactionNumber, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe 'associations' do
+    it { should belong_to(:cycle) }
+    it { should belong_to(:transaction_type) }
+  end
+
+  describe 'callbacks' do
+    it 'sets the default value for the number field' do
+      transaction_number = create(:transaction_number)
+      expect(transaction_number.number).to eq(1)
+    end
+  end
+
+  describe 'methods' do
+    it 'increments the number field' do
+      transaction_number = create(:transaction_number)
+      transaction_number.increment!
+      expect(transaction_number.number).to eq(2)
+    end
+  end
 end

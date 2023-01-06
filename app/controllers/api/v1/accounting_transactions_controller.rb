@@ -50,6 +50,7 @@ module Api
       def update
         @errors = []
         validate_update!(@accounting_transaction, accounting_transaction_params, false)
+
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
         if @accounting_transaction.update(accounting_transaction_params)
@@ -65,6 +66,9 @@ module Api
 
       def validate!(_accounting_transaction)
         @errors << 'No se puede crear un comprobante si no existe una gestión abierta.' unless @company.cycles.current.present?
+        return unless @company.cycles.current.present? && @company.cycles.current.id != @accounting_transaction.cycle_id
+
+        @errors << 'No se puede crear un comprobante si la gestión que se le esta asignando no esta abierta.'
       end
 
       def validate_update!(accounting_transaction, params, _is_gloss)
@@ -80,7 +84,7 @@ module Api
       end
 
       def validate_date(accounting_transaction, params)
-        if accounting_transaction.date != params[:date].to_date
+        if params[:date].present? && accounting_transaction.date != params[:date].to_date
           return @errors << 'Para realizar cambios en un día distinto al de creación, se requiere un nuevo comprobante.'
         end
         if accounting_transaction.receipt != params[:receipt]
@@ -89,6 +93,8 @@ module Api
         if accounting_transaction.currency_id != params[:currency_id]
           return @errors << 'Para realizar cambios en un día distinto al de creación, se requiere un nuevo comprobante.'
         end
+
+        return unless params[:entries_attributes].present?
 
         params[:entries_attributes].each do |entry|
           id = entry[:id] if entry[:id].present?
