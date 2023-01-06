@@ -297,7 +297,7 @@ module Api
         customer = company.customers.find_by(code: invoice.client_code)
         @errors << 'El tipo de documento insertado indica que debe ser de tipo númerico.' if ([1,
                                                                                                5].include? customer.document_type_id) &&
-                                                                                               customer.nit.scan(/\D/).any?
+                                                                                             customer.nit.scan(/\D/).any?
       end
 
       def validate_payment_methods(invoice)

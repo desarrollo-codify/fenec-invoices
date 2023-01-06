@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Customer < ApplicationRecord
   validates :name, presence: { message: 'El nombre no puede estar en blanco.' }
   validates :nit, presence: { message: 'El nit no puede estar en blanco.' }
