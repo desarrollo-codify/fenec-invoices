@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Company, type: :model do
-  it { is_expected.to have_many(:clients) }
+  it { is_expected.to have_many(:customers) }
   it { is_expected.to have_many(:products) }
   it { is_expected.to have_many(:branch_offices) }
   it { is_expected.to have_many(:delegated_tokens) }
@@ -130,15 +130,15 @@ RSpec.describe Company, type: :model do
     end
   end
 
-  describe 'validates dependent destroy for clients' do
-    it { expect(subject).to have_many(:clients).dependent(:destroy) }
+  describe 'validates dependent destroy for customers' do
+    it { expect(subject).to have_many(:customers).dependent(:destroy) }
 
     context 'when deleting a company' do
       let(:company) { create(:company) }
-      before { create(:client, company: company) }
+      before { create(:customer, company: company) }
 
       it 'destroys the Client' do
-        expect { company.destroy }.to change { Client.count }.by(-1)
+        expect { company.destroy }.to change { Customer.count }.by(-1)
       end
     end
   end

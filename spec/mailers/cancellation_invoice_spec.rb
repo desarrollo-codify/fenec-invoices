@@ -6,7 +6,7 @@ RSpec.describe CancellationInvoiceMailer, type: :mailer do
   describe 'send_invoice' do
     let(:params) do
       {
-        client: OpenStruct.new(
+        customer: OpenStruct.new(
           {
             code: '055',
             email: 'carlos.gutierrez@codify.com.bo'

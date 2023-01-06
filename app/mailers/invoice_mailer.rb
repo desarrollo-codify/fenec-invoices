@@ -5,7 +5,7 @@ class InvoiceMailer < ApplicationMailer
   helper ApplicationHelper
 
   def send_invoice
-    @client = params[:client]
+    @customer = params[:customer]
     @invoice = params[:invoice]
     delivery_options = { user_name: params[:sender].user_name,
                          password: params[:sender].password,
@@ -24,6 +24,6 @@ class InvoiceMailer < ApplicationMailer
     GeneratePdfJob.perform_now(@invoice) unless File.exist?(pdf_path)
     attachments['factura.pdf'] = File.read(pdf_path)
 
-    mail to: @client.email, from: params[:sender].user_name, subject: 'Factura', delivery_method_options: delivery_options
+    mail to: @customer.email, from: params[:sender].user_name, subject: 'Factura', delivery_method_options: delivery_options
   end
 end

@@ -48,7 +48,7 @@ Rails.application.routes.draw do
           post :homologate, on: :collection
           post :import, on: :collection
         end
-        resources :clients, only: %i[index create]
+        resources :customers, shallow: true
         resources :economic_activities, only: %i[index]
         get :logo, on: :member
         get :cuis_codes, on: :member
@@ -110,7 +110,6 @@ Rails.application.routes.draw do
         get :logs, on: :member
       end
       resources :contingency_codes, only: %i[show update destroy]
-      resources :clients, only: %i[update destroy]
       resources :aromas, only: %i[destroy]
 
       # siat controller

@@ -34,7 +34,7 @@ FactoryBot.define do
     description { 'Abc' }
   end
 
-  factory :client do
+  factory :customer do
     code { '00001' }
     name { 'Juan' }
     nit { '123' }
