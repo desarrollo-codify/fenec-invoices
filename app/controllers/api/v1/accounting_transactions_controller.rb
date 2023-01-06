@@ -38,7 +38,7 @@ module Api
         add_number
 
         if @accounting_transaction.save
-          @accounting_transaction.accounting_transaction_logs.create(full_name: 'current_user.full_name', action: 'CREATE',
+          @accounting_transaction.accounting_transaction_logs.create(full_name: current_user.full_name, action: 'CREATE',
                                                                      log_action: @accounting_transaction.as_json(include: :entries))
           render json: @accounting_transaction, status: :created
         else

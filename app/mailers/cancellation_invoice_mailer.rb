@@ -2,7 +2,7 @@
 
 class CancellationInvoiceMailer < ApplicationMailer
   def send_invoice
-    @client = params[:client]
+    @customer = params[:customer]
     @invoice = params[:invoice]
     @reason = params[:reason]
 
@@ -15,6 +15,6 @@ class CancellationInvoiceMailer < ApplicationMailer
                          ssl: params[:sender].is_secure,
                          tls: params[:sender].is_secure }
 
-    mail to: @client.email, from: params[:sender].user_name, subject: 'Factura anulada', delivery_method_options: delivery_options
+    mail to: @customer.email, from: params[:sender].user_name, subject: 'Factura anulada', delivery_method_options: delivery_options
   end
 end

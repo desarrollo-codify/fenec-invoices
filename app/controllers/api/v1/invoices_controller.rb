@@ -54,11 +54,11 @@ module Api
         daily_code = @branch_office.daily_codes.where(point_of_sale: invoice_params[:point_of_sale]).current
         @invoice.cufd_code = daily_code.code
 
-        client = @company.clients.find_by(code: invoice_params[:client_code])
-        @invoice.business_name = client.name
-        @invoice.business_nit = client.nit
-        @invoice.complement = client.complement
-        @invoice.document_type = client.document_type.code
+        customer = @company.customers.find_by(code: invoice_params[:client_code])
+        @invoice.business_name = customer.name
+        @invoice.business_nit = customer.nit
+        @invoice.complement = customer.complement
+        @invoice.document_type = customer.document_type.code
 
         @invoice.date ||= DateTime.now
         @invoice.control_code = daily_code.control_code
@@ -147,13 +147,13 @@ module Api
 
       def resend
         @company = @invoice.branch_office.company
-        @client = @company.clients.find_by(code: @invoice.client_code)
+        @customer = @company.customers.find_by(code: @invoice.client_code)
         @branch_office = @invoice.branch_office
         xml = InvoiceXml.generate(@invoice)
         filename = "#{Rails.root}/public/tmp/mails/#{@invoice.cuf}.xml"
         File.write(filename, xml)
         begin
-          InvoiceMailer.with(client: @client, invoice: @invoice, sender: @company.company_setting).send_invoice.deliver_now
+          InvoiceMailer.with(customer: @customer, invoice: @invoice, sender: @company.company_setting).send_invoice.deliver_now
         rescue StandardError => e
           p e.message
         end
@@ -290,14 +290,14 @@ module Api
       end
 
       def validate_client(company, invoice)
-        @errors << 'No se ha seleccionado un cliente valido.' unless company.clients.find_by(code: invoice.client_code).present?
+        @errors << 'No se ha seleccionado un cliente valido.' unless company.customers.find_by(code: invoice.client_code).present?
       end
 
       def validate_document_types(company, invoice)
-        client = company.clients.find_by(code: invoice.client_code)
+        customer = company.customers.find_by(code: invoice.client_code)
         @errors << 'El tipo de documento insertado indica que debe ser de tipo númerico.' if ([1,
-                                                                                               5].include? client.document_type_id) &&
-                                                                                             client.nit.scan(/\D/).any?
+                                                                                               5].include? customer.document_type_id) &&
+                                                                                               customer.nit.scan(/\D/).any?
       end
 
       def validate_payment_methods(invoice)
