@@ -23,7 +23,7 @@ module Api
         @brand = Brand.new(brand_params)
 
         if @brand.save
-          render json: @brand, status: :created, location: @brand
+          render json: @brand, status: :created
         else
           render json: @brand.errors.full_messages, status: :unprocessable_entity
         end
@@ -52,7 +52,7 @@ module Api
 
       # Only allow a list of trusted parameters through.
       def brand_params
-        params.fetch(:brand, {})
+        params.require(:brand).permit(:description)
       end
     end
   end

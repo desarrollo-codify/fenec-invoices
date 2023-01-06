@@ -23,7 +23,7 @@ module Api
         @product_type = ProductType.new(product_type_params)
 
         if @product_type.save
-          render json: @product_type, status: :created, location: @product_type
+          render json: @product_type, status: :created
         else
           render json: @product_type.errors, status: :unprocessable_entity
         end
@@ -45,14 +45,12 @@ module Api
 
       private
 
-      # Use callbacks to share common setup or constraints between actions.
       def set_product_type
         @product_type = ProductType.find(params[:id])
       end
 
-      # Only allow a list of trusted parameters through.
       def product_type_params
-        params.fetch(:product_type, {})
+        params.require(:product_type).permit(:description)
       end
     end
   end
