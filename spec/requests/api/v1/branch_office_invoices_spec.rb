@@ -1979,7 +1979,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:measurement) }
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
-      before { create(:client, company: branch_office.company) }
+      before { create(:customer, company: branch_office.company) }
 
       it 'creates a new Invoice' do
         expect do
@@ -2002,7 +2002,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:product, company: branch_office.company) }
       let(:economic_activity) { create(:economic_activity, company: branch_office.company) }
       before { create(:legend, economic_activity: economic_activity) }
-      before { create(:client, company: branch_office.company) }
+      before { create(:customer, company: branch_office.company) }
 
       it 'does not create a new Invoice' do
         expect do
@@ -2033,7 +2033,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:document_type, code: 3) }
       before { create(:document_type, code: 4) }
       let(:document_type) { create(:document_type, code: 5) }
-      before { create(:client, company: branch_office.company, document_type: document_type) }
+      before { create(:customer, company: branch_office.company, document_type: document_type) }
       before { create(:invoice_status, description: 'Vigente') }
       before { create(:invoice_status, description: 'Anulada') }
       before { create(:measurement) }
@@ -2060,7 +2060,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:document_type, code: 3) }
       before { create(:document_type, code: 4) }
       let(:document_type) { create(:document_type, code: 5) }
-      before { create(:client, company: branch_office.company, document_type: document_type, nit: '123') }
+      before { create(:customer, company: branch_office.company, document_type: document_type, nit: '123') }
       before { create(:invoice_status, description: 'Vigente') }
       before { create(:invoice_status, description: 'Anulada') }
       before { create(:measurement) }
@@ -2099,7 +2099,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:measurement) }
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
-      before { create(:client, company: branch_office.company) }
+      before { create(:customer, company: branch_office.company) }
 
       it 'create new Invoice' do
         expect do
@@ -2188,7 +2188,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:measurement) }
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
-      before { create(:client, company: branch_office.company) }
+      before { create(:customer, company: branch_office.company) }
 
       it 'create new Invoice' do
         expect do
@@ -2261,7 +2261,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:measurement) }
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
-      before { create(:client, company: branch_office.company) }
+      before { create(:customer, company: branch_office.company) }
 
       it 'create new Invoice' do
         expect do
@@ -2318,7 +2318,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:measurement) }
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
-      before { create(:client, company: branch_office.company) }
+      before { create(:customer, company: branch_office.company) }
 
       it 'create new Invoice' do
         expect do
@@ -2359,7 +2359,7 @@ RSpec.describe '/api/v1/branch_offices/:branch_office_id/invoices', type: :reque
       before { create(:measurement) }
       before { create(:product, company: branch_office.company) }
       before { create(:invoice_status) }
-      before { create(:client, company: branch_office.company) }
+      before { create(:customer, company: branch_office.company) }
 
       it 'create new Invoice' do
         expect do
