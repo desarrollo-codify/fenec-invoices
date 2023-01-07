@@ -134,5 +134,94 @@ RSpec.describe 'api/v1/accounting_transactions', type: :request do
         expect(response.content_type).to match(a_string_including('application/json'))
       end
     end
+
+    context 'with valid parameters' do
+      let(:new_attributes) do
+        {
+          date: '01/01/2022',
+          gloss: 'prueba 4',
+          currency_id: 1,
+          cycle_id: 1,
+          transaction_type_id: 1,
+          entries_attributes: [
+            {
+              id: 1,
+              debit_bs: 10,
+              credit_bs: 0,
+              debit_sus: 0,
+              credit_sus: 0,
+              account_id: 1
+            },
+            {
+              id: 2,
+              debit_bs: 0,
+              credit_bs: 10,
+              debit_sus: 0,
+              credit_sus: 0,
+              account_id: 1
+            }
+          ]
+        }
+      end
+
+      it 'update with accounting_transaction is canceled' do
+        accounting_transaction = build(:accounting_transaction, company: @company, currency: @currency, cycle: @cycle,
+                                                                transaction_type: @transaction_type, status: 2)
+        accounting_transaction.entries.build(debit_bs: 10, account: @account)
+        accounting_transaction.entries.build(credit_bs: 10, account: @account)
+        accounting_transaction.save
+        put api_v1_accounting_transaction_url(accounting_transaction),
+            params: { accounting_transaction: new_attributes }, headers: @auth_headers, as: :json
+        accounting_transaction.reload
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to eq('["No se puede editar un comprobante anulado."]')
+      end
+    end
+  end
+
+  describe 'POST /cancel' do
+    context 'with valid parameters' do
+      it 'canceled accouting transactions' do
+        accounting_transaction = build(:accounting_transaction, company: @company, currency: @currency, cycle: @cycle,
+                                                                transaction_type: @transaction_type)
+        accounting_transaction.entries.build(debit_bs: 10, account: @account)
+        accounting_transaction.entries.build(credit_bs: 10, account: @account)
+        accounting_transaction.save
+
+        post cancel_api_v1_accounting_transaction_url(accounting_transaction), params: { reason: 'Reason 01' }, headers: @auth_headers, as: :json
+        accounting_transaction.reload
+        expect(accounting_transaction.status).to eq('canceled')
+        expect(response).to have_http_status(:ok)
+        expect(response.content_type).to match(a_string_including('application/json'))
+      end
+    end
+
+    context 'with invalid parameters' do
+      it 'canceled accouting transactions' do
+        accounting_transaction = build(:accounting_transaction, company: @company, currency: @currency, cycle: @cycle,
+                                                                transaction_type: @transaction_type)
+        accounting_transaction.entries.build(debit_bs: 10, account: @account)
+        accounting_transaction.entries.build(credit_bs: 10, account: @account)
+        accounting_transaction.save
+
+        post cancel_api_v1_accounting_transaction_url(accounting_transaction), headers: @auth_headers, as: :json
+        accounting_transaction.reload
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when accouting transactions is already canceled' do
+      it 'canceled accouting transactions' do
+        accounting_transaction = build(:accounting_transaction, company: @company, currency: @currency, cycle: @cycle,
+                                                                transaction_type: @transaction_type)
+        accounting_transaction.entries.build(debit_bs: 10, account: @account)
+        accounting_transaction.entries.build(credit_bs: 10, account: @account)
+        accounting_transaction.save
+
+        post cancel_api_v1_accounting_transaction_url(accounting_transaction), headers: @auth_headers, as: :json
+        accounting_transaction.reload
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
   end
 end
