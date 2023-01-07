@@ -73,11 +73,11 @@ module Api
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
         @accounting_transaction.status = 2
-        @accounting_transaction.cancelletion_reason = params[:reason]
+        @accounting_transaction.cancellation_reason = params[:reason]
         @accounting_transaction.canceled_at = DateTime.now
 
         @accounting_transaction.accounting_transaction_logs.create(full_name: current_user.full_name, action: 'CANCELED',
-                                                                   cancelletion_reason: @accounting_transaction.cancelletion_reason,
+                                                                   cancellation_reason: @accounting_transaction.cancellation_reason,
                                                                    log_action: @accounting_transaction.as_json(include: :entries))
         @accounting_transaction.save
         render json: { message: "Se ha anulado el comprobante número #{@accounting_transaction.number} por #{params[:reason]}" }
