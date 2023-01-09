@@ -81,7 +81,46 @@ RSpec.describe 'Api::V1::Periods', type: :request do
       it 'does not create a new Api::V1::Cycle' do
         expect do
           post api_v1_cycle_periods_url(cycle),
-               params: { period: valid_attributes }, as: :json
+               params: { period: valid_attributes }, headers: @auth_headers, as: :json
+        end.to change(Period, :count).by(0)
+      end
+    end
+
+    context 'When the start date is earlier than the end date' do
+      let(:cycle) { create(:cycle) }
+
+      let(:attributes) do
+        {
+          description: 'Enero-2023',
+          start_date: '02-01-2023',
+          end_date: '01-01-2023',
+          status: 'ABIERTA'
+        }
+      end
+      it 'does not create a new Api::V1::Cycle' do
+        expect do
+          post api_v1_cycle_periods_url(cycle),
+               params: { period: attributes }, headers: @auth_headers, as: :json
+        end.to change(Period, :count).by(0)
+      end
+    end
+
+    context 'When the start date falls within the time period of any other period in the same management' do
+      let(:cycle) { create(:cycle) }
+      before { create(:period, cycle: cycle, start_date: '01-12-2022', end_date: '31-12-2022', status: 'CERRADO') }
+
+      let(:attributes) do
+        {
+          description: 'Enero-2023',
+          start_date: '31-12-2022',
+          end_date: '30-01-2023',
+          status: 'ABIERTA'
+        }
+      end
+      it 'does not create a new Api::V1::Cycle' do
+        expect do
+          post api_v1_cycle_periods_url(cycle),
+               params: { period: attributes }, headers: @auth_headers, as: :json
         end.to change(Period, :count).by(0)
       end
     end

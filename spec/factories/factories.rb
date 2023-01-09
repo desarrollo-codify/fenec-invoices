@@ -429,7 +429,7 @@ FactoryBot.define do
   factory :period do
     description { 'Enero - 2023' }
     status { 'ABIERTO' }
-    start_date { '2023-01-01' }
+    start_date { '01-01-2023' }
     cycle factory: :cycle
   end
 end

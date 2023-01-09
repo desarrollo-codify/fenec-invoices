@@ -16,12 +16,11 @@ module Api
 
       # POST /api/v1/cycles/1/periods
       def create
-        if @cycle.periods.current.present?
-          return render json: { message: "No se puede abrir un periodo ya que esta abierto el periodo '#{@cycle.periods.current.description}'." },
-                        status: :unprocessable_entity
-        end
-
+        @errors = []
         @period = @cycle.periods.build(period_params)
+        validate!(period_params)
+
+        return render json: @errors, status: :unprocessable_entity if @errors.any?
 
         if @period.save
           render json: @period, status: :created
@@ -60,6 +59,17 @@ module Api
       end
 
       private
+
+      def validate!(_params)
+        if @cycle.periods.current.present?
+          @errors << "No es posible abrir un periodo mientras el periodo #{@cycle.periods.current.description} esté abierto."
+        end
+        if @period.start_date.present? && @period.end_date && @period.start_date > @period.end_date
+          @errors << 'La fecha de fin no puede ser anterior a la del inicio.'
+        end
+        previous_periods = Period.where('end_date <= ?', @period.start_date)
+        @errors << 'La fecha de inicio no debe sobreponerse a otros periodos de la misma gestión.' if previous_periods.exists?
+      end
 
       # Use callbacks to share common setup or constraints between actions.
       def set_period
