@@ -203,28 +203,28 @@ module Api
       def add_payments(invoice, payment_params)
         unless payment_params[:cash_paid].zero?
           payment_method = PaymentMethod.find_by(code: 1)
-          invoice.payments.build(mount: payment_params[:cash_paid], payment_method: payment_method)
+          invoice.payments.build(mount: payment_params[:cash_paid].round(2), payment_method: payment_method)
         end
 
         unless payment_params[:card_paid].zero?
           payment_method = PaymentMethod.find_by(code: 2)
-          invoice.payments.build(mount: payment_params[:card_paid], payment_method: payment_method)
+          invoice.payments.build(mount: payment_params[:card_paid].round(2), payment_method: payment_method)
         end
 
         unless payment_params[:qr_paid].zero?
           payment_method = PaymentMethod.find_by(code: 7)
-          invoice.payments.build(mount: payment_params[:qr_paid], payment_method: payment_method)
+          invoice.payments.build(mount: payment_params[:qr_paid].round(2), payment_method: payment_method)
         end
 
         unless payment_params[:online_paid].zero?
           payment_method = PaymentMethod.find_by(code: 33)
-          invoice.payments.build(mount: payment_params[:online_paid], payment_method: payment_method)
+          invoice.payments.build(mount: payment_params[:online_paid].round(2), payment_method: payment_method)
         end
 
         return if payment_params[:voucher_paid].zero?
 
         payment_method = PaymentMethod.find_by(code: 4)
-        invoice.payments.build(mount: payment_params[:voucher_paid], payment_method: payment_method)
+        invoice.payments.build(mount: payment_params[:voucher_paid].round(2), payment_method: payment_method)
       end
 
       def validate!(invoice)
