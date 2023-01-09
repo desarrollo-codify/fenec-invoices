@@ -2,10 +2,11 @@
 
 class Period < ApplicationRecord
   validates :description, presence: { message: 'La descripción no puede estar en blanco.' }
-  validates :start_date, presence: { message: 'La fecha de inicio no puede estar en blanco.' }, uniqueness: true
+  validates :start_date, presence: { message: 'La fecha de inicio no puede estar en blanco.' }
   validates :status, presence: { message: 'El estado no puede estar en blanco.' }
 
   belongs_to :cycle
+  has_many :transaction_number, dependent: :destroy
 
   after_initialize :default_values
 
@@ -13,6 +14,12 @@ class Period < ApplicationRecord
 
   def self.current
     open.last
+  end
+
+  def open?
+    return true if status == 'ABIERTO'
+
+    false
   end
 
   private

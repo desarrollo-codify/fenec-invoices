@@ -9,10 +9,10 @@ module Api
 
       # GET /api/v1/companies/1/accounting_transactions
       def index
-        @accounting_transactions = @company.accounting_transactions.includes(:currency, :transaction_type, :cycle, :entries)
+        @accounting_transactions = @company.accounting_transactions.includes(:currency, :transaction_type, :period, :entries)
 
         render json: @accounting_transactions.as_json(include: [{ currency: { only: %i[id description abbreviation] } },
-                                                                { cycle: { only: %i[id year] } },
+                                                                { period: { only: %i[id description] } },
                                                                 { transaction_type: { only: %i[id description] } },
                                                                 { entries: { except: %i[created_at updated_at] } }])
       end
@@ -20,7 +20,7 @@ module Api
       # GET /api/v1/accounting_transactions/1
       def show
         render json: @accounting_transaction.as_json(include: [{ currency: { only: %i[id description abbreviation] } },
-                                                               { cycle: { only: %i[id year] } },
+                                                               { period: { only: %i[id description] } },
                                                                { transaction_type: { only: %i[id description] } },
                                                                { entries: { include: {
                                                                               account: { except: %i[created_at updated_at] }
@@ -35,10 +35,15 @@ module Api
         validate!
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
-        add_number
+        unless accounting_transaction_params[:period_id].present?
+          period = @company.cycles.current.periods.current
+          @accounting_transaction.period_id = period.id
+        end
+
         @accounting_transaction.status = 0
 
         if @accounting_transaction.save
+          add_number
           @accounting_transaction.accounting_transaction_logs.create(full_name: current_user.full_name, action: 'CREATED',
                                                                      log_action: @accounting_transaction.as_json(include: :entries))
           render json: @accounting_transaction, status: :created
@@ -67,9 +72,9 @@ module Api
 
       # POST /api/v1/accounting_transactions/1/cancel
       def cancel
-        # TODO: Add validations
         @errors = []
         validate_cancellation!(params[:reason])
+
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
         @accounting_transaction.status = 2
@@ -87,15 +92,19 @@ module Api
 
       def validate!
         @errors << 'No se puede crear un comprobante si no existe una gestión abierta.' unless @company.cycles.current.present?
-        return unless @company.cycles.current.present? && @company.cycles.current.id != @accounting_transaction.cycle_id
 
-        @errors << 'No se puede crear un comprobante si la gestión que se le esta asignando no esta abierta.'
+        if @company.cycles.current.present? && @company.cycles.current.periods.current.blank?
+          @errors << 'No se puede crear un comprobante si no existe un periodo abierto.'
+        end
+        return if @company.cycles.current&.periods&.current && @company.cycles.current.periods.current.id != @accounting_transaction.period_id
+
+        @errors << 'No se puede crear un comprobante si el periodo al que se esta asignando no esta abierto.'
       end
 
       def validate_update!(accounting_transaction, params)
         return @errors << 'No se puede editar un comprobante anulado.' if accounting_transaction.status == 'canceled'
 
-        @errors << 'No se puede editar un comprobante de gestiones cerradas.' unless accounting_transaction.cycle.status == 'ABIERTA'
+        @errors << 'No se puede editar un comprobante de un periodo cerrado.' if accounting_transaction.period.status != 'ABIERTO'
 
         @errors << 'No se puede editar el número de comprobantes' if params[:number].present? && accounting_transaction.number != params[:number]
 
@@ -107,26 +116,24 @@ module Api
       end
 
       def validate_cancellation!(reason)
-        return @errors << 'No se puede anular un comprobante anteriormente anulado.' if @accounting_transaction.status == 2
+        return @errors << 'No se puede anular un comprobante que ya ha sido anulado previamente.' if @accounting_transaction.status == 2
 
         @errors << 'No se puede anular un comprobante sin indicar la razón.' unless reason.present?
 
-        # TODO: Add validations
-        # @errors << 'No se puede anular un comprobante si no existe una gestión abierta.' unless @company.cycles.current.present?
-        # return unless @company.cycles.current.present? && @company.cycles.current.id != @accounting_transaction.cycle_id
+        return if @accounting_transaction.period.open?
 
-        # @errors << 'No se puede anular un comprobante si la gestión a la que pertenece no esta abierta.'
+        @errors << 'No se puede anular un comprobante ya que el periodo al que está asignando está cerrado.'
       end
 
       def validate_date(accounting_transaction, params)
         if params[:date].present? && accounting_transaction.date != params[:date].to_date
-          return @errors << 'Para realizar cambios en un día distinto al de creación, se requiere un nuevo comprobante.'
+          return @errors << 'No se puede modificar la fecha. Para realizar cambios en un día distinto al de creación, se requiere un nuevo.'
         end
         if accounting_transaction.receipt != params[:receipt]
-          return @errors << 'Para realizar cambios en un día distinto al de creación, se requiere un nuevo comprobante.'
+          return @errors << 'No se puede modificar el recibo. Para realizar cambios en un día distinto al de creación, se requiere un nuevo.'
         end
         if accounting_transaction.currency_id != params[:currency_id]
-          return @errors << 'Para realizar cambios en un día distinto al de creación, se requiere un nuevo comprobante.'
+          return @errors << 'No se puede modificar la moneda. Para realizar cambios en un día distinto al de creación, se requiere un nuevo.'
         end
 
         return unless params[:entries_attributes].present?
@@ -156,14 +163,14 @@ module Api
       end
 
       def add_number
-        cycle = Cycle.find(@accounting_transaction.cycle_id)
+        period = Period.find(@accounting_transaction.period_id)
         transaction_type = TransactionType.find(@accounting_transaction.transaction_type_id)
 
-        if TransactionNumber.find_by(cycle_id: cycle.id, transaction_type_id: transaction_type.id).present?
-          transaction_number = TransactionNumber.find_by(cycle_id: cycle.id, transaction_type_id: transaction_type.id)
+        if TransactionNumber.find_by(period_id: period.id, transaction_type_id: transaction_type.id).present?
+          transaction_number = TransactionNumber.find_by(period_id: cycle.id, transaction_type_id: transaction_type.id)
           transaction_number.increment!
         else
-          transaction_number = TransactionNumber.create(cycle: cycle, transaction_type: transaction_type)
+          transaction_number = TransactionNumber.create(period: period, transaction_type: transaction_type)
         end
         @accounting_transaction.number = transaction_number.number
       end
@@ -180,7 +187,7 @@ module Api
       # Only allow a list of trusted parameters through.
       def accounting_transaction_params
         params.require(:accounting_transaction).permit(:date, :receipt, :gloss, :type, :currency_id,
-                                                       :cycle_id, :company_id, :transaction_type_id,
+                                                       :period_id, :company_id, :transaction_type_id,
                                                        entries_attributes: %i[id debit_bs credit_bs debit_sus credit_sus
                                                                               account_id accounting_transaction_id])
       end

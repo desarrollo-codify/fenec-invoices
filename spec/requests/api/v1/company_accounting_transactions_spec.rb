@@ -70,6 +70,7 @@ RSpec.describe 'api/v1/accounting_transactions', type: :request do
     @company = create(:company, name: 'Example')
     @currency = create(:currency)
     @cycle = create(:cycle, company: @company)
+    @period = create(:period, cycle: @cycle)
     @transaction_type = create(:transaction_type)
     @account_type = create(:account_type)
     @account_level = create(:account_level)
@@ -78,7 +79,7 @@ RSpec.describe 'api/v1/accounting_transactions', type: :request do
 
   describe 'GET /index' do
     it 'renders a successful response' do
-      accounting_transaction = build(:accounting_transaction, cycle: @cycle, company: @company)
+      accounting_transaction = build(:accounting_transaction, period: @period, company: @company)
       accounting_transaction.entries.build(debit_bs: 0, credit_bs: 6.96, debit_sus: 0, credit_sus: 1, account: @account)
       accounting_transaction.entries.build(debit_bs: 6.96, credit_bs: 0, debit_sus: 1, credit_sus: 0, account: @account)
       accounting_transaction.save

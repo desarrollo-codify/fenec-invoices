@@ -11,7 +11,7 @@ class AccountingTransaction < ApplicationRecord
   enum status: %i[created updated canceled]
 
   belongs_to :currency
-  belongs_to :cycle
+  belongs_to :period
   belongs_to :company
   belongs_to :transaction_type
 
