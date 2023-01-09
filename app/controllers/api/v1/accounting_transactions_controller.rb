@@ -5,7 +5,7 @@ module Api
     class AccountingTransactionsController < ApplicationController
       before_action :authenticate_user!
       before_action :set_company, only: %i[index create]
-      before_action :set_accounting_transaction, only: %i[show update destroy]
+      before_action :set_accounting_transaction, only: %i[show update destroy cancel]
 
       # GET /api/v1/companies/1/accounting_transactions
       def index
@@ -32,13 +32,14 @@ module Api
       def create
         @errors = []
         @accounting_transaction = @company.accounting_transactions.build(accounting_transaction_params)
-        validate!(@accounting_transaction)
+        validate!
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
         add_number
+        @accounting_transaction.status = 0
 
         if @accounting_transaction.save
-          @accounting_transaction.accounting_transaction_logs.create(full_name: current_user.full_name, action: 'CREATE',
+          @accounting_transaction.accounting_transaction_logs.create(full_name: current_user.full_name, action: 'CREATED',
                                                                      log_action: @accounting_transaction.as_json(include: :entries))
           render json: @accounting_transaction, status: :created
         else
@@ -49,12 +50,14 @@ module Api
       # PATCH/PUT /api/v1/accounting_transactions/1
       def update
         @errors = []
-        validate_update!(@accounting_transaction, accounting_transaction_params, false)
+        validate_update!(@accounting_transaction, accounting_transaction_params)
 
         return render json: @errors, status: :unprocessable_entity if @errors.any?
 
+        @accounting_transaction.status = 1
+
         if @accounting_transaction.update(accounting_transaction_params)
-          @accounting_transaction.accounting_transaction_logs.create(full_name: 'current_user.full_name', action: 'UPDATE',
+          @accounting_transaction.accounting_transaction_logs.create(full_name: current_user.full_name, action: 'UPDATED',
                                                                      log_action: @accounting_transaction.as_json(include: :entries))
           render json: @accounting_transaction
         else
@@ -62,16 +65,36 @@ module Api
         end
       end
 
+      # POST /api/v1/accounting_transactions/1
+      def cancel
+        # TODO: Add validations
+        @errors = []
+        validate_cancellation!(params[:reason])
+        return render json: @errors, status: :unprocessable_entity if @errors.any?
+
+        @accounting_transaction.status = 2
+        @accounting_transaction.cancellation_reason = params[:reason]
+        @accounting_transaction.canceled_at = DateTime.now
+
+        @accounting_transaction.accounting_transaction_logs.create(full_name: current_user.full_name, action: 'CANCELED',
+                                                                   cancellation_reason: @accounting_transaction.cancellation_reason,
+                                                                   log_action: @accounting_transaction.as_json(include: :entries))
+        @accounting_transaction.save
+        render json: { message: "Se ha anulado el comprobante número #{@accounting_transaction.number} por #{params[:reason]}" }
+      end
+
       private
 
-      def validate!(_accounting_transaction)
+      def validate!
         @errors << 'No se puede crear un comprobante si no existe una gestión abierta.' unless @company.cycles.current.present?
         return unless @company.cycles.current.present? && @company.cycles.current.id != @accounting_transaction.cycle_id
 
         @errors << 'No se puede crear un comprobante si la gestión que se le esta asignando no esta abierta.'
       end
 
-      def validate_update!(accounting_transaction, params, _is_gloss)
+      def validate_update!(accounting_transaction, params)
+        return @errors << 'No se puede editar un comprobante anulado.' if accounting_transaction.status == 'canceled'
+
         @errors << 'No se puede editar un comprobante de gestiones cerradas.' unless accounting_transaction.cycle.status == 'ABIERTA'
 
         @errors << 'No se puede editar el número de comprobantes' if params[:number].present? && accounting_transaction.number != params[:number]
@@ -80,7 +103,19 @@ module Api
           @errors << 'No se puede editar el tipo de transacción una vez creado el comprobante.'
         end
 
-        validate_date(accounting_transaction, params) unless accounting_transaction.date.to_date == Date.today
+        validate_date(accounting_transaction, params) unless accounting_transaction.created_at.to_date == Date.today
+      end
+
+      def validate_cancellation!(reason)
+        return @errors << 'No se puede anular un comprobante anteriormente anulado.' if @accounting_transaction.status == 2
+
+        @errors << 'No se puede anular un comprobante sin indicar la razón.' unless reason.present?
+
+        # TODO: Add validations
+        # @errors << 'No se puede anular un comprobante si no existe una gestión abierta.' unless @company.cycles.current.present?
+        # return unless @company.cycles.current.present? && @company.cycles.current.id != @accounting_transaction.cycle_id
+
+        # @errors << 'No se puede anular un comprobante si la gestión a la que pertenece no esta abierta.'
       end
 
       def validate_date(accounting_transaction, params)

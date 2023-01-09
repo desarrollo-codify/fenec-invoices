@@ -342,6 +342,7 @@ FactoryBot.define do
   factory :accounting_transaction do
     date { '01/01/2022' }
     gloss { 'asdf' }
+    status { 0 }
     currency factory: :currency
     cycle factory: :cycle
     transaction_type factory: :transaction_type

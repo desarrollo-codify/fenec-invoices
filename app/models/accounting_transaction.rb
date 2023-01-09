@@ -3,9 +3,12 @@
 class AccountingTransaction < ApplicationRecord
   validates :date, presence: { message: 'La fecha no puede estar en blanco.' }
   validates :gloss, presence: { message: 'La glosa no puede estar en blanco.' }
+  validates :status, presence: { message: 'El estado no puede estar en blanco.' }
 
   validate :at_least_two_entries?
   validate :debit_and_credit_must_be_equal_and_greater_than_zero
+
+  enum status: %i[created updated canceled]
 
   belongs_to :currency
   belongs_to :cycle

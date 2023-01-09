@@ -21,7 +21,9 @@ Rails.application.routes.draw do
         put :reset_password, on: :member
       end
       resources :companies do
-        resources :accounting_transactions, shallow: true
+        resources :accounting_transactions, shallow: true do
+          post :cancel, on: :member
+        end
         resources :accounts, shallow: true do
           post :import, on: :collection
           get :for_transactions, on: :collection

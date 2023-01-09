@@ -76,4 +76,23 @@ RSpec.describe AccountingTransaction, type: :model do
       end
     end
   end
+
+  describe 'status attribute' do
+    it { validate_presence_of(:status) }
+
+    context 'with nil or empty value' do
+      let(:accounting_transaction) do
+        build(:accounting_transaction, status: nil, company: company, currency: currency, cycle: cycle,
+                                       transaction_type: transaction_type)
+      end
+
+      it 'is invalid' do
+        accounting_transaction.entries.build(debit_bs: 10, account: account)
+        accounting_transaction.entries.build(credit_bs: 10, account: account)
+        expect(accounting_transaction).to_not be_valid
+        accounting_transaction.status = ''
+        expect(accounting_transaction).to_not be_valid
+      end
+    end
+  end
 end
