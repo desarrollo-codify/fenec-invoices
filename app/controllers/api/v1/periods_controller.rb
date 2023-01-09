@@ -64,7 +64,7 @@ module Api
         if @cycle.periods.current.present?
           @errors << "No es posible abrir un periodo mientras el periodo #{@cycle.periods.current.description} esté abierto."
         end
-        if @period.start_date.present? && @period.end_date && @period.start_date > @period.end_date
+        if @period.start_date.present? && @period.end_date.present? && @period.start_date >= @period.end_date
           @errors << 'La fecha de fin no puede ser anterior a la del inicio.'
         end
         previous_periods = Period.where('end_date <= ?', @period.start_date)
