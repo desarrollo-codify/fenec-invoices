@@ -13,5 +13,6 @@ class Cycle < ApplicationRecord
     open.last
   end
 
+  has_many :periods
   belongs_to :company
 end

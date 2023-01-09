@@ -65,7 +65,7 @@ module Api
         end
       end
 
-      # POST /api/v1/accounting_transactions/1
+      # POST /api/v1/accounting_transactions/1/cancel
       def cancel
         # TODO: Add validations
         @errors = []
