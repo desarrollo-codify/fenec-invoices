@@ -432,4 +432,19 @@ FactoryBot.define do
     start_date { '01-01-2023' }
     cycle factory: :cycle
   end
+
+  factory :system_module do
+    description { 'Contabilidad' }
+  end
+
+  factory :page do
+    description { 'Comprobantes' }
+    system_module factory: :system_module
+  end
+
+  factory :page_option do
+    code { 'create_transaction' }
+    description { 'Crear comprobante' }
+    page factory: :page
+  end
 end

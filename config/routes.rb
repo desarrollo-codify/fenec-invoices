@@ -11,6 +11,13 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :system_modules do
+        resources :pages, only: %i[index create]
+      end
+      resources :pages, only: %i[show update destroy] do
+        resources :page_options, only: %i[index create]
+      end
+      resources :page_options, only: %i[show update destroy]
       resources :email_verifications, only: %i[] do
         get :confirm_email, on: :member
       end

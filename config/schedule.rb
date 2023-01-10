@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Use this file to easily define all of your cron jobs.
 #
 # It's helpful, but not entirely necessary to understand cron before proceeding.
@@ -19,8 +21,8 @@
 
 # Learn more: http://github.com/javan/whenever
 
-set :output, {:error => "log/cron_error_log.log", :standard => "log/cron_log.log"}
+set :output, { error: 'log/cron_error_log.log', standard: 'log/cron_log.log' }
 
 every 1.hours do
-    rake 'RAILS_ENV=development close_contingencies:close_contingencies'
+  rake 'RAILS_ENV=development close_contingencies:close_contingencies'
 end
