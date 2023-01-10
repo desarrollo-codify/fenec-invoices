@@ -7,16 +7,16 @@ RSpec.describe 'Api::V1::Periods', type: :request do
     {
       description: 'Enero-2023',
       start_date: '01-01-2023',
-      end_date: '31-12-2023',
+      end_date: '31-01-2023',
       status: 'ABIERTA'
     }
   end
 
   let(:invalid_attributes) do
     {
-      year: nil,
-      start_date: nil,
-      end_date: nil,
+      description: nil,
+      start_date: '01-01-2023',
+      end_date: '31-01-2023',
       status: nil
     }
   end
