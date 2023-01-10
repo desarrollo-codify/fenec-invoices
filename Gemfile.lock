@@ -76,6 +76,7 @@ GEM
     bootsnap (1.13.0)
       msgpack (~> 1.2)
     builder (3.2.4)
+    chronic (0.10.2)
     chunky_png (1.4.0)
     concurrent-ruby (1.1.10)
     crass (1.0.6)
@@ -291,6 +292,8 @@ GEM
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    whenever (1.0.0)
+      chronic (>= 0.6.3)
     wicked_pdf (2.6.3)
       activesupport
     wkhtmltopdf-binary (0.12.6.5)
@@ -322,6 +325,7 @@ DEPENDENCIES
   shoulda-matchers
   sqlite3 (~> 1.4)
   tzinfo-data
+  whenever
   wicked_pdf
   wkhtmltopdf-binary
   zlib
