@@ -5,7 +5,7 @@ module Api
     class PeriodsController < ApplicationController
       before_action :authenticate_user!
       before_action :set_period, only: %i[update close]
-      before_action :set_cycle, only: %i[index create]
+      before_action :set_cycle, only: %i[index create current]
 
       # GET /api/v1/cycles/1/periods
       def index
@@ -67,7 +67,8 @@ module Api
         if @period.start_date.present? && @period.end_date.present? && @period.start_date >= @period.end_date
           @errors << 'La fecha de fin no puede ser anterior a la del inicio.'
         end
-        previous_periods = Period.where('end_date <= ?', @period.start_date)
+        @errors << 'El perido debe estar adentro de la gestión.' if @cycle.end_date > @period.end_date
+        previous_periods = Period.where('end_date >= ?', @period.start_date)
         @errors << 'La fecha de inicio no debe sobreponerse a otros periodos de la misma gestión.' if previous_periods.exists?
       end
 
