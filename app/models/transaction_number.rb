@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TransactionNumber < ApplicationRecord
-  belongs_to :cycle
+  belongs_to :period
   belongs_to :transaction_type
 
   after_initialize :default_values

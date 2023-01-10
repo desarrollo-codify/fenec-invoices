@@ -7,11 +7,10 @@ class Cycle < ApplicationRecord
 
   scope :open, -> { where(status: 'ABIERTA') }
 
-  has_many :transaction_number, dependent: :destroy
-
   def self.current
     open.last
   end
 
+  has_many :periods
   belongs_to :company
 end

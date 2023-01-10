@@ -344,7 +344,7 @@ FactoryBot.define do
     gloss { 'asdf' }
     status { 0 }
     currency factory: :currency
-    cycle factory: :cycle
+    period factory: :period
     transaction_type factory: :transaction_type
     company factory: :company
   end
@@ -416,7 +416,7 @@ FactoryBot.define do
   end
 
   factory :transaction_number do
-    cycle factory: :cycle
+    period factory: :period
     transaction_type factory: :transaction_type
     number { 1 }
   end
@@ -424,5 +424,12 @@ FactoryBot.define do
   factory :variant do
     title { 'ABCabc' }
     product factory: :product
+  end
+
+  factory :period do
+    description { 'Enero - 2023' }
+    status { 'ABIERTO' }
+    start_date { '01-01-2023' }
+    cycle factory: :cycle
   end
 end

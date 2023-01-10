@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe AccountingTransaction, type: :model do
   it { is_expected.to belong_to(:currency) }
-  it { is_expected.to belong_to(:cycle) }
+  it { is_expected.to belong_to(:period) }
   it { is_expected.to belong_to(:company) }
   it { is_expected.to belong_to(:transaction_type) }
   it { is_expected.to have_many(:entries) }
@@ -12,13 +12,14 @@ RSpec.describe AccountingTransaction, type: :model do
   let(:company) { create(:company) }
   let(:currency) { create(:currency) }
   let(:cycle) { create(:cycle, company: company) }
+  let(:period) { create(:period, cycle: cycle) }
   let(:transaction_type) { create(:transaction_type) }
-  subject { build(:accounting_transaction, company: company, currency: currency, cycle: cycle, transaction_type: transaction_type) }
+  subject { build(:accounting_transaction, company: company, currency: currency, period: period, transaction_type: transaction_type) }
   let(:account_type) { create(:account_type) }
   let(:account_level) { create(:account_level) }
   let(:account) { create(:account, account_type: account_type, account_level: account_level, company: company, cycle: cycle) }
   let(:accounting_transaction) do
-    build(:accounting_transaction, company: company, currency: currency, cycle: cycle, transaction_type: transaction_type)
+    build(:accounting_transaction, company: company, currency: currency, period: period, transaction_type: transaction_type)
   end
 
   describe 'with valid and invalid values' do
@@ -44,7 +45,7 @@ RSpec.describe AccountingTransaction, type: :model do
 
     context 'with nil or empty value' do
       let(:accounting_transaction) do
-        build(:accounting_transaction, date: nil, company: company, currency: currency, cycle: cycle,
+        build(:accounting_transaction, date: nil, company: company, currency: currency, period: period,
                                        transaction_type: transaction_type)
       end
 
@@ -63,7 +64,7 @@ RSpec.describe AccountingTransaction, type: :model do
 
     context 'with nil or empty value' do
       let(:accounting_transaction) do
-        build(:accounting_transaction, gloss: nil, company: company, currency: currency, cycle: cycle,
+        build(:accounting_transaction, gloss: nil, company: company, currency: currency, period: period,
                                        transaction_type: transaction_type)
       end
 
@@ -82,7 +83,7 @@ RSpec.describe AccountingTransaction, type: :model do
 
     context 'with nil or empty value' do
       let(:accounting_transaction) do
-        build(:accounting_transaction, status: nil, company: company, currency: currency, cycle: cycle,
+        build(:accounting_transaction, status: nil, company: company, currency: currency, period: period,
                                        transaction_type: transaction_type)
       end
 
