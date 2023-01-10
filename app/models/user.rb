@@ -11,6 +11,7 @@ class User < ApplicationRecord
   after_initialize :set_default_role, if: :new_record?
 
   belongs_to :company, optional: true
+  has_and_belongs_to_many :page_options
 
   scope :by_company, ->(id) { where(company_id: id) }
 
