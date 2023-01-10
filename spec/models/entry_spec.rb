@@ -9,7 +9,8 @@ RSpec.describe Entry, type: :model do
   end
   let(:company) { create(:company) }
   let(:cycle) { create(:cycle, company: company) }
-  let(:accounting_transaction) { build(:accounting_transaction, company: company, cycle: cycle) }
+  let(:period) { create(:period, cycle: cycle) }
+  let(:accounting_transaction) { build(:accounting_transaction, company: company, period: period) }
   let(:account) { create(:account, company: company, cycle: cycle) }
 
   subject { build(:entry, accounting_transaction: accounting_transaction, account: account) }

@@ -13,6 +13,8 @@ Rails.application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
 
+  config.secret_key_base = '3b90a8ce7841125891cafe9598c46704cd28ad71b2a3d339bc7619da21914126b0c51d1035261ee224b17ea7de50f0eb395688212dc4c8e7f29845fcca5ba262'
+
   # config.action_mailer.delivery_method = :letter_opener
   config.action_mailer.perform_deliveries = true
 
