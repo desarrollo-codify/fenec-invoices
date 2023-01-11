@@ -19,7 +19,7 @@ module Api
       end
 
       def generate
-        verify_data(request)
+        # verify_data(request)
         data = request.body.read
 
         json_data = JSON.parse data
@@ -30,7 +30,9 @@ module Api
           order = company.orders.build(order_id: json_data['id'], date: DateTime.now, location_id: json_data['location_id'],
                                        number: json_data['order_number'])
           json_data['line_items'].each do |item|
-            order.order_details.build(product_id: item['product_id'], title: item['title'], sku: item['sku'],
+            order.order_details.build(product_id: item['product_id'],
+                                      title: item['title'],
+                                      sku: item['sku'],
                                       total: (item['price'].to_d * 6.96).round(2),
                                       discount: item['total_discount'].present? ? (item['total_discount'].to_d * 6.96).round(2) : 0,
                                       quantity: item['quantity'])
@@ -44,6 +46,8 @@ module Api
           phone = json_data['customer'] ? json_data['customer']['phone'] : ''
           order.build_order_customer(name: full_name, email: email, phone: phone, customer_id: customer_id)
           order.save!
+
+          verify_products(order)
         end
 
         render status: :ok
@@ -77,6 +81,21 @@ module Api
         puts hmac_header
         calculated_hmac = Base64.strict_encode64(OpenSSL::HMAC.digest('sha256', SHARED_SECRET, data))
         ActiveSupport::SecurityUtils.secure_compare(calculated_hmac, hmac_header)
+      end
+
+      def verify_products(order)
+        company = Company.first
+        order.order_details.each do |detail|
+          product = company.products.find_or_create_by(primary_code: detail.sku) do |p|
+            p.title = detail.title
+            p.description = detail.title
+            p.primary_code = detail.sku
+            p.price = detail.total
+            # TODO: refactor this
+            p.sin_code = company.products.where.not(sin_code: nil).first.sin_code
+          end
+          product.variants.create!(sku: product.primary_code, price: product.price, compare_price: product.price, cost: 0, title: product.title) if product.persisted?
+        end
       end
     end
   end
