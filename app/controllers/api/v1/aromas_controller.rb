@@ -37,6 +37,7 @@ module Api
             total_order += (item['price'].to_d - item['total_discount'].to_d)
           end
           order.total = total_order
+          order.total_discount = json_data['total_discounts'].to_d
           full_name = json_data['customer'] ? "#{json_data['customer']['first_name']} #{json_data['customer']['last_name']}" : 'No Customer'
           customer_id = json_data['customer'] ? json_data['customer']['id'] : 0
           email = json_data['customer'] ? json_data['customer']['email'] : ''
