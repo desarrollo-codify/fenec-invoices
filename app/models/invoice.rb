@@ -82,7 +82,7 @@ class Invoice < ApplicationRecord
   end
 
   def total_paid_must_be_equal_to_total
-    sum_payment = payments.inject(0) { |total, payment| total + payment.mount }
+    sum_payment = payments.inject(0) { |total, payment| total + payment.mount.round(2) }
 
     errors.add(:total, 'El total pagado no concuerda con el total a pagar.') unless sum_payment + gift_card_total == total
   end
