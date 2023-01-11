@@ -38,7 +38,7 @@ class GenerateXmlJob < ApplicationJob
           # card number
           xml.numeroTarjeta('xsi:nil' => true) unless invoice.card_number
           xml.numeroTarjeta invoice.card_number if invoice.card_number
-          xml.montoTotal invoice.total
+          xml.montoTotal invoice.total.round(2)
 
           # montoTotalSujetoIva
           xml.montoTotalSujetoIva invoice.total unless invoice.gift_card_total
@@ -46,9 +46,9 @@ class GenerateXmlJob < ApplicationJob
 
           xml.codigoMoneda invoice.currency_code
           xml.tipoCambio invoice.exchange_rate
-          xml.montoTotalMoneda invoice.currency_total
-          xml.montoGiftCard invoice.gift_card_total
-          xml.descuentoAdicional invoice.discount
+          xml.montoTotalMoneda invoice.currency_total.round(2)
+          xml.montoGiftCard invoice.gift_card_total.round(2)
+          xml.descuentoAdicional invoice.discount.round(2)
 
           # exception code
           xml.codigoExcepcion('xsi:nil' => true) unless invoice.exception_code
@@ -73,9 +73,9 @@ class GenerateXmlJob < ApplicationJob
             xml.descripcion detail.description
             xml.cantidad detail.quantity
             xml.unidadMedida detail.measurement_id
-            xml.precioUnitario detail.unit_price
-            xml.montoDescuento detail.discount
-            xml.subTotal detail.total
+            xml.precioUnitario detail.unit_price.round(2)
+            xml.montoDescuento detail.discount.round(2)
+            xml.subTotal detail.total.round(2)
 
             # card number
             xml.numeroSerie('xsi:nil' => true) unless detail.serial_number
