@@ -58,6 +58,38 @@ module Api
         @user.destroy
       end
 
+      def add_privileges
+        options = PageOption.where(id: params[:option_ids])
+        @user.page_options << options
+
+        render json: @user.page_options
+      end
+
+      def settings
+        user_page_options = @user.page_options.includes(page: :system_module)
+        system_modules = {}
+        user_page_options.each do |page_option|
+          page = page_option.page
+          system_module = page.system_module
+          system_modules[system_module.id] ||= {
+            id: system_module.id,
+            description: system_module.description,
+            pages: {}
+          }
+          system_modules[system_module.id][:pages][page.id] ||= {
+            id: page.id,
+            description: page.description,
+            page_options: []
+          }
+          system_modules[system_module.id][:pages][page.id][:page_options] << {
+            id: page_option.id,
+            code: page_option.code,
+            description: page_option.description
+          }
+        end
+        render json: system_modules.values
+      end
+
       private
 
       def set_user

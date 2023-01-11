@@ -26,6 +26,8 @@ Rails.application.routes.draw do
       resources :users, shallow: true do
         post :default_password, on: :member
         put :reset_password, on: :member
+        post :add_privileges, on: :member
+        get :settings, on: :member
       end
       resources :companies do
         resources :accounting_transactions, shallow: true do
